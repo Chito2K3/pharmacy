@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PharmaDash — Pharmacy Inventory Dashboard</title>
+  <meta name="description" content="Real-time pharmacy inventory management dashboard with reordering, consumption tracking, and role-based access." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* ===== CSS RESET & TOKENS ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-deep:    #0b0f1a;
+      --bg-card:    #111827;
+      --bg-card2:   #1a2235;
+      --border:     rgba(255,255,255,0.07);
+      --border-lit: rgba(255,255,255,0.14);
+      --text-main:  #e8edf5;
+      --text-muted: #7a8599;
+      --text-faint: #4a5568;
+      --accent:     #06b6d4;
+      --accent-glow:rgba(6,182,212,0.22);
+      --accent2:    #8b5cf6;
+      --success:    #10b981;
+      --warning:    #f59e0b;
+      --danger:     #ef4444;
+      --info:       #3b82f6;
+      --sidebar-w:  260px;
+      --radius:     14px;
+      --radius-sm:  8px;
+      --shadow:     0 4px 24px rgba(0,0,0,0.45);
+    }
+
+    html { font-family: 'Inter', system-ui, sans-serif; font-size: 14px; }
+    body { background: var(--bg-deep); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; border: none; }
+    input, select { font-family: inherit; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-lit); border-radius: 9px; }
+
+    /* ===== UTILITIES ===== */
+    .hidden { display: none !important; }
+    .flex  { display: flex; }
+    .flex-col { display: flex; flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+    .text-sm { font-size: 12px; }
+    .text-xs { font-size: 11px; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .text-muted { color: var(--text-muted); }
+    .text-accent { color: var(--accent); }
+    .text-success { color: var(--success); }
+    .text-warning { color: var(--warning); }
+    .text-danger  { color: var(--danger); }
+
+    /* ===== BADGE ===== */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .badge-success { background: rgba(16,185,129,.15); color: var(--success); }
+    .badge-warning { background: rgba(245,158,11,.15); color: var(--warning); }
+    .badge-danger  { background: rgba(239,68,68,.15);  color: var(--danger);  }
+    .badge-info    { background: rgba(59,130,246,.15); color: var(--info);    }
+    .badge-muted   { background: rgba(122,133,153,.15); color: var(--text-muted); }
+    .badge-accent  { background: var(--accent-glow); color: var(--accent); }
+
+    /* ===== LOGIN PAGE ===== */
+    #login-page {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(6,182,212,.18) 0%, transparent 70%),
+                  var(--bg-deep);
+    }
+    .login-card {
+      width: 420px; max-width: 95vw;
+      background: var(--bg-card);
+      border: 1px solid var(--border-lit);
+      border-radius: 20px;
+      padding: 48px 40px 40px;
+      box-shadow: var(--shadow), 0 0 60px rgba(6,182,212,.07);
+      text-align: center;
+    }
+    .login-logo {
+      width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 20px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+      box-shadow: 0 8px 24px rgba(6,182,212,.35);
+    }
+    .login-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .login-sub   { color: var(--text-muted); font-size: 13px; margin-bottom: 32px; }
+    .form-group  { margin-bottom: 16px; text-align: left; }
+    .form-label  { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
+    .form-input  {
+      width: 100%; padding: 11px 14px; border-radius: var(--radius-sm);
+      background: var(--bg-deep); border: 1px solid var(--border-lit);
+      color: var(--text-main); font-size: 14px; transition: border .2s, box-shadow .2s;
+    }
+    .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .btn-login {
+      width: 100%; padding: 13px; border-radius: var(--radius-sm); margin-top: 8px;
+      background: linear-gradient(135deg, var(--accent), #0891b2);
+      color: #fff; font-size: 14px; font-weight: 700; letter-spacing: .03em;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 18px rgba(6,182,212,.4);
+    }
+    .btn-login:hover { opacity: .9; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(6,182,212,.5); }
+    .btn-login:active { transform: translateY(0); }
+    .login-error { color: var(--danger); font-size: 12px; margin-top: 8px; min-height: 16px; }
+    .login-demo  { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .login-demo p { font-size: 11px; color: var(--text-faint); margin-bottom: 10px; }
+    .demo-btns   { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .demo-btn {
+      padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      border: 1px solid var(--border-lit); background: transparent; color: var(--text-muted);
+      transition: all .2s;
+    }
+    .demo-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+    /* ===== APP SHELL ===== */
+    #app { display: none; min-height: 100vh; }
+    .app-layout { display: flex; min-height: 100vh; }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: var(--sidebar-w); flex-shrink: 0;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh;
+      z-index: 100; transition: transform .3s;
+    }
+    .sidebar-header {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sidebar-logo {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .sidebar-brand { font-size: 16px; font-weight: 800; line-height: 1.1; }
+    .sidebar-brand span { display: block; font-size: 10px; font-weight: 500; color: var(--text-muted); margin-top: 1px; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 700; color: var(--text-faint); letter-spacing: .1em;
+      text-transform: uppercase; padding: 12px 8px 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: var(--radius-sm);
+      color: var(--text-muted); font-size: 13px; font-weight: 500;
+      transition: all .18s; margin-bottom: 2px; cursor: pointer;
+    }
+    .nav-item:hover { background: var(--bg-card2); color: var(--text-main); }
+    .nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
+    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-item .nav-badge {
+      margin-left: auto; background: var(--danger);
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center;
+    }
+    .sidebar-footer {
+      padding: 16px; border-top: 1px solid var(--border);
+    }
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: var(--radius-sm);
+      background: var(--bg-card2);
+    }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px; color: #fff;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name  { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role  { font-size: 10px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .btn-logout {
+      background: none; color: var(--text-faint); font-size: 15px; padding: 4px;
+      transition: color .2s; margin-top: 8px; width: 100%; text-align: right;
+    }
+    .btn-logout:hover { color: var(--danger); }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(11,15,26,0.85); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+    }
+    .topbar-title { font-size: 16px; font-weight: 700; flex: 1; }
+    .topbar-date  { font-size: 12px; color: var(--text-muted); }
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card); border: 1px solid var(--border-lit);
+      border-radius: var(--radius-sm); padding: 7px 12px; width: 240px;
+      transition: border .2s, box-shadow .2s;
+    }
+    .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .search-box input { background: none; border: none; color: var(--text-main); font-size: 13px; width: 100%; }
+    .search-box input::placeholder { color: var(--text-faint); }
+    .search-box input:focus { outline: none; }
+    .content-area { flex: 1; padding: 28px; }
+
+    /* ===== SECTION ===== */
+    .section { display: none; animation: fadeSlide .35s ease; }
+    .section.active { display: block; }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .section-header { margin-bottom: 24px; }
+    .section-header h2 { font-size: 20px; font-weight: 800; }
+    .section-header p  { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+    /* ===== KPI CARDS ===== */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      transition: border .2s, box-shadow .2s; position: relative; overflow: hidden;
+    }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--kpi-color, var(--accent));
+    }
+    .kpi-card:hover { border-color: var(--border-lit); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+    .kpi-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; margin-bottom: 14px;
+      background: color-mix(in srgb, var(--kpi-color, var(--accent)) 15%, transparent);
+    }
+    .kpi-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+    .kpi-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .kpi-delta { font-size: 11px; margin-top: 8px; display: flex; align-items: center; gap: 4px; }
+
+    /* ===== CHARTS ===== */
+    .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .chart-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+    }
+    .chart-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 16px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+    .chart-wrap { position: relative; }
+
+    /* ===== DATA TABLE ===== */
+    .table-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .table-toolbar {
+      display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+      border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .table-toolbar .toolbar-title { font-weight: 700; font-size: 14px; flex: 1; }
+    .filter-select {
+      background: var(--bg-deep); border: 1px solid var(--border-lit);
+      color: var(--text-main); border-radius: var(--radius-sm); padding: 7px 10px;
+      font-size: 12px; cursor: pointer;
+    }
+    .filter-select:focus { outline: none; border-color: var(--accent); }
+    .btn-export {
+      padding: 7px 14px; border-radius: var(--radius-sm);
+      background: var(--accent-glow); color: var(--accent); font-size: 12px; font-weight: 600;
+      border: 1px solid rgba(6,182,212,.3); transition: all .2s;
+    }
+    .btn-export:hover { background: var(--accent); color: #fff; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table thead th {
+      background: var(--bg-card2); padding: 10px 16px; text-align: left;
+      font-size: 11px; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .data-table thead th.sortable { cursor: pointer; user-select: none; }
+    .data-table thead th.sortable:hover { color: var(--accent); }
+    .data-table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    .data-table tbody tr:hover { background: rgba(255,255,255,.025); }
+    .data-table tbody tr:last-child { border-bottom: none; }
+    .data-table tbody td { padding: 11px 16px; font-size: 13px; vertical-align: middle; }
+    .data-table tbody td.code { font-family: 'Courier New', monospace; font-size: 11px; color: var(--accent); }
+    .item-desc { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    .num-cell { text-align: right; font-variant-numeric: tabular-nums; }
+    .progress-bar-wrap { background: rgba(255,255,255,.08); border-radius: 4px; height: 5px; min-width: 80px; }
+    .progress-bar { height: 5px; border-radius: 4px; background: var(--accent); transition: width .4s; }
+    .progress-bar.warn { background: var(--warning); }
+    .progress-bar.crit { background: var(--danger); }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-muted); flex-wrap: wrap; gap: 8px;
+    }
+    .page-btns { display: flex; gap: 4px; }
+    .page-btn {
+      width: 30px; height: 30px; border-radius: var(--radius-sm);
+      background: none; color: var(--text-muted);
+      border: 1px solid var(--border-lit); font-size: 12px;
+      transition: all .15s; display: flex; align-items: center; justify-content: center;
+    }
+    .page-btn:hover, .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ===== REORDER TABLE ===== */
+    .reorder-priority {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .priority-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .priority-dot.critical { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+    .priority-dot.warning  { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+    .priority-dot.ok       { background: var(--success); }
+
+    /* ===== STATS SECTION ===== */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .stat-block {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+    }
+    .stat-block h4 { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .label { font-size: 12px; color: var(--text-muted); }
+    .stat-row .val   { font-size: 13px; font-weight: 600; }
+
+    /* ===== ALERT BANNER ===== */
+    .alert-banner {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25);
+      border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .alert-banner .alert-icon { font-size: 18px; flex-shrink: 0; }
+    .alert-banner.warn { background: rgba(245,158,11,.1); border-color: rgba(245,158,11,.25); }
+
+    /* ===== SETUP GUIDE ===== */
+    .setup-steps { display: flex; flex-direction: column; gap: 16px; }
+    .step-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; display: flex; gap: 16px;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: var(--accent-glow); color: var(--accent); font-weight: 800;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .step-body h4 { font-weight: 700; margin-bottom: 4px; }
+    .step-body p  { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+    .step-body code {
+      display: block; background: var(--bg-deep); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 10px;
+      font-size: 11px; color: var(--accent); font-family: 'Courier New', monospace;
+      white-space: pre-wrap; word-break: break-all;
+    }
+    .config-row { display: flex; gap: 8px; margin-top: 12px; }
+    .config-input { flex: 1; }
+    .btn-save {
+      padding: 9px 18px; border-radius: var(--radius-sm);
+      background: var(--accent); color: #fff; font-size: 13px; font-weight: 700;
+      transition: opacity .2s;
+    }
+    .btn-save:hover { opacity: .85; }
+
+    /* ===== LOADING SPINNER ===== */
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border-lit); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== TOAST ===== */
+    #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg-card2); border: 1px solid var(--border-lit);
+      border-radius: var(--radius-sm); padding: 12px 16px; min-width: 260px;
+      box-shadow: var(--shadow); animation: slideUp .25s ease;
+      font-size: 13px;
+    }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .toast.success { border-left: 3px solid var(--success); }
+    .toast.error   { border-left: 3px solid var(--danger); }
+    .toast.info    { border-left: 3px solid var(--info); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .content-area { padding: 16px; }
+      .topbar { padding: 12px 16px; }
+    }
+
+    /* ===== MISC ===== */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 13px; }
+    .last-updated { font-size: 11px; color: var(--text-faint); }
+  </style>
+</head>
+<body>
+
+<!-- ========================= LOGIN PAGE ========================= -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-logo">💊</div>
+    <div class="login-title">PharmaDash</div>
+    <div class="login-sub">Pharmacy Inventory Management System</div>
+    <div class="form-group">
+      <label class="form-label" for="login-email">Email Address</label>
+      <input class="form-input" type="email" id="login-email" placeholder="you@hospital.gov.ph" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="login-pass">Password</label>
+      <input class="form-input" type="password" id="login-pass" placeholder="••••••••" />
+    </div>
+    <button class="btn-login" id="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-demo">
+      <p>Demo Access — Click to auto-fill credentials</p>
+      <div class="demo-btns">
+        <button class="demo-btn" onclick="fillDemo('admin@pharma.gov.ph','admin123','Admin')">👑 Admin</button>
+        <button class="demo-btn" onclick="fillDemo('dispensing@pharma.gov.ph','disp123','Dispensing')">💊 Dispensing</button>
+        <button class="demo-btn" onclick="fillDemo('storage@pharma.gov.ph','stor123','Storage')">🏭 Storage</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= APP SHELL ========================= -->
+<div id="app">
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">💊</div>
+        <div class="sidebar-brand">PharmaDash<span>Inventory Management</span></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Main</div>
+        <div class="nav-item active" data-section="dashboard" onclick="showSection('dashboard',this)">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-item" data-section="inventory" onclick="showSection('inventory',this)">
+          <span class="nav-icon">📦</span> Inventory
+        </div>
+        <div class="nav-item" data-section="reorder" onclick="showSection('reorder',this)" id="nav-reorder">
+          <span class="nav-icon">🔄</span> Reordering
+          <span class="nav-badge" id="reorder-badge">0</span>
+        </div>
+        <div class="nav-item admin-only" data-section="analytics" onclick="showSection('analytics',this)">
+          <span class="nav-icon">📈</span> Analytics
+        </div>
+        <div class="nav-section-label">System</div>
+        <div class="nav-item admin-only" data-section="setup" onclick="showSection('setup',this)">
+          <span class="nav-icon">⚙️</span> Setup & Config
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-card">
+          <div class="user-avatar" id="user-avatar">A</div>
+          <div class="user-info">
+            <div class="user-name" id="user-name">—</div>
+            <div class="user-role" id="user-role-display">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()" title="Logout">⎋ Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="search-box" id="global-search-box">
+          <span>🔍</span>
+          <input type="text" id="global-search" placeholder="Search items…" oninput="globalSearch(this.value)" />
+        </div>
+        <div class="topbar-date" id="topbar-date"></div>
+      </div>
+
+      <div class="content-area">
+
+        <!-- ===== DASHBOARD SECTION ===== -->
+        <div class="section active" id="sec-dashboard">
+          <div class="section-header">
+            <h2>Overview</h2>
+            <p id="dash-subtitle">Pharmacy Inventory at a Glance</p>
+          </div>
+
+          <div id="kpi-alert" class="alert-banner hidden">
+            <span class="alert-icon">🚨</span>
+            <div><strong id="kpi-alert-count">0</strong> items are critically low on stock — immediate reordering required.</div>
+          </div>
+
+          <div class="kpi-grid" id="kpi-grid">
+            <div class="kpi-card" style="--kpi-color:var(--accent)">
+              <div class="kpi-icon">📦</div>
+              <div class="kpi-value" id="kpi-total-items">—</div>
+              <div class="kpi-label">Total Active Items</div>
+            </div>
+            <div class="kpi-card" style="--kpi-color:var(--danger)">
+              <div class="kpi-icon">🚨</div>
+              <div class="kpi-value" id="kpi-critical">—</div>
+              <div class="kpi-label">Critical Stock (≤ 7 days)</div>
+            </div>
+            <div class="kpi-card" style="--kpi-color:var(--warning)">
+              <div class="kpi-icon">⚠️</div>
+              <div class="kpi-value" id="kpi-warning">—</div>
+              <div class="kpi-label">Low Stock (≤ 30 days)</div>
+            </div>
+            <div class="kpi-card" style="--kpi-color:var(--success)">
+              <div class="kpi-icon">✅</div>
+              <div class="kpi-value" id="kpi-ok">—</div>
+              <div class="kpi-label">Adequate Stock (> 30 days)</div>
+            </div>
+            <div class="kpi-card" style="--kpi-color:var(--info)">
+              <div class="kpi-icon">📋</div>
+              <div class="kpi-value" id="kpi-pending">—</div>
+              <div class="kpi-label">Pending PO / CO Orders</div>
+            </div>
+            <div class="kpi-card" style="--kpi-color:var(--accent2)">
+              <div class="kpi-icon">🏷️</div>
+              <div class="kpi-value" id="kpi-categories">—</div>
+              <div class="kpi-label">Pharmacologic Categories</div>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3>Stock Level Distribution by Category</h3>
+              <div class="chart-wrap" style="height:260px">
+                <canvas id="chart-category"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Stock Status Breakdown</h3>
+              <div class="chart-wrap" style="height:260px">
+                <canvas id="chart-status"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-toolbar">
+              <div class="toolbar-title">⚠️ Urgent Items — Needs Immediate Attention</div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table" id="urgent-table">
+                <thead>
+                  <tr>
+                    <th>Item Code</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th class="num-cell">Stock Days</th>
+                    <th>Status</th>
+                    <th class="num-cell">Reorder Qty</th>
+                  </tr>
+                </thead>
+                <tbody id="urgent-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== INVENTORY SECTION ===== -->
+        <div class="section" id="sec-inventory">
+          <div class="section-header">
+            <h2>Inventory Masterlist</h2>
+            <p>Complete list of all pharmacy items — searchable and filterable</p>
+          </div>
+          <div class="table-card">
+            <div class="table-toolbar">
+              <div class="toolbar-title">All Items</div>
+              <select class="filter-select" id="filter-category" onchange="filterInventory()">
+                <option value="">All Categories</option>
+              </select>
+              <select class="filter-select" id="filter-pharmacy-cat" onchange="filterInventory()">
+                <option value="">All Types</option>
+                <option value="Medicine Regular">Medicine Regular</option>
+                <option value="Medicine Consigment">Consignment</option>
+                <option value="Medicine Emergency Purchase">Emergency Purchase</option>
+                <option value="Donation">Donation</option>
+                <option value="Inactive Medicines">Inactive</option>
+              </select>
+              <select class="filter-select" id="filter-status" onchange="filterInventory()">
+                <option value="">All Stock Status</option>
+                <option value="critical">Critical (≤ 7d)</option>
+                <option value="warning">Low (≤ 30d)</option>
+                <option value="ok">Adequate (&gt; 30d)</option>
+              </select>
+              <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table" id="inv-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th class="sortable" onclick="sortTable('item_code')">Item Code ↕</th>
+                    <th>Description</th>
+                    <th class="sortable" onclick="sortTable('pharmacologic_category')">Category ↕</th>
+                    <th>Type</th>
+                    <th>UoM</th>
+                    <th class="num-cell sortable" onclick="sortTable('avg_monthly_consumption')">Avg Monthly ↕</th>
+                    <th class="num-cell sortable" onclick="sortTable('total_inventory_qty')">Total Stock ↕</th>
+                    <th class="num-cell sortable" onclick="sortTable('inventory_level_days')">Stock Days ↕</th>
+                    <th class="num-cell">Pending PO</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="inv-tbody"></tbody>
+              </table>
+            </div>
+            <div class="pagination" id="inv-pagination">
+              <div id="inv-page-info">—</div>
+              <div class="page-btns" id="inv-page-btns"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== REORDER SECTION ===== -->
+        <div class="section" id="sec-reorder">
+          <div class="section-header">
+            <h2>Reordering Dashboard</h2>
+            <p>Items requiring replenishment based on: <code style="background:var(--bg-card2);padding:2px 6px;border-radius:4px;font-size:12px;">(Avg Monthly × 3 months) + Safety Stock − Stock on Hand</code></p>
+          </div>
+          <div class="alert-banner warn">
+            <span class="alert-icon">📋</span>
+            <div>This list is based on the 6-month safety stock formula from the <strong>New Inventory Utilization 2025</strong> sheet. Items with a calculated reorder quantity &gt; 0 are shown.</div>
+          </div>
+          <div class="table-card">
+            <div class="table-toolbar">
+              <div class="toolbar-title">Items Needing Replenishment</div>
+              <select class="filter-select" id="reorder-filter-status" onchange="filterReorder()">
+                <option value="">All Priority</option>
+                <option value="critical">Critical Only</option>
+                <option value="warning">Low Stock Only</option>
+              </select>
+              <button class="btn-export" onclick="exportReorderCSV()">⬇ Export CSV</button>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="data-table" id="reorder-table">
+                <thead>
+                  <tr>
+                    <th>Priority</th>
+                    <th>Item Code</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th class="num-cell">Stock Days</th>
+                    <th class="num-cell">Avg Monthly</th>
+                    <th class="num-cell">Reorder Qty (6mo SS)</th>
+                    <th class="num-cell">Pending PO</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="reorder-tbody"></tbody>
+              </table>
+            </div>
+            <div class="pagination" id="reorder-pagination">
+              <div id="reorder-page-info">—</div>
+              <div class="page-btns" id="reorder-page-btns"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== ANALYTICS SECTION ===== -->
+        <div class="section admin-only" id="sec-analytics">
+          <div class="section-header">
+            <h2>Analytics</h2>
+            <p>Consumption trends and inventory health across all locations</p>
+          </div>
+          <div class="stats-grid" id="analytics-stats"></div>
+          <div class="divider"></div>
+          <div class="charts-grid">
+            <div class="chart-card">
+              <h3>Top 10 Items by Avg Monthly Consumption</h3>
+              <div class="chart-wrap" style="height:280px">
+                <canvas id="chart-top10"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Inventory by Location</h3>
+              <div class="chart-wrap" style="height:280px">
+                <canvas id="chart-location"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SETUP SECTION ===== -->
+        <div class="section admin-only" id="sec-setup">
+          <div class="section-header">
+            <h2>Setup & Configuration</h2>
+            <p>Connect to Google Sheets backend and configure the system</p>
+          </div>
+          <div class="setup-steps">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h4>Create a Google Sheet</h4>
+                <p>Go to <strong>sheets.google.com</strong> → create a new sheet. Rename tabs to: <strong>Items</strong>, <strong>Reorders</strong>, <strong>Users</strong>. Then import your extracted <code>items.json</code> and <code>reorders.json</code> files using the import tool or a script.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h4>Deploy Google Apps Script API</h4>
+                <p>In your Google Sheet → Extensions → Apps Script. Paste the backend code below, click <strong>Deploy → New Deployment → Web App</strong>. Set access to "Anyone".</p>
+                <code>// Google Apps Script backend (paste this in Apps Script editor)
+function doGet(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  const action = e.parameter.action;
+  if (action === 'getItems') return getItems(sheet);
+  if (action === 'getReorders') return getReorders(sheet);
+  if (action === 'getUser') return getUser(sheet, e.parameter.email);
+  return ContentService.createTextOutput(JSON.stringify({error:'Unknown action'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getItems(ss) {
+  const data = ss.getSheetByName('Items').getDataRange().getValues();
+  const headers = data[0];
+  const rows = data.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = row[i]);
+    return obj;
+  });
+  return ContentService.createTextOutput(JSON.stringify(rows))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+// Add getReorders, getUser functions similarly...</code>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <h4>Paste Your Apps Script URL</h4>
+                <p>After deployment, copy the Web App URL and paste it here. The dashboard will fetch live data from your Google Sheet.</p>
+                <div class="config-row">
+                  <input class="form-input config-input" type="url" id="apps-script-url" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" />
+                  <button class="btn-save" onclick="saveConfig()">Save</button>
+                </div>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <h4>Deploy This Dashboard Free on Netlify</h4>
+                <p>Save this HTML file → go to <strong>netlify.com</strong> → drag the file into the deploy zone. Your dashboard will be live at a free <code>*.netlify.app</code> URL in seconds. No server, no cost, no credit card needed.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <h4>Manage Users</h4>
+                <p>Add user emails and roles to the <strong>Users</strong> sheet in Google Sheets. The system checks this on login. Roles: <code>Admin</code>, <code>Dispensing</code>, <code>Storage</code>.</p>
+                <code>Users sheet columns:
+email          | role        | name          | active
+admin@h.gov.ph | Admin       | Dr. Cruz      | TRUE
+disp@h.gov.ph  | Dispensing  | Pharmacist A  | TRUE
+stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content-area -->
+    </div><!-- /main-content -->
+  </div><!-- /app-layout -->
+</div><!-- /app -->
+
+<div id="toast-container"></div>
+
+<script>
+// ================================================================
+//  CONFIG — paste your Google Apps Script URL here
+// ================================================================
+let APPS_SCRIPT_URL = localStorage.getItem('pharma_api_url') || '';
+
+// ================================================================
+//  USER STORE (demo mode — replace with Apps Script auth in prod)
+// ================================================================
+const DEMO_USERS = {
+  'admin@pharma.gov.ph':      { pass: 'admin123', role: 'Admin',      name: 'Admin User' },
+  'dispensing@pharma.gov.ph': { pass: 'disp123',  role: 'Dispensing', name: 'Dispensing Staff' },
+  'storage@pharma.gov.ph':    { pass: 'stor123',  role: 'Storage',    name: 'Storage Staff' },
+};
+
+let currentUser = null;
+let allItems    = [];
+let allReorders = [];
+
+// Pagination state
+let invPage    = 1; const INV_PAGE_SIZE    = 50;
+let reordPage  = 1; const REORDER_PAGE_SIZE = 50;
+let invFiltered    = [];
+let reordFiltered  = [];
+let invSortKey     = '';
+let invSortDir     = 1;
+
+// ================================================================
+//  BOOT
+// ================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-PH', { weekday:'short', year:'numeric', month:'long', day:'numeric' });
+  // Check saved session
+  const saved = sessionStorage.getItem('pharma_user');
+  if (saved) { currentUser = JSON.parse(saved); bootApp(); }
+});
+
+// ================================================================
+//  AUTH
+// ================================================================
+function fillDemo(email, pass, role) {
+  document.getElementById('login-email').value = email;
+  document.getElementById('login-pass').value  = pass;
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+
+  // If Apps Script URL is set, we'd validate against the Users sheet.
+  // For now, demo mode checks local store.
+  const user = DEMO_USERS[email];
+  if (!user || user.pass !== pass) {
+    errEl.textContent = '✗ Invalid email or password. Use the demo buttons below.';
+    return;
+  }
+  currentUser = { email, role: user.role, name: user.name };
+  sessionStorage.setItem('pharma_user', JSON.stringify(currentUser));
+  bootApp();
+}
+
+function doLogout() {
+  sessionStorage.removeItem('pharma_user');
+  currentUser = null;
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pass').value  = '';
+}
+
+function bootApp() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('user-name').textContent = currentUser.name;
+  document.getElementById('user-role-display').textContent = currentUser.role;
+  document.getElementById('user-avatar').textContent = currentUser.name[0].toUpperCase();
+
+  applyRoleVisibility();
+  loadData();
+}
+
+function applyRoleVisibility() {
+  const isAdmin = currentUser.role === 'Admin';
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  // Dispensing: hide storage/warehouse cols; Storage: hide dispensing cols
+  // (simplified — full role gating done in render functions)
+}
+
+// ================================================================
+//  DATA LOADING
+// ================================================================
+async function loadData() {
+  showToast('Loading inventory data…', 'info');
+
+  if (APPS_SCRIPT_URL) {
+    try {
+      const [itemsRes, reordRes] = await Promise.all([
+        fetch(`${APPS_SCRIPT_URL}?action=getItems`),
+        fetch(`${APPS_SCRIPT_URL}?action=getReorders`),
+      ]);
+      allItems    = await itemsRes.json();
+      allReorders = await reordRes.json();
+
+      if (allItems && allItems.error) {
+        throw new Error(allItems.error);
+      }
+      if (allReorders && allReorders.error) {
+        throw new Error(allReorders.error);
+      }
+      if (!Array.isArray(allItems) || !Array.isArray(allReorders)) {
+        throw new Error('API response is not in array format');
+      }
+
+      showToast('Live data loaded from Google Sheets ✓', 'success');
+    } catch(e) {
+      showToast('API Error: ' + e.message, 'error');
+      loadSampleData();
+    }
+  } else {
+    loadSampleData();
+  }
+
+  buildDashboard();
+  buildInventory();
+  buildReorder();
+  buildAnalytics();
+  buildCategoryFilter();
+}
+
+function loadSampleData() {
+  // ---- Embedded sample from actual extracted data ----
+  allItems = [
+    { no:'1', item_code:'DMR1040406000-0003', dci_code:'DMR000001', description:'0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'0.9% Sodium Chloride 1L Bottle/Bag', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle/bag', unit_cost:'0', avg_monthly_consumption:'7377', avg_monthly_normalized_demand:'9426.33', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', pending_po_co_qty:'30000', ending_inventory_qty:'30000', ending_inventory_level_days:'95.5', epa_cy2026_balance:'82000', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'57', storage_replenishment_30d:'0', dispensing_replenishment_7d:'2199.48' },
+    { no:'6', item_code:'DMR1040406000-0591', dci_code:'DMR000002', description:'0.9% SODIUM CHLORIDE 500ML GLASS BOTTLE (IV INFUSION) (PNSS 500ML)', generic_name:'0.9% Sodium Chloride 500ml', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'0', avg_monthly_consumption:'1360.67', avg_monthly_normalized_demand:'2232.67', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'224', storage_replenishment_30d:'0', dispensing_replenishment_7d:'520.96' },
+    { no:'15', item_code:'DMR1040406000-0527', dci_code:'DMR000003', description:'0.9% SODIUM CHLORIDE 50ML BOTTLE/BAG (IV INFUSION) (PNSS 50ML)', generic_name:'0.9% Sodium Chloride 50ml', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle/bag', unit_cost:'0', avg_monthly_consumption:'10.67', avg_monthly_normalized_demand:'990.33', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'342', storage_replenishment_30d:'0', dispensing_replenishment_7d:'231.08' },
+    { no:'20', item_code:'DMR2020304000-0011', dci_code:'DMR000050', description:'AMOXICILLIN 500MG CAPSULE', generic_name:'Amoxicillin 500mg capsule', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANTI-INFECTIVES', unit_of_measure:'Capsule', unit_cost:'3.50', avg_monthly_consumption:'4200', avg_monthly_normalized_demand:'4350', total_inventory_qty:'18000', inventory_value_php:'63000', inventory_level_days:'124.1', pending_po_co_qty:'5000', ending_inventory_qty:'23000', ending_inventory_level_days:'158.6', epa_cy2026_balance:'0', dispensing_inventory_qty:'6000', storage_inventory_qty:'12000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'12', storage_replenishment_30d:'4200', dispensing_replenishment_7d:'980' },
+    { no:'21', item_code:'DMR2020304000-0022', dci_code:'DMR000051', description:'AMOXICILLIN 250MG/5ML SYRUP 60ML', generic_name:'Amoxicillin 250mg/5ml syrup', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANTI-INFECTIVES', unit_of_measure:'Bottle', unit_cost:'28.50', avg_monthly_consumption:'850', avg_monthly_normalized_demand:'900', total_inventory_qty:'1200', inventory_value_php:'34200', inventory_level_days:'40.0', pending_po_co_qty:'0', ending_inventory_qty:'1200', ending_inventory_level_days:'40.0', epa_cy2026_balance:'0', dispensing_inventory_qty:'400', storage_inventory_qty:'800', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'45', storage_replenishment_30d:'850', dispensing_replenishment_7d:'198' },
+    { no:'35', item_code:'DMR3030100000-0044', dci_code:'DMR000120', description:'PARACETAMOL 500MG TABLET', generic_name:'Paracetamol 500mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANALGESICS & ANTIPYRETICS', unit_of_measure:'Tablet', unit_cost:'1.20', avg_monthly_consumption:'15000', avg_monthly_normalized_demand:'15500', total_inventory_qty:'12000', inventory_value_php:'14400', inventory_level_days:'23.2', pending_po_co_qty:'20000', ending_inventory_qty:'32000', ending_inventory_level_days:'61.9', epa_cy2026_balance:'0', dispensing_inventory_qty:'5000', storage_inventory_qty:'7000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'3', storage_replenishment_30d:'15000', dispensing_replenishment_7d:'3500' },
+    { no:'36', item_code:'DMR3030100000-0055', dci_code:'DMR000121', description:'PARACETAMOL 250MG/5ML SYRUP 60ML', generic_name:'Paracetamol 250mg/5ml syrup', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANALGESICS & ANTIPYRETICS', unit_of_measure:'Bottle', unit_cost:'22.00', avg_monthly_consumption:'2100', avg_monthly_normalized_demand:'2200', total_inventory_qty:'400', inventory_value_php:'8800', inventory_level_days:'5.5', pending_po_co_qty:'0', ending_inventory_qty:'400', ending_inventory_level_days:'5.5', epa_cy2026_balance:'0', dispensing_inventory_qty:'150', storage_inventory_qty:'250', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'8', storage_replenishment_30d:'2100', dispensing_replenishment_7d:'490' },
+    { no:'50', item_code:'DMR5060700000-0077', dci_code:'DMR000200', description:'METFORMIN 500MG TABLET', generic_name:'Metformin 500mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'ENDOCRINE & METABOLIC SYSTEM', unit_of_measure:'Tablet', unit_cost:'2.80', avg_monthly_consumption:'5800', avg_monthly_normalized_demand:'6000', total_inventory_qty:'9500', inventory_value_php:'26600', inventory_level_days:'47.5', pending_po_co_qty:'0', ending_inventory_qty:'9500', ending_inventory_level_days:'47.5', epa_cy2026_balance:'0', dispensing_inventory_qty:'3500', storage_inventory_qty:'6000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'18', storage_replenishment_30d:'5800', dispensing_replenishment_7d:'1353' },
+    { no:'51', item_code:'DMR5060700000-0088', dci_code:'DMR000201', description:'AMLODIPINE 5MG TABLET', generic_name:'Amlodipine 5mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'CARDIOVASCULAR & HEMATOPOIETIC SYSTEM', unit_of_measure:'Tablet', unit_cost:'3.50', avg_monthly_consumption:'7200', avg_monthly_normalized_demand:'7400', total_inventory_qty:'3200', inventory_value_php:'11200', inventory_level_days:'13.0', pending_po_co_qty:'10000', ending_inventory_qty:'13200', ending_inventory_level_days:'53.5', epa_cy2026_balance:'0', dispensing_inventory_qty:'1200', storage_inventory_qty:'2000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'7', storage_replenishment_30d:'7200', dispensing_replenishment_7d:'1680' },
+    { no:'52', item_code:'DMR5060700000-0099', dci_code:'DMR000202', description:'LOSARTAN 50MG TABLET', generic_name:'Losartan 50mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'CARDIOVASCULAR & HEMATOPOIETIC SYSTEM', unit_of_measure:'Tablet', unit_cost:'4.20', avg_monthly_consumption:'4800', avg_monthly_normalized_demand:'5000', total_inventory_qty:'900', inventory_value_php:'3780', inventory_level_days:'5.4', pending_po_co_qty:'0', ending_inventory_qty:'900', ending_inventory_level_days:'5.4', epa_cy2026_balance:'0', dispensing_inventory_qty:'300', storage_inventory_qty:'600', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'14', storage_replenishment_30d:'4800', dispensing_replenishment_7d:'1120' },
+    { no:'60', item_code:'DMR4040200000-0033', dci_code:'DMR000300', description:'SALBUTAMOL 2MG/5ML SYRUP 60ML', generic_name:'Salbutamol 2mg/5ml syrup', pharmacy_category:'Medicine Regular', pharmacologic_category:'RESPIRATORY SYSTEM', unit_of_measure:'Bottle', unit_cost:'35.00', avg_monthly_consumption:'680', avg_monthly_normalized_demand:'700', total_inventory_qty:'1800', inventory_value_php:'63000', inventory_level_days:'77.1', pending_po_co_qty:'0', ending_inventory_qty:'1800', ending_inventory_level_days:'77.1', epa_cy2026_balance:'0', dispensing_inventory_qty:'600', storage_inventory_qty:'1200', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'55', storage_replenishment_30d:'680', dispensing_replenishment_7d:'159' },
+    { no:'70', item_code:'DMR6070800000-0044', dci_code:'DMR000400', description:'OMEPRAZOLE 20MG CAPSULE', generic_name:'Omeprazole 20mg capsule', pharmacy_category:'Medicine Regular', pharmacologic_category:'GASTROINTESTINAL SYSTEM', unit_of_measure:'Capsule', unit_cost:'5.50', avg_monthly_consumption:'3500', avg_monthly_normalized_demand:'3600', total_inventory_qty:'1400', inventory_value_php:'7700', inventory_level_days:'11.7', pending_po_co_qty:'5000', ending_inventory_qty:'6400', ending_inventory_level_days:'53.3', epa_cy2026_balance:'0', dispensing_inventory_qty:'500', storage_inventory_qty:'900', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'20', storage_replenishment_30d:'3500', dispensing_replenishment_7d:'817' },
+    { no:'80', item_code:'DMR7080900000-0055', dci_code:'DMR000500', description:'CEFUROXIME 500MG TABLET', generic_name:'Cefuroxime 500mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANTI-INFECTIVES', unit_of_measure:'Tablet', unit_cost:'18.00', avg_monthly_consumption:'2200', avg_monthly_normalized_demand:'2300', total_inventory_qty:'600', inventory_value_php:'10800', inventory_level_days:'7.8', pending_po_co_qty:'3000', ending_inventory_qty:'3600', ending_inventory_level_days:'47.0', epa_cy2026_balance:'0', dispensing_inventory_qty:'200', storage_inventory_qty:'400', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'25', storage_replenishment_30d:'2200', dispensing_replenishment_7d:'513' },
+    { no:'90', item_code:'DMR8091000000-0066', dci_code:'DMR000600', description:'ASCORBIC ACID 500MG TABLET', generic_name:'Ascorbic Acid 500mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'VITAMINS/MINERALS SUPPLEMENTS/ELECTROLYTES', unit_of_measure:'Tablet', unit_cost:'1.80', avg_monthly_consumption:'8500', avg_monthly_normalized_demand:'8800', total_inventory_qty:'45000', inventory_value_php:'81000', inventory_level_days:'153.4', pending_po_co_qty:'0', ending_inventory_qty:'45000', ending_inventory_level_days:'153.4', epa_cy2026_balance:'0', dispensing_inventory_qty:'15000', storage_inventory_qty:'30000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'5', storage_replenishment_30d:'8500', dispensing_replenishment_7d:'1983' },
+    { no:'100', item_code:'DMR9010100000-0077', dci_code:'DMR000700', description:'INSULIN REGULAR 100IU/ML VIAL 10ML', generic_name:'Insulin Regular 100IU/mL vial', pharmacy_category:'Medicine Regular', pharmacologic_category:'ENDOCRINE & METABOLIC SYSTEM', unit_of_measure:'Vial', unit_cost:'285.00', avg_monthly_consumption:'420', avg_monthly_normalized_demand:'435', total_inventory_qty:'50', inventory_value_php:'14250', inventory_level_days:'3.5', pending_po_co_qty:'200', ending_inventory_qty:'250', ending_inventory_level_days:'17.2', epa_cy2026_balance:'0', dispensing_inventory_qty:'20', storage_inventory_qty:'30', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'30', storage_replenishment_30d:'420', dispensing_replenishment_7d:'98' },
+  ];
+
+  // Sample reorders
+  allReorders = allItems
+    .filter(it => parseFloat(it.total_inventory_qty||0) < parseFloat(it.avg_monthly_consumption||0) * 1)
+    .map(it => {
+      const avg = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0);
+      const stock = parseFloat(it.total_inventory_qty || 0);
+      const safetyStock = avg * 6;
+      const reorderQty = Math.max(0, Math.round(avg * 3 + safetyStock - stock));
+      return {
+        item_code: it.item_code,
+        description: it.description,
+        pharmacologic_category: it.pharmacologic_category,
+        avg_monthly_consumption: it.avg_monthly_normalized_demand,
+        inventory_level_days: it.inventory_level_days,
+        reorder_qty_6mo_safety: reorderQty.toString(),
+        pending_po_call_off: it.pending_po_co_qty,
+        remarks: reorderQty > 0 ? 'Request in full' : '',
+      };
+    });
+
+  showToast(`Sample data loaded (${allItems.length} items). Connect to Google Sheets in Setup for live data.`, 'info');
+}
+
+// ================================================================
+//  STOCK STATUS HELPER
+// ================================================================
+function stockStatus(days) {
+  const d = parseFloat(days) || 0;
+  if (d <= 0)  return 'critical';
+  if (d <= 7)  return 'critical';
+  if (d <= 30) return 'warning';
+  return 'ok';
+}
+
+function statusBadge(days) {
+  const s = stockStatus(days);
+  if (s === 'critical') return `<span class="badge badge-danger">🔴 Critical</span>`;
+  if (s === 'warning')  return `<span class="badge badge-warning">🟡 Low</span>`;
+  return `<span class="badge badge-success">🟢 OK</span>`;
+}
+
+function stockBar(days) {
+  const d = parseFloat(days) || 0;
+  const pct = Math.min(100, (d / 90) * 100);
+  const cls = d <= 7 ? 'crit' : d <= 30 ? 'warn' : '';
+  return `<div class="progress-bar-wrap"><div class="progress-bar ${cls}" style="width:${pct}%"></div></div>`;
+}
+
+function fmt(v) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return '—';
+  return n.toLocaleString('en-PH', { maximumFractionDigits: 0 });
+}
+
+function fmtD(v) {
+  const n = parseFloat(v);
+  if (isNaN(n) || n <= 0) return '—';
+  return n.toLocaleString('en-PH', { maximumFractionDigits: 1 });
+}
+
+// ================================================================
+//  DASHBOARD
+// ================================================================
+function buildDashboard() {
+  const total    = allItems.length;
+  const critical = allItems.filter(it => stockStatus(it.inventory_level_days) === 'critical').length;
+  const warning  = allItems.filter(it => stockStatus(it.inventory_level_days) === 'warning').length;
+  const ok       = allItems.filter(it => stockStatus(it.inventory_level_days) === 'ok').length;
+  const pending  = allItems.filter(it => parseFloat(it.pending_po_co_qty||0) > 0).length;
+  const cats     = new Set(allItems.map(it => it.pharmacologic_category).filter(Boolean)).size;
+
+  document.getElementById('kpi-total-items').textContent = total.toLocaleString();
+  document.getElementById('kpi-critical').textContent    = critical.toLocaleString();
+  document.getElementById('kpi-warning').textContent     = warning.toLocaleString();
+  document.getElementById('kpi-ok').textContent          = ok.toLocaleString();
+  document.getElementById('kpi-pending').textContent     = pending.toLocaleString();
+  document.getElementById('kpi-categories').textContent  = cats.toLocaleString();
+
+  if (critical > 0) {
+    document.getElementById('kpi-alert').classList.remove('hidden');
+    document.getElementById('kpi-alert-count').textContent = critical;
+  }
+
+  // Reorder badge
+  document.getElementById('reorder-badge').textContent = (critical + warning).toString();
+
+  // Urgent table
+  const urgent = allItems
+    .filter(it => stockStatus(it.inventory_level_days) !== 'ok')
+    .sort((a,b) => parseFloat(a.inventory_level_days||0) - parseFloat(b.inventory_level_days||0))
+    .slice(0, 20);
+
+  const tbody = document.getElementById('urgent-tbody');
+  tbody.innerHTML = urgent.map(it => {
+    const days = parseFloat(it.inventory_level_days)||0;
+    const avg  = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0);
+    const stock= parseFloat(it.total_inventory_qty || 0);
+    const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
+    return `<tr>
+      <td class="code">${it.item_code}</td>
+      <td><div class="item-desc" title="${it.description}">${it.description}</div></td>
+      <td><span class="text-sm text-muted">${it.pharmacologic_category||'—'}</span></td>
+      <td class="num-cell"><strong>${fmtD(days)}</strong></td>
+      <td>${statusBadge(days)}</td>
+      <td class="num-cell">${fmt(reorderQty)}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" class="empty-state"><div class="empty-icon">✅</div><p>All items adequately stocked!</p></td></tr>`;
+
+  // Charts
+  buildStatusChart(critical, warning, ok);
+  buildCategoryChart();
+}
+
+function buildStatusChart(critical, warning, ok) {
+  const ctx = document.getElementById('chart-status');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Critical (≤7d)', 'Low (≤30d)', 'Adequate (>30d)'],
+      datasets: [{
+        data: [critical, warning, ok],
+        backgroundColor: ['#ef4444','#f59e0b','#10b981'],
+        borderColor: '#111827', borderWidth: 3,
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#7a8599', font: { size: 11 }, padding: 14 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} items` } }
+      },
+      cutout: '62%',
+    }
+  });
+}
+
+function buildCategoryChart() {
+  const ctx = document.getElementById('chart-category');
+  if (!ctx) return;
+  // Group by pharmacologic category
+  const catMap = {};
+  allItems.forEach(it => {
+    const cat = (it.pharmacologic_category || 'Other').replace(' & ', ' &\n');
+    const avg = parseFloat(it.avg_monthly_consumption || 0);
+    catMap[cat] = (catMap[cat] || 0) + avg;
+  });
+  const sorted = Object.entries(catMap).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const labels = sorted.map(e => e[0]);
+  const values = sorted.map(e => e[1]);
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Avg Monthly Consumption',
+        data: values,
+        backgroundColor: 'rgba(6,182,212,.7)',
+        borderColor: 'rgba(6,182,212,1)',
+        borderWidth: 1, borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toLocaleString()} units/mo` } } },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#7a8599', font: { size: 10 } } },
+        y: { grid: { display: false }, ticks: { color: '#e8edf5', font: { size: 10 } } },
+      }
+    }
+  });
+}
+
+// ================================================================
+//  INVENTORY TABLE
+// ================================================================
+function buildCategoryFilter() {
+  const sel = document.getElementById('filter-category');
+  const cats = [...new Set(allItems.map(it => it.pharmacologic_category).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All Categories</option>' +
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function filterInventory() {
+  const catVal   = document.getElementById('filter-category').value;
+  const pharmVal = document.getElementById('filter-pharmacy-cat').value;
+  const statVal  = document.getElementById('filter-status').value;
+  const searchVal= document.getElementById('global-search').value.toLowerCase();
+
+  invFiltered = allItems.filter(it => {
+    if (catVal   && it.pharmacologic_category !== catVal) return false;
+    if (pharmVal && it.pharmacy_category      !== pharmVal) return false;
+    if (statVal  && stockStatus(it.inventory_level_days) !== statVal) return false;
+    if (searchVal) {
+      const hay = `${it.item_code} ${it.description} ${it.generic_name} ${it.pharmacologic_category}`.toLowerCase();
+      if (!hay.includes(searchVal)) return false;
+    }
+    return true;
+  });
+
+  if (invSortKey) {
+    invFiltered.sort((a,b) => {
+      const av = parseFloat(a[invSortKey])||0;
+      const bv = parseFloat(b[invSortKey])||0;
+      return (av - bv) * invSortDir;
+    });
+  }
+
+  invPage = 1;
+  renderInventoryPage();
+}
+
+function buildInventory() {
+  invFiltered = [...allItems];
+  renderInventoryPage();
+}
+
+function renderInventoryPage() {
+  const start = (invPage - 1) * INV_PAGE_SIZE;
+  const page  = invFiltered.slice(start, start + INV_PAGE_SIZE);
+  const tbody = document.getElementById('inv-tbody');
+
+  tbody.innerHTML = page.map((it, i) => {
+    const days = parseFloat(it.inventory_level_days)||0;
+    return `<tr>
+      <td class="text-muted">${start+i+1}</td>
+      <td class="code">${it.item_code}</td>
+      <td><div class="item-desc" title="${it.description}">${it.description}</div>
+          <div class="text-xs text-muted" style="margin-top:2px">${it.generic_name||''}</div></td>
+      <td><span class="text-xs text-muted">${it.pharmacologic_category||'—'}</span></td>
+      <td><span class="badge badge-muted text-xs">${it.pharmacy_category||'—'}</span></td>
+      <td class="text-muted text-sm">${it.unit_of_measure||'—'}</td>
+      <td class="num-cell">${fmt(it.avg_monthly_consumption)}</td>
+      <td class="num-cell"><strong>${fmt(it.total_inventory_qty)}</strong></td>
+      <td class="num-cell">
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+          <span>${fmtD(days)} days</span>
+          ${stockBar(days)}
+        </div>
+      </td>
+      <td class="num-cell">${fmt(it.pending_po_co_qty)}</td>
+      <td>${statusBadge(days)}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">🔍</div><p>No items match your filters.</p></div></td></tr>`;
+
+  renderPagination('inv', invFiltered.length, invPage, INV_PAGE_SIZE);
+}
+
+function sortTable(key) {
+  if (invSortKey === key) invSortDir *= -1;
+  else { invSortKey = key; invSortDir = -1; }
+  filterInventory();
+}
+
+// ================================================================
+//  REORDER TABLE
+// ================================================================
+function buildReorder() {
+  reordFiltered = allReorders.filter(r => parseFloat(r.reorder_qty_6mo_safety||0) > 0);
+  reordFiltered.sort((a,b) => parseFloat(a.inventory_level_days||0) - parseFloat(b.inventory_level_days||0));
+  reordPage = 1;
+  renderReorderPage();
+}
+
+function filterReorder() {
+  const s = document.getElementById('reorder-filter-status').value;
+  reordFiltered = allReorders.filter(r => {
+    if (parseFloat(r.reorder_qty_6mo_safety||0) <= 0) return false;
+    if (s === 'critical') return stockStatus(r.inventory_level_days) === 'critical';
+    if (s === 'warning')  return stockStatus(r.inventory_level_days) === 'warning';
+    return true;
+  });
+  reordFiltered.sort((a,b) => parseFloat(a.inventory_level_days||0) - parseFloat(b.inventory_level_days||0));
+  reordPage = 1;
+  renderReorderPage();
+}
+
+function renderReorderPage() {
+  const start = (reordPage - 1) * REORDER_PAGE_SIZE;
+  const page  = reordFiltered.slice(start, start + REORDER_PAGE_SIZE);
+  const tbody = document.getElementById('reorder-tbody');
+
+  tbody.innerHTML = page.map(r => {
+    const days = parseFloat(r.inventory_level_days)||0;
+    const s    = stockStatus(days);
+    const dotCls = s === 'critical' ? 'critical' : s === 'warning' ? 'warning' : 'ok';
+    const label  = s === 'critical' ? 'Critical' : s === 'warning'  ? 'Low' : 'Watch';
+    return `<tr>
+      <td><div class="reorder-priority"><div class="priority-dot ${dotCls}"></div><span class="text-sm">${label}</span></div></td>
+      <td class="code">${r.item_code}</td>
+      <td><div class="item-desc" title="${r.description}">${r.description}</div></td>
+      <td><span class="text-xs text-muted">${r.pharmacologic_category||'—'}</span></td>
+      <td class="num-cell">${fmtD(days)} days</td>
+      <td class="num-cell">${fmt(r.avg_monthly_consumption)}</td>
+      <td class="num-cell"><strong class="text-warning">${fmt(r.reorder_qty_6mo_safety)}</strong></td>
+      <td class="num-cell">${fmt(r.pending_po_call_off)}</td>
+      <td><span class="text-sm text-muted">${r.remarks||'—'}</span></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✅</div><p>No items need reordering right now.</p></div></td></tr>`;
+
+  renderPagination('reorder', reordFiltered.length, reordPage, REORDER_PAGE_SIZE);
+}
+
+// ================================================================
+//  ANALYTICS
+// ================================================================
+function buildAnalytics() {
+  const totalItems  = allItems.length;
+  // Calculate totals from overall data
+  const totalStock  = allItems.reduce((s,it) => s + (parseFloat(it.total_inventory_qty)||0), 0);
+  const totalValue  = allItems.reduce((s,it) => s + (parseFloat(it.inventory_value_php)||0), 0);
+  const avgMonthly  = allItems.reduce((s,it) => s + (parseFloat(it.avg_monthly_consumption)||0), 0);
+  const endingStock = allItems.reduce((s,it) => s + (parseFloat(it.ending_inventory_qty)||0), 0);
+  const endingEpa   = allItems.reduce((s,it) => s + (parseFloat(it.ending_with_epa_qty)||0), 0);
+  
+  // Locations breakdown
+  const dispensing  = allItems.reduce((s,it) => s + (parseFloat(it.dispensing_inventory_qty)||0), 0);
+  const storage     = allItems.reduce((s,it) => s + (parseFloat(it.storage_inventory_qty)||0), 0);
+  const warehouse   = allItems.reduce((s,it) => s + (parseFloat(it.warehouse_inventory_qty)||0), 0);
+  const consignment = allItems.reduce((s,it) => s + (parseFloat(it.consignment_inventory_qty)||0), 0);
+  const pendingItems= allItems.filter(it => parseFloat(it.pending_po_co_qty||0)>0).length;
+
+  document.getElementById('analytics-stats').innerHTML = `
+    <div class="stat-block">
+      <h4>Inventory Summary (Overall)</h4>
+      <div class="stat-row"><span class="label">Total Items</span><span class="val">${totalItems.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="label">Total Stock Units</span><span class="val text-accent">${totalStock.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="label">Total Inventory Value</span><span class="val text-success">₱${totalValue.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+      <div class="stat-row"><span class="label">Total Avg Monthly Cons.</span><span class="val">${avgMonthly.toLocaleString(undefined, {maximumFractionDigits:1})}</span></div>
+      <div class="stat-row"><span class="label">Items with Pending PO/CO</span><span class="val text-warning">${pendingItems.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="label">Ending Inv. (On Hand + PO)</span><span class="val">${endingStock.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="label">Ending Inv. (with EPA)</span><span class="val">${endingEpa.toLocaleString()}</span></div>
+    </div>
+    <div class="stat-block">
+      <h4>Stock by Location</h4>
+      <div class="stat-row"><span class="label">Dispensing Area</span><span class="val text-accent">${dispensing.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="label">Pharmacy Storage</span><span class="val text-success">${storage.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="label">Warehouse</span><span class="val text-warning">${warehouse.toLocaleString()}</span></div>
+      <div class="stat-row"><span class="label">Consignment</span><span class="val text-muted">${consignment.toLocaleString()}</span></div>
+    </div>`;
+
+  buildTop10Chart();
+  buildLocationChart(dispensing, storage, warehouse, consignment);
+}
+
+function buildTop10Chart() {
+  const ctx = document.getElementById('chart-top10');
+  if (!ctx) return;
+  const top10 = [...allItems]
+    .filter(it => parseFloat(it.avg_monthly_consumption||0) > 0)
+    .sort((a,b) => parseFloat(b.avg_monthly_consumption||0) - parseFloat(a.avg_monthly_consumption||0))
+    .slice(0,10);
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top10.map(it => it.description.length > 35 ? it.description.substring(0,35)+'…' : it.description),
+      datasets: [{
+        label: 'Avg Monthly Consumption',
+        data: top10.map(it => parseFloat(it.avg_monthly_consumption||0)),
+        backgroundColor: top10.map((_,i) => `hsla(${185+i*8},80%,55%,0.75)`),
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: {display:false} },
+      scales: {
+        x: { grid: {color:'rgba(255,255,255,.05)'}, ticks: {color:'#7a8599',font:{size:10}} },
+        y: { grid: {display:false}, ticks: {color:'#e8edf5',font:{size:10}} },
+      }
+    }
+  });
+}
+
+function buildLocationChart(d, s, w, c) {
+  const ctx = document.getElementById('chart-location');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Dispensing', 'Storage', 'Warehouse', 'Consignment'],
+      datasets: [{
+        data: [d,s,w,c],
+        backgroundColor: ['#06b6d4','#10b981','#f59e0b','#8b5cf6'],
+        borderColor: '#111827', borderWidth: 3, hoverOffset: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'bottom', labels: {color:'#7a8599',font:{size:11},padding:14} },
+      },
+      cutout: '55%',
+    }
+  });
+}
+
+// ================================================================
+//  PAGINATION
+// ================================================================
+function renderPagination(prefix, total, page, pageSize) {
+  const totalPages = Math.ceil(total / pageSize);
+  const start = (page-1)*pageSize+1;
+  const end   = Math.min(page*pageSize, total);
+  document.getElementById(`${prefix}-page-info`).textContent = total === 0 ? 'No results' : `Showing ${start}–${end} of ${total}`;
+
+  const btns = document.getElementById(`${prefix}-page-btns`);
+  btns.innerHTML = '';
+  const addBtn = (label, p, active=false) => {
+    const b = document.createElement('button');
+    b.className = 'page-btn' + (active ? ' active' : '');
+    b.textContent = label;
+    b.onclick = () => { if (prefix==='inv'){ invPage=p; renderInventoryPage(); } else { reordPage=p; renderReorderPage(); } };
+    btns.appendChild(b);
+  };
+  if (page > 1) addBtn('‹', page-1);
+  const startP = Math.max(1, page-2), endP = Math.min(totalPages, page+2);
+  for (let p = startP; p <= endP; p++) addBtn(p, p, p===page);
+  if (page < totalPages) addBtn('›', page+1);
+}
+
+// ================================================================
+//  NAVIGATION
+// ================================================================
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id)?.classList.add('active');
+  el?.classList.add('active');
+  const titles = { dashboard:'Dashboard', inventory:'Inventory Masterlist', reorder:'Reordering', analytics:'Analytics', setup:'Setup & Config' };
+  document.getElementById('topbar-title').textContent = titles[id] || id;
+  document.getElementById('global-search-box').style.display = (id === 'inventory') ? 'flex' : 'none';
+  if (id === 'inventory') filterInventory();
+  if (id === 'reorder')   filterReorder();
+}
+
+function globalSearch(val) { filterInventory(); }
+
+// ================================================================
+//  EXPORT
+// ================================================================
+function exportCSV() {
+  const cols = ['item_code','dci_code','description','generic_name','pharmacy_category','pharmacologic_category','unit_of_measure','unit_cost','avg_monthly_consumption','total_inventory_qty','inventory_level_days','pending_po_co_qty'];
+  const header = cols.join(',');
+  const rows = invFiltered.map(it => cols.map(c => `"${(it[c]||'').toString().replace(/"/g,'""')}"`).join(','));
+  downloadCSV([header,...rows].join('\n'), 'inventory_export.csv');
+}
+
+function exportReorderCSV() {
+  const cols = ['item_code','description','pharmacologic_category','inventory_level_days','avg_monthly_consumption','reorder_qty_6mo_safety','pending_po_call_off','remarks'];
+  const header = cols.join(',');
+  const rows = reordFiltered.map(r => cols.map(c => `"${(r[c]||'').toString().replace(/"/g,'""')}"`).join(','));
+  downloadCSV([header,...rows].join('\n'), 'reorder_list.csv');
+}
+
+function downloadCSV(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`Exported ${filename} ✓`, 'success');
+}
+
+// ================================================================
+//  CONFIG
+// ================================================================
+function saveConfig() {
+  const url = document.getElementById('apps-script-url').value.trim();
+  if (!url) { showToast('Please enter the Apps Script URL', 'error'); return; }
+  APPS_SCRIPT_URL = url;
+  localStorage.setItem('pharma_api_url', url);
+  showToast('API URL saved! Reloading data…', 'success');
+  loadData();
+}
+
+// ================================================================
+//  TOAST
+// ================================================================
+function showToast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icons = { success:'✅', error:'❌', info:'ℹ️' };
+  el.innerHTML = `<span>${icons[type]||'📢'}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+</script>
+</body>
+</html>
