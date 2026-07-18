@@ -409,6 +409,7 @@
       .sidebar.open { transform: translateX(0); }
       .main-content { margin-left: 0; }
       .charts-grid { grid-template-columns: 1fr; }
+      .charts-subgrid { grid-template-columns: 1fr !important; }
     }
     @media (max-width: 600px) {
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -702,10 +703,27 @@
           <div class="stats-grid" id="analytics-stats"></div>
           <div class="divider"></div>
           <div class="charts-grid">
-            <div class="chart-card">
-              <h3>Top 10 Items by Avg Monthly Consumption</h3>
-              <div class="chart-wrap" style="height:280px">
-                <canvas id="chart-top10"></canvas>
+            <div class="chart-card" style="display:flex; flex-direction:column; gap:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <h3 style="margin:0;">Annual Consumption (Top 10 Items)</h3>
+                <select class="filter-select" id="analytics-year" onchange="updateAnalyticsCharts()" style="padding:4px 8px; font-size:12px; width:auto;">
+                  <option value="2025" selected>Year 2025</option>
+                  <option value="2026">Year 2026 (Annualized)</option>
+                </select>
+              </div>
+              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div>
+                  <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed</h4>
+                  <div class="chart-wrap" style="height:280px">
+                    <canvas id="chart-annual-qty"></canvas>
+                  </div>
+                </div>
+                <div>
+                  <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Amount)</h4>
+                  <div class="chart-wrap" style="height:280px">
+                    <canvas id="chart-annual-val"></canvas>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="chart-card">
@@ -822,7 +840,8 @@ let allReorders = [];
 
 let statusChart = null;
 let categoryChart = null;
-let top10Chart = null;
+let annualQtyChart = null;
+let annualValChart = null;
 let locationChart = null;
 
 // Pagination state
@@ -942,21 +961,21 @@ async function loadData() {
 function loadSampleData() {
   // ---- Embedded sample from actual extracted data ----
   allItems = [
-    { no:'1', item_code:'DMR1040406000-0003', dci_code:'DMR000001', description:'0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'0.9% Sodium Chloride 1L Bottle/Bag', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle/bag', unit_cost:'0', avg_monthly_consumption:'7377', avg_monthly_normalized_demand:'9426.33', total_inventory_qty:'22026', inventory_value_php:'609413', inventory_level_days:'70.0', date_of_impact:'9/18/2026', pending_po_co_qty:'30000', ending_inventory_qty:'52026', ending_inventory_level_days:'166.0', epa_cy2026_balance:'82000', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'57', storage_replenishment_30d:'0', dispensing_replenishment_7d:'2199.48' },
-    { no:'2', item_code:'DMC1040406000-0500', dci_code:'DMC000001', description:'(C) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'(C) 0.9% Sodium Chloride 1L', pharmacy_category:'Medicine Consigment', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'9426', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'224', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0' },
-    { no:'3', item_code:'DMEP1040406000-0003', dci_code:'DMEP000001', description:'(EP) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'(EP) 0.9% Sodium Chloride 1L', pharmacy_category:'Medicine Emergency Purchase', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle/bag', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'9426', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'342', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0' },
-    { no:'4', item_code:'DMDON1040406000-0154', dci_code:'DMDON000001', description:'(DON) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'(DON) 0.9% Sodium Chloride 1L', pharmacy_category:'Donation', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Capsule', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'9426', total_inventory_qty:'8', inventory_value_php:'258', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'8', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'12', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0' },
-    { no:'5', item_code:'DMEP1040406000-0645', dci_code:'DMEP000002', description:'(EP) 0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name:'(EP) 0.9% Sodium Chloride 500ml', pharmacy_category:'Medicine Emergency Purchase', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'2233', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'45', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0' },
-    { no:'6', item_code:'DMR1040406000-0591', dci_code:'DMR000002', description:'0.9% SODIUM CHLORIDE 500ML GLASS BOTTLE (IV INFUSION) (PNSS 500ML)', generic_name:'0.9% Sodium Chloride 500ml', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'0', avg_monthly_consumption:'1361', avg_monthly_normalized_demand:'2233', total_inventory_qty:'4592', inventory_value_php:'544152', inventory_level_days:'62.0', date_of_impact:'9/9/2026', pending_po_co_qty:'0', ending_inventory_qty:'4592', ending_inventory_level_days:'62.0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'3', storage_replenishment_30d:'0', dispensing_replenishment_7d:'520.96' },
-    { no:'7', item_code:'DMR1040406000-0499', dci_code:'DMR001155', description:'0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name:'0.9% Sodium Chloride 500ml', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'0', avg_monthly_consumption:'1314', avg_monthly_normalized_demand:'2233', total_inventory_qty:'1880', inventory_value_php:'46969', inventory_level_days:'25.0', date_of_impact:'8/4/2026', pending_po_co_qty:'5000', ending_inventory_qty:'6880', ending_inventory_level_days:'92.0', epa_cy2026_balance:'2600', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'8', storage_replenishment_30d:'0', dispensing_replenishment_7d:'490' },
-    { no:'8', item_code:'DMDON10406000-0144', dci_code:'DMDON000002', description:'(DON) 0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name:'(DON) 0.9% Sodium Chloride 500ml', pharmacy_category:'Donation', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Tablet', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'2233', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'18', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0' },
-    { no:'9', item_code:'DMDON1040406000-407', dci_code:'DMDON001137', description:'(DON) 0.9% SODIUM CHLORIDE 50ML BOTTLE/BAG (IV INFUSION) (PNSS 50ML)', generic_name:'(DON) 0.9% Sodium Chloride 50ml', pharmacy_category:'Donation', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Tablet', unit_cost:'0', avg_monthly_consumption:'1', avg_monthly_normalized_demand:'2233', total_inventory_qty:'1', inventory_value_php:'0.01', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'1', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'7', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0' },
-    { no:'10', item_code:'DMR1040406000-0527', dci_code:'DMR000003', description:'0.9% SODIUM CHLORIDE 50ML BOTTLE/BAG (IV INFUSION) (PNSS 50ML)', generic_name:'0.9% Sodium Chloride 50ml', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle/bag', unit_cost:'0', avg_monthly_consumption:'11', avg_monthly_normalized_demand:'990', total_inventory_qty:'76', inventory_value_php:'3079.90', inventory_level_days:'2.0', date_of_impact:'7/12/2026', pending_po_co_qty:'0', ending_inventory_qty:'76', ending_inventory_level_days:'2.0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'14', storage_replenishment_30d:'0', dispensing_replenishment_7d:'231.08' },
-    { no:'11', item_code:'DMR2020304000-0011', dci_code:'DMR000050', description:'AMOXICILLIN 500MG CAPSULE', generic_name:'Amoxicillin 500mg capsule', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANTI-INFECTIVES', unit_of_measure:'Capsule', unit_cost:'3.50', avg_monthly_consumption:'4200', avg_monthly_normalized_demand:'4350', total_inventory_qty:'18000', inventory_value_php:'63000', inventory_level_days:'124.1', date_of_impact:'10/24/2026', pending_po_co_qty:'5000', ending_inventory_qty:'23000', ending_inventory_level_days:'158.6', epa_cy2026_balance:'0', dispensing_inventory_qty:'6000', storage_inventory_qty:'12000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'12', storage_replenishment_30d:'4200', dispensing_replenishment_7d:'980' },
-    { no:'12', item_code:'DMR2020304000-0022', dci_code:'DMR000051', description:'AMOXICILLIN 250MG/5ML SYRUP 60ML', generic_name:'Amoxicillin 250mg/5ml syrup', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANTI-INFECTIVES', unit_of_measure:'Bottle', unit_cost:'28.50', avg_monthly_consumption:'850', avg_monthly_normalized_demand:'900', total_inventory_qty:'1200', inventory_value_php:'34200', inventory_level_days:'40.0', date_of_impact:'8/27/2026', pending_po_co_qty:'0', ending_inventory_qty:'1200', ending_inventory_level_days:'40.0', epa_cy2026_balance:'0', dispensing_inventory_qty:'400', storage_inventory_qty:'800', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'45', storage_replenishment_30d:'850', dispensing_replenishment_7d:'198' },
-    { no:'13', item_code:'DMR3030100000-0044', dci_code:'DMR000120', description:'PARACETAMOL 500MG TABLET', generic_name:'Paracetamol 500mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANALGESICS & ANTIPYRETICS', unit_of_measure:'Tablet', unit_cost:'1.20', avg_monthly_consumption:'15000', avg_monthly_normalized_demand:'15500', total_inventory_qty:'12000', inventory_value_php:'14400', inventory_level_days:'23.2', date_of_impact:'8/10/2026', pending_po_co_qty:'20000', ending_inventory_qty:'32000', ending_inventory_level_days:'61.9', epa_cy2026_balance:'0', dispensing_inventory_qty:'5000', storage_inventory_qty:'7000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'3', storage_replenishment_30d:'15000', dispensing_replenishment_7d:'3500' },
-    { no:'14', item_code:'DMR3030100000-0055', dci_code:'DMR000121', description:'PARACETAMOL 250MG/5ML SYRUP 60ML', generic_name:'Paracetamol 250mg/5ml syrup', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANALGESICS & ANTIPYRETICS', unit_of_measure:'Bottle', unit_cost:'22.00', avg_monthly_consumption:'2100', avg_monthly_normalized_demand:'2200', total_inventory_qty:'400', inventory_value_php:'8800', inventory_level_days:'5.5', date_of_impact:'7/23/2026', pending_po_co_qty:'0', ending_inventory_qty:'400', ending_inventory_level_days:'5.5', epa_cy2026_balance:'0', dispensing_inventory_qty:'150', storage_inventory_qty:'250', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'8', storage_replenishment_30d:'2100', dispensing_replenishment_7d:'490' },
-    { no:'15', item_code:'DMR5060700000-0077', dci_code:'DMR000200', description:'METFORMIN 500MG TABLET', generic_name:'Metformin 500mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'ENDOCRINE & METABOLIC SYSTEM', unit_of_measure:'Tablet', unit_cost:'2.80', avg_monthly_consumption:'5800', avg_monthly_normalized_demand:'6000', total_inventory_qty:'9500', inventory_value_php:'26600', inventory_level_days:'47.5', date_of_impact:'9/3/2026', pending_po_co_qty:'0', ending_inventory_qty:'9500', ending_inventory_level_days:'47.5', epa_cy2026_balance:'0', dispensing_inventory_qty:'3500', storage_inventory_qty:'6000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'18', storage_replenishment_30d:'5800', dispensing_replenishment_7d:'1353' },
+    { no:'1', item_code:'DMR1040406000-0003', dci_code:'DMR000001', description:'0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'0.9% Sodium Chloride 1L Bottle/Bag', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle/bag', unit_cost:'80', avg_monthly_consumption:'7377', avg_monthly_normalized_demand:'9426.33', total_inventory_qty:'22026', inventory_value_php:'609413', inventory_level_days:'70.0', date_of_impact:'9/18/2026', pending_po_co_qty:'30000', ending_inventory_qty:'52026', ending_inventory_level_days:'166.0', epa_cy2026_balance:'82000', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'57', storage_replenishment_30d:'0', dispensing_replenishment_7d:'2199.48', annual_qty_2025:'110000', annual_val_2025:'8800000', annual_qty_2026:'120000', annual_val_2026:'9600000' },
+    { no:'2', item_code:'DMC1040406000-0500', dci_code:'DMC000001', description:'(C) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'(C) 0.9% Sodium Chloride 1L', pharmacy_category:'Medicine Consigment', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'9426', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'224', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0', annual_qty_2025:'0', annual_val_2025:'0', annual_qty_2026:'0', annual_val_2026:'0' },
+    { no:'3', item_code:'DMEP1040406000-0003', dci_code:'DMEP000001', description:'(EP) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'(EP) 0.9% Sodium Chloride 1L', pharmacy_category:'Medicine Emergency Purchase', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle/bag', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'9426', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'342', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0', annual_qty_2025:'0', annual_val_2025:'0', annual_qty_2026:'0', annual_val_2026:'0' },
+    { no:'4', item_code:'DMDON1040406000-0154', dci_code:'DMDON000001', description:'(DON) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name:'(DON) 0.9% Sodium Chloride 1L', pharmacy_category:'Donation', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Capsule', unit_cost:'25', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'9426', total_inventory_qty:'8', inventory_value_php:'258', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'8', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'12', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0', annual_qty_2025:'10', annual_val_2025:'250', annual_qty_2026:'12', annual_val_2026:'300' },
+    { no:'5', item_code:'DMEP1040406000-0645', dci_code:'DMEP000002', description:'(EP) 0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name:'(EP) 0.9% Sodium Chloride 500ml', pharmacy_category:'Medicine Emergency Purchase', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'2233', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'45', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0', annual_qty_2025:'0', annual_val_2025:'0', annual_qty_2026:'0', annual_val_2026:'0' },
+    { no:'6', item_code:'DMR1040406000-0591', dci_code:'DMR000002', description:'0.9% SODIUM CHLORIDE 500ML GLASS BOTTLE (IV INFUSION) (PNSS 500ML)', generic_name:'0.9% Sodium Chloride 500ml', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'50', avg_monthly_consumption:'1361', avg_monthly_normalized_demand:'2233', total_inventory_qty:'4592', inventory_value_php:'544152', inventory_level_days:'62.0', date_of_impact:'9/9/2026', pending_po_co_qty:'0', ending_inventory_qty:'4592', ending_inventory_level_days:'62.0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'3', storage_replenishment_30d:'0', dispensing_replenishment_7d:'520.96', annual_qty_2025:'25000', annual_val_2025:'1250000', annual_qty_2026:'26000', annual_val_2026:'1300000' },
+    { no:'7', item_code:'DMR1040406000-0499', dci_code:'DMR001155', description:'0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name:'0.9% Sodium Chloride 500ml', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle', unit_cost:'40', avg_monthly_consumption:'1314', avg_monthly_normalized_demand:'2233', total_inventory_qty:'1880', inventory_value_php:'46969', inventory_level_days:'25.0', date_of_impact:'8/4/2026', pending_po_co_qty:'5000', ending_inventory_qty:'6880', ending_inventory_level_days:'92.0', epa_cy2026_balance:'2600', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'8', storage_replenishment_30d:'0', dispensing_replenishment_7d:'490', annual_qty_2025:'22000', annual_val_2025:'880000', annual_qty_2026:'23000', annual_val_2026:'920000' },
+    { no:'8', item_code:'DMDON10406000-0144', dci_code:'DMDON000002', description:'(DON) 0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name:'(DON) 0.9% Sodium Chloride 500ml', pharmacy_category:'Donation', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Tablet', unit_cost:'0', avg_monthly_consumption:'0', avg_monthly_normalized_demand:'2233', total_inventory_qty:'0', inventory_value_php:'0', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'0', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'18', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0', annual_qty_2025:'0', annual_val_2025:'0', annual_qty_2026:'0', annual_val_2026:'0' },
+    { no:'9', item_code:'DMDON1040406000-407', dci_code:'DMDON01137', description:'(DON) 0.9% SODIUM CHLORIDE 50ML BOTTLE/BAG (IV INFUSION) (PNSS 50ML)', generic_name:'(DON) 0.9% Sodium Chloride 50ml', pharmacy_category:'Donation', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Tablet', unit_cost:'1', avg_monthly_consumption:'1', avg_monthly_normalized_demand:'2233', total_inventory_qty:'1', inventory_value_php:'0.01', inventory_level_days:'0', date_of_impact:'7/10/2026', pending_po_co_qty:'0', ending_inventory_qty:'1', ending_inventory_level_days:'0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'7', storage_replenishment_30d:'0', dispensing_replenishment_7d:'0', annual_qty_2025:'10', annual_val_2025:'10', annual_qty_2026:'12', annual_val_2026:'12' },
+    { no:'10', item_code:'DMR1040406000-0527', dci_code:'DMR000003', description:'0.9% SODIUM CHLORIDE 50ML BOTTLE/BAG (IV INFUSION) (PNSS 50ML)', generic_name:'0.9% Sodium Chloride 50ml', pharmacy_category:'Medicine Regular', pharmacologic_category:'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure:'Bottle/bag', unit_cost:'30', avg_monthly_consumption:'11', avg_monthly_normalized_demand:'990', total_inventory_qty:'76', inventory_value_php:'3079.90', inventory_level_days:'2.0', date_of_impact:'7/12/2026', pending_po_co_qty:'0', ending_inventory_qty:'76', ending_inventory_level_days:'2.0', epa_cy2026_balance:'0', dispensing_inventory_qty:'0', storage_inventory_qty:'0', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'14', storage_replenishment_30d:'0', dispensing_replenishment_7d:'231.08', annual_qty_2025:'12000', annual_val_2025:'360000', annual_qty_2026:'14000', annual_val_2026:'420000' },
+    { no:'11', item_code:'DMR2020304000-0011', dci_code:'DMR000050', description:'AMOXICILLIN 500MG CAPSULE', generic_name:'Amoxicillin 500mg capsule', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANTI-INFECTIVES', unit_of_measure:'Capsule', unit_cost:'3.50', avg_monthly_consumption:'4200', avg_monthly_normalized_demand:'4350', total_inventory_qty:'18000', inventory_value_php:'63000', inventory_level_days:'124.1', date_of_impact:'10/24/2026', pending_po_co_qty:'5000', ending_inventory_qty:'23000', ending_inventory_level_days:'158.6', epa_cy2026_balance:'0', dispensing_inventory_qty:'6000', storage_inventory_qty:'12000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'12', storage_replenishment_30d:'4200', dispensing_replenishment_7d:'980', annual_qty_2025:'52000', annual_val_2025:'182000', annual_qty_2026:'54000', annual_val_2026:'189000' },
+    { no:'12', item_code:'DMR2020304000-0022', dci_code:'DMR000051', description:'AMOXICILLIN 250MG/5ML SYRUP 60ML', generic_name:'Amoxicillin 250mg/5ml syrup', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANTI-INFECTIVES', unit_of_measure:'Bottle', unit_cost:'28.50', avg_monthly_consumption:'850', avg_monthly_normalized_demand:'900', total_inventory_qty:'1200', inventory_value_php:'34200', inventory_level_days:'40.0', date_of_impact:'8/27/2026', pending_po_co_qty:'0', ending_inventory_qty:'1200', ending_inventory_level_days:'40.0', epa_cy2026_balance:'0', dispensing_inventory_qty:'400', storage_inventory_qty:'800', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'45', storage_replenishment_30d:'850', dispensing_replenishment_7d:'198', annual_qty_2025:'10800', annual_val_2025:'307800', annual_qty_2026:'11000', annual_val_2026:'313500' },
+    { no:'13', item_code:'DMR3030100000-0044', dci_code:'DMR000120', description:'PARACETAMOL 500MG TABLET', generic_name:'Paracetamol 500mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANALGESICS & ANTIPYRETICS', unit_of_measure:'Tablet', unit_cost:'1.20', avg_monthly_consumption:'15000', avg_monthly_normalized_demand:'15500', total_inventory_qty:'12000', inventory_value_php:'14400', inventory_level_days:'23.2', date_of_impact:'8/10/2026', pending_po_co_qty:'20000', ending_inventory_qty:'32000', ending_inventory_level_days:'61.9', epa_cy2026_balance:'0', dispensing_inventory_qty:'5000', storage_inventory_qty:'7000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'3', storage_replenishment_30d:'15000', dispensing_replenishment_7d:'3500', annual_qty_2025:'186000', annual_val_2025:'223200', annual_qty_2026:'190000', annual_val_2026:'228000' },
+    { no:'14', item_code:'DMR3030100000-0055', dci_code:'DMR000121', description:'PARACETAMOL 250MG/5ML SYRUP 60ML', generic_name:'Paracetamol 250mg/5ml syrup', pharmacy_category:'Medicine Regular', pharmacologic_category:'ANALGESICS & ANTIPYRETICS', unit_of_measure:'Bottle', unit_cost:'22.00', avg_monthly_consumption:'2100', avg_monthly_normalized_demand:'2200', total_inventory_qty:'400', inventory_value_php:'8800', inventory_level_days:'5.5', date_of_impact:'7/23/2026', pending_po_co_qty:'0', ending_inventory_qty:'400', ending_inventory_level_days:'5.5', epa_cy2026_balance:'0', dispensing_inventory_qty:'150', storage_inventory_qty:'250', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'8', storage_replenishment_30d:'2100', dispensing_replenishment_7d:'490', annual_qty_2025:'26400', annual_val_2025:'580800', annual_qty_2026:'28000', annual_val_2026:'616000' },
+    { no:'15', item_code:'DMR5060700000-0077', dci_code:'DMR000200', description:'METFORMIN 500MG TABLET', generic_name:'Metformin 500mg tablet', pharmacy_category:'Medicine Regular', pharmacologic_category:'ENDOCRINE & METABOLIC SYSTEM', unit_of_measure:'Tablet', unit_cost:'2.80', avg_monthly_consumption:'5800', avg_monthly_normalized_demand:'6000', total_inventory_qty:'9500', inventory_value_php:'26600', inventory_level_days:'47.5', date_of_impact:'9/3/2026', pending_po_co_qty:'0', ending_inventory_qty:'9500', ending_inventory_level_days:'47.5', epa_cy2026_balance:'0', dispensing_inventory_qty:'3500', storage_inventory_qty:'6000', warehouse_inventory_qty:'0', consignment_inventory_qty:'0', rank:'18', storage_replenishment_30d:'5800', dispensing_replenishment_7d:'1353', annual_qty_2025:'72000', annual_val_2025:'201600', annual_qty_2026:'74000', annual_val_2026:'207200' },
   ];
 
   // Sample reorders
@@ -1322,39 +1341,96 @@ function buildAnalytics() {
       <div class="stat-row"><span class="label">Consignment</span><span class="val text-muted">${consignment.toLocaleString()}</span></div>
     </div>`;
 
-  buildTop10Chart();
+  buildAnnualConsumptionCharts();
   buildLocationChart(dispensing, storage, warehouse, consignment);
 }
 
-function buildTop10Chart() {
-  const ctx = document.getElementById('chart-top10');
-  if (!ctx) return;
-  const top10 = [...allItems]
-    .filter(it => parseFloat(it.avg_monthly_consumption||0) > 0)
-    .sort((a,b) => parseFloat(b.avg_monthly_consumption||0) - parseFloat(a.avg_monthly_consumption||0))
-    .slice(0,10);
+function buildAnnualConsumptionCharts() {
+  const yr = document.getElementById('analytics-year').value || '2025';
+  const qtyKey = yr === '2026' ? 'annual_qty_2026' : 'annual_qty_2025';
+  const valKey = yr === '2026' ? 'annual_val_2026' : 'annual_val_2025';
 
-  if (top10Chart) { top10Chart.destroy(); }
-  top10Chart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: top10.map(it => it.description.length > 35 ? it.description.substring(0,35)+'…' : it.description),
-      datasets: [{
-        label: 'Avg Monthly Consumption',
-        data: top10.map(it => parseFloat(it.avg_monthly_consumption||0)),
-        backgroundColor: top10.map((_,i) => `hsla(${185+i*8},80%,55%,0.75)`),
-        borderRadius: 6,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
-      plugins: { legend: {display:false} },
-      scales: {
-        x: { grid: {color:'rgba(255,255,255,.05)'}, ticks: {color:'#7a8599',font:{size:10}} },
-        y: { grid: {display:false}, ticks: {color:'#e8edf5',font:{size:10}} },
+  // 1. Qty Chart
+  const ctxQty = document.getElementById('chart-annual-qty');
+  if (ctxQty) {
+    const top10Qty = [...allItems]
+      .filter(it => parseFloat(it[qtyKey]||0) > 0)
+      .sort((a,b) => parseFloat(b[qtyKey]||0) - parseFloat(a[qtyKey]||0))
+      .slice(0,10);
+
+    if (annualQtyChart) { annualQtyChart.destroy(); }
+    annualQtyChart = new Chart(ctxQty, {
+      type: 'bar',
+      data: {
+        labels: top10Qty.map(it => it.description.length > 22 ? it.description.substring(0,22)+'…' : it.description),
+        datasets: [{
+          label: 'Qty Consumed',
+          data: top10Qty.map(it => parseFloat(it[qtyKey]||0)),
+          backgroundColor: top10Qty.map((_,i) => `hsla(${185+i*8},80%,55%,0.75)`),
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        plugins: { legend: {display:false} },
+        scales: {
+          x: { grid: {color:'rgba(255,255,255,.05)'}, ticks: {color:'#7a8599',font:{size:9}} },
+          y: { grid: {display:false}, ticks: {color:'#e8edf5',font:{size:9}} },
+        }
       }
-    }
-  });
+    });
+  }
+
+  // 2. Value Chart
+  const ctxVal = document.getElementById('chart-annual-val');
+  if (ctxVal) {
+    const top10Val = [...allItems]
+      .filter(it => parseFloat(it[valKey]||0) > 0)
+      .sort((a,b) => parseFloat(b[valKey]||0) - parseFloat(a[valKey]||0))
+      .slice(0,10);
+
+    if (annualValChart) { annualValChart.destroy(); }
+    annualValChart = new Chart(ctxVal, {
+      type: 'bar',
+      data: {
+        labels: top10Val.map(it => it.description.length > 22 ? it.description.substring(0,22)+'…' : it.description),
+        datasets: [{
+          label: 'Acquisition Amount (₱)',
+          data: top10Val.map(it => parseFloat(it[valKey]||0)),
+          backgroundColor: top10Val.map((_,i) => `hsla(${35+i*6},90%,60%,0.75)`),
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        plugins: {
+          legend: {display:false},
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Amount: ₱' + context.raw.toLocaleString('en-PH', {maximumFractionDigits:2});
+              }
+            }
+          }
+        },
+        scales: {
+          x: { 
+            grid: {color:'rgba(255,255,255,.05)'}, 
+            ticks: {
+              color:'#7a8599',
+              font:{size:9},
+              callback: function(value) { return '₱' + value.toLocaleString(); }
+            } 
+          },
+          y: { grid: {display:false}, ticks: {color:'#e8edf5',font:{size:9}} },
+        }
+      }
+    });
+  }
+}
+
+function updateAnalyticsCharts() {
+  buildAnnualConsumptionCharts();
 }
 
 function buildLocationChart(d, s, w, c) {

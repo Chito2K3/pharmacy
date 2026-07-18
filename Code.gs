@@ -90,6 +90,37 @@ function formatDate(val) {
   return str;
 }
 
+/** Helper to parse a date from header cell values dynamically. */
+function parseHeaderDate(val) {
+  if (val === null || val === undefined || val === '') return null;
+  if (val instanceof Date) return val;
+  const num = Number(val);
+  if (!isNaN(num) && num > 30000) {
+    return new Date((num - 25569) * 86400 * 1000);
+  }
+  const str = String(val).trim().toLowerCase();
+  if (str.indexOf('#') === 0) return null;
+  
+  const parts = str.split(/[- ]/);
+  if (parts.length >= 2) {
+    const months = {
+      jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11
+    };
+    const m = months[parts[0].substring(0,3)];
+    let y = parseInt(parts[1]);
+    if (m !== undefined && !isNaN(y)) {
+      if (y < 100) y += 2000;
+      return new Date(y, m, 1);
+    }
+  }
+  
+  const standaloneYear = parseInt(str);
+  if (!isNaN(standaloneYear) && standaloneYear >= 2020 && standaloneYear <= 2030) {
+    return new Date(standaloneYear, 0, 1);
+  }
+  return null;
+}
+
 // =============================================================
 //  COLUMN AUTO-DETECTION
 // =============================================================
@@ -326,10 +357,48 @@ function getItems() {
   // ---- AUTO-DETECT location columns from sheet headers ----
   const lc = detectInventoryColumns(sheet);
 
+  // Group columns for 2025 and 2026 consumption
+  const hRow4 = sheet.getRange(4, 1, 1, lastCol).getValues()[0];
+  const hRow5 = sheet.getRange(5, 1, 1, lastCol).getValues()[0];
+  const cols2025 = [];
+  const cols2026 = [];
+  
+  for (let c = 10; c < lc.overall_start; c++) {
+    const val4 = hRow4[c];
+    const val5 = hRow5[c];
+    const date = parseHeaderDate(val4) || parseHeaderDate(val5);
+    if (date) {
+      const yr = date.getFullYear();
+      if (yr === 2025) {
+        cols2025.push(c);
+      } else if (yr === 2026) {
+        cols2026.push(c);
+      }
+    }
+  }
+  const count2026 = cols2026.length;
+
   const values = sheet.getRange(5, 1, lastRow - 4, lastCol).getValues();
 
   return values.map((row, idx) => {
     const itemCode = String(row[1] || '').trim();
+
+    // Calculate 2025 and 2026 annualized qty
+    let sum2025 = 0;
+    for (let i = 0; i < cols2025.length; i++) {
+      sum2025 += safeNum(row[cols2025[i]]);
+    }
+    
+    let sum2026 = 0;
+    for (let i = 0; i < cols2026.length; i++) {
+      sum2026 += safeNum(row[cols2026[i]]);
+    }
+    
+    const annualQty2025 = sum2025;
+    const annualVal2025 = annualQty2025 * safeNum(row[8]);
+    
+    const annualQty2026 = count2026 > 0 ? (sum2026 / count2026) * 12 : 0;
+    const annualVal2026 = annualQty2026 * safeNum(row[8]);
 
     // Location inventory
     const dispensingStock  = lc.dispensing_qty  >= 0 ? safeNum(row[lc.dispensing_qty])  : 0;
@@ -350,8 +419,7 @@ function getItems() {
       pharmacologic_category       : String(row[6] || '').trim(),
       unit_of_measure              : String(row[7] || '').trim(),
       unit_cost                    : safeNum(row[8]),
-      
-      avg_monthly_consumption      : safeNum(row[lc.overall_avg_monthly]),
+         avg_monthly_consumption      : safeNum(row[lc.overall_avg_monthly]),
       avg_monthly_normalized_demand: safeNum(row[lc.overall_normalized]),
       total_inventory_qty          : totalStock,
       inventory_value_php          : safeNum(row[lc.overall_value]),
@@ -363,6 +431,11 @@ function getItems() {
       epa_balance                  : safeNum(row[lc.overall_epa_balance]),
       ending_with_epa_qty          : safeNum(row[lc.overall_ending_epa]),
 
+      annual_qty_2025              : annualQty2025,
+      annual_val_2025              : annualVal2025,
+      annual_qty_2026              : annualQty2026,
+      annual_val_2026              : annualVal2026,
+ 
       dispensing_inventory_qty     : dispensingStock,
       storage_inventory_qty        : storageStock,
       warehouse_inventory_qty      : warehouseStock,
