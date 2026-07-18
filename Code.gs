@@ -481,8 +481,14 @@ function getReorders() {
 function getUser(email) {
   if (!email) return { error: 'Email required.' };
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_USERS);
-  if (!sheet) return { error: 'Users sheet not found.' };
+  let sheet = ss.getSheetByName(SHEET_USERS);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_USERS);
+    sheet.appendRow(['email', 'role', 'name', 'active']);
+    sheet.appendRow(['admin@pharma.gov.ph', 'Admin', 'Admin User', true]);
+    sheet.appendRow(['dispensing@pharma.gov.ph', 'Dispensing', 'Dispensing Staff', true]);
+    sheet.appendRow(['storage@pharma.gov.ph', 'Storage', 'Storage Staff', true]);
+  }
 
   const data    = sheet.getDataRange().getValues();
   const headers = data[0].map(h => String(h).trim().toLowerCase());
