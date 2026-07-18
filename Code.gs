@@ -79,6 +79,17 @@ function safeNum(val) {
   return isNaN(val) ? 0 : val;
 }
 
+/** Helper to format date cells safely. */
+function formatDate(val) {
+  if (val === null || val === undefined || val === '') return '';
+  if (val instanceof Date) {
+    return (val.getMonth() + 1) + '/' + val.getDate() + '/' + val.getFullYear();
+  }
+  const str = String(val).trim();
+  if (str.indexOf('#') === 0) return '';
+  return str;
+}
+
 // =============================================================
 //  COLUMN AUTO-DETECTION
 // =============================================================
@@ -110,76 +121,131 @@ function detectInventoryColumns(sheet) {
     overall_ending_qty: -1,
     overall_ending_days: -1,
     overall_epa_balance: -1,
-    overall_ending_epa: -1
+    overall_ending_epa: -1,
+    overall_impact_date: -1
   };
 
-  const searchOrder = [3, 2, 4, 1, 0, 5];
-
-  // 1. Detect main sections
-  for (const r of searchOrder) {
+  // 1. Detect main sections & find average monthly consumption column to get overall_start (Rows 4 & 5, indices 3 & 4)
+  for (let r = 3; r <= 4; r++) {
     if (r >= hData.length) continue;
     const row = hData[r];
     for (let c = 0; c < row.length; c++) {
       const cell = String(row[c] || '').trim().toUpperCase();
       if (cell === '') continue;
-      
-      if (cols.dispensing_qty  === -1 && cell.includes('DISPENSING AREA'))  cols.dispensing_qty  = c;
-      if (cols.storage_qty     === -1 && cell.includes('PHARMACY STORAGE')) cols.storage_qty     = c;
-      if (cols.warehouse_qty   === -1 && cell === 'WAREHOUSE')              cols.warehouse_qty   = c;
-      if (cols.consignment_qty === -1 && cell === 'CONSIGNMENT')            cols.consignment_qty = c;
-      
-      // Look for OVERALL section header
-      if (cols.overall_start === -1 && (cell === 'OVERALL' || cell.includes('INVENTORY IMPACT: COMBINED'))) {
-        cols.overall_start = c;
+
+      if (cols.dispensing_qty === -1) {
+        if (cell === 'DISPENSING AREA' || (cell.includes('DISPENSING INVENTORY') && cell.includes('(QTY)')) || (cell.includes('DISPENSING') && cell.includes('VOLUME'))) {
+          cols.dispensing_qty = c;
+        }
+      }
+      if (cols.storage_qty === -1) {
+        if (cell === 'PHARMACY STORAGE' || (cell.includes('STORAGE INVENTORY') && cell.includes('(QTY)')) || (cell.includes('STORAGE') && cell.includes('VOLUME'))) {
+          cols.storage_qty = c;
+        }
+      }
+      if (cols.warehouse_qty === -1) {
+        if (cell === 'WAREHOUSE' || (cell.includes('WAREHOUSE INVENTORY') && cell.includes('(QTY)')) || (cell.includes('WAREHOUSE') && cell.includes('VOLUME'))) {
+          cols.warehouse_qty = c;
+        }
+      }
+      if (cols.consignment_qty === -1) {
+        if (cell === 'CONSIGNMENT' || (cell.includes('CONSIGNMENT INVENTORY') && cell.includes('(QTY)')) || (cell.includes('CONSIGNMENT') && cell.includes('VOLUME'))) {
+          cols.consignment_qty = c;
+        }
+      }
+      if (cols.overall_start === -1) {
+        if (cell.includes('AVERAGE MONTHLY CONSUMPTION') && !cell.includes('DISPENSING') && !cell.includes('STORAGE') && !cell.includes('WAREHOUSE') && !cell.includes('CONSIGNMENT')) {
+          cols.overall_start = c;
+        }
       }
     }
   }
 
-  // 2. Scan for OVERALL sub-columns if OVERALL start is found
+  // Apply layout-specific defaults based on overall_start
   if (cols.overall_start !== -1) {
-    // Scan the next 20 columns after overall_start in rows 4 and 5
+    const start = cols.overall_start;
+    if (start === 59) {
+      // Sheet 3 (Excel) layout
+      cols.overall_avg_monthly = start;
+      cols.overall_normalized  = start + 1;
+      cols.overall_total_qty   = start + 2;
+      cols.overall_value       = start + 3;
+      cols.overall_level_days  = start + 4;
+      cols.overall_impact_date = start + 5; // Col BM
+      cols.overall_pending_po  = start + 6;
+      cols.overall_ending_qty  = start + 7;
+      cols.overall_ending_days = start + 8;
+      cols.overall_epa_balance = start + 9;
+      cols.overall_ending_epa  = start + 11;
+    } else {
+      // Live Google Sheet / Sheet 2 layout
+      cols.overall_avg_monthly = start;
+      cols.overall_normalized  = start + 1;
+      cols.overall_total_qty   = start + 2;
+      cols.overall_value       = start + 3;
+      cols.overall_level_days  = start + 4;
+      cols.overall_impact_date = start + 5; // Col AO
+      cols.overall_pending_po  = start + 8;
+      cols.overall_ending_qty  = start + 9;
+      cols.overall_ending_days = start + 10;
+      cols.overall_epa_balance = start + 12;
+      cols.overall_ending_epa  = start + 13;
+    }
+  } else {
+    // Ultimate fallback
+    cols.overall_avg_monthly = 35;
+    cols.overall_normalized  = 36;
+    cols.overall_total_qty   = 37;
+    cols.overall_value       = 38;
+    cols.overall_level_days  = 39;
+    cols.overall_impact_date = 40;
+    cols.overall_pending_po  = 43;
+    cols.overall_ending_qty  = 44;
+    cols.overall_ending_days = 45;
+    cols.overall_epa_balance = 47;
+    cols.overall_ending_epa  = 48;
+  }
+
+  if (cols.dispensing_qty === -1) cols.dispensing_qty = 78;
+  if (cols.storage_qty === -1) cols.storage_qty = 85;
+
+  // Refine using scanning if OVERALL start is found
+  if (cols.overall_start !== -1) {
+    const limitCol = cols.dispensing_qty !== -1 ? cols.dispensing_qty : hData[0].length;
     for (let r = 3; r <= 4; r++) {
       if (r >= hData.length) continue;
       const row = hData[r];
-      for (let c = cols.overall_start; c < Math.min(cols.overall_start + 25, row.length); c++) {
+      const endScan = Math.min(limitCol, row.length);
+      for (let c = cols.overall_start; c < endScan; c++) {
         const cell = String(row[c] || '').trim().toUpperCase();
         if (!cell) continue;
 
-        if (cols.overall_avg_monthly === -1 && cell.includes('AVERAGE MONTHLY CONSUMPTION')) cols.overall_avg_monthly = c;
-        else if (cols.overall_normalized === -1 && cell.includes('NORMALIZED DEMAND')) cols.overall_normalized = c;
-        else if (cols.overall_total_qty === -1 && cell.includes('TOTAL INVENTORY VOLUME')) cols.overall_total_qty = c;
-        else if (cols.overall_value === -1 && (cell.includes('INVENTORY (VALUE)') || (cell.includes('INVENTORY') && cell.includes('VALUE')))) cols.overall_value = c;
-        else if (cols.overall_level_days === -1 && cell.includes('LEVEL DAYS') && !cell.includes('ENDING')) cols.overall_level_days = c;
-        else if (cols.overall_pending_po === -1 && (cell.includes('PENDING PO') || cell.includes('PO/CO') || cell.includes('QTY OF PENDING'))) cols.overall_pending_po = c;
-        else if (cols.overall_ending_qty === -1 && cell.includes('ENDING INVENTORY') && !cell.includes('DAYS') && !cell.includes('EPA')) cols.overall_ending_qty = c;
-        else if (cols.overall_ending_days === -1 && cell.includes('ENDING INVENTORY LEVEL DAYS')) cols.overall_ending_days = c;
-        else if (cols.overall_epa_balance === -1 && cell.includes('EPA') && cell.includes('BALANCE')) cols.overall_epa_balance = c;
-        else if (cols.overall_ending_epa === -1 && cell.includes('ENDING INVENTORY') && cell.includes('EPA')) cols.overall_ending_epa = c;
+        if (cell.includes('AVERAGE MONTHLY CONSUMPTION')) cols.overall_avg_monthly = c;
+        else if (cell.includes('NORMALIZED DEMAND')) cols.overall_normalized = c;
+        else if ((cell.includes('TOTAL INVENTORY VOLUME') || cell.includes('TOTAL INVENTORY(QTY)') || cell.includes('TOTAL INVENTORY VOLUME (QTY)')) && !cell.includes('ENDING')) cols.overall_total_qty = c;
+        else if ((cell.includes('INVENTORY (VALUE)') || (cell.includes('INVENTORY') && cell.includes('VALUE'))) && !cell.includes('ENDING')) cols.overall_value = c;
+        else if (cell.includes('LEVEL DAYS') && !cell.includes('ENDING')) cols.overall_level_days = c;
+        else if ((cell.includes('DATE OF IMPACT') || cell.includes('IMPACT DATE') || cell.includes('DATE OF') || cell.includes('IMPACT')) && !cell.includes('ENDING')) cols.overall_impact_date = c;
+        else if ((cell.includes('PENDING PO') || cell.includes('PO/CO') || cell.includes('QTY OF PENDING')) && !cell.includes('ENDING') && !cell.includes('HAND')) cols.overall_pending_po = c;
+        else if (cell.includes('ENDING INVENTORY') && !cell.includes('DAYS') && !cell.includes('EPA') && !cell.includes('BALANCES')) cols.overall_ending_qty = c;
+        else if (cell.includes('ENDING INVENTORY LEVEL DAYS')) cols.overall_ending_days = c;
+        else if (cell.includes('EPA') && cell.includes('BALANCE')) cols.overall_epa_balance = c;
+        else if (cell.includes('ENDING IMPACT DATE') || (cell.includes('ENDING') && cell.includes('IMPACT'))) cols.overall_ending_epa = c;
       }
     }
   }
 
-  // Fallbacks for main locations
-  if (cols.dispensing_qty  === -1) cols.dispensing_qty  = 52;
-  if (cols.storage_qty     === -1) cols.storage_qty     = 59;
-  if (cols.warehouse_qty   === -1) cols.warehouse_qty   = 66;
-  if (cols.consignment_qty === -1) cols.consignment_qty = 73;
-
-  // Fallbacks for OVERALL if not found (based on observed sheet)
-  // AJ=35, AK=36, AL=37, AM=38, AN=39, AO=40, AP=41, AQ=42, AR=43, AS=44, AT=45, AU=46, AV=47
-  if (cols.overall_avg_monthly === -1) cols.overall_avg_monthly = 35; // Col AJ
-  if (cols.overall_normalized  === -1) cols.overall_normalized  = 36; // Col AK
-  if (cols.overall_total_qty   === -1) cols.overall_total_qty   = 37; // Col AL
-  if (cols.overall_value       === -1) cols.overall_value       = 38; // Col AM
-  if (cols.overall_level_days  === -1) cols.overall_level_days  = 39; // Col AN
-  if (cols.overall_pending_po  === -1) cols.overall_pending_po  = 43; // Col AR
-  if (cols.overall_ending_qty  === -1) cols.overall_ending_qty  = 44; // Col AS
-  if (cols.overall_ending_days === -1) cols.overall_ending_days = 45; // Col AT
-  if (cols.overall_epa_balance === -1) cols.overall_epa_balance = 46; // Col AU
-  if (cols.overall_ending_epa  === -1) cols.overall_ending_epa  = 47; // Col AV
-
   Logger.log('[PharmaDash] Inventory column map: ' + JSON.stringify(cols));
   return cols;
+}
+
+/** Helper to retrieve the items sheet, supporting name fallbacks. */
+function getItemSheet(ss) {
+  let sheet = ss.getSheetByName(SHEET_ITEMS);
+  if (!sheet) {
+    sheet = ss.getSheetByName('New Inventory Utilization 2025');
+  }
+  return sheet;
 }
 
 /**
@@ -188,8 +254,8 @@ function detectInventoryColumns(sheet) {
  */
 function getSheetInfo() {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_ITEMS);
-  if (!sheet) return { error: 'Sheet not found: ' + SHEET_ITEMS };
+  const sheet = getItemSheet(ss);
+  if (!sheet) return { error: 'Sheet not found: ' + SHEET_ITEMS + ' or "New Inventory Utilization 2025"' };
 
   function colLetter(idx) {
     let s = '', n = idx + 1;
@@ -250,8 +316,8 @@ function getSheetInfo() {
 /** Returns all items from the Inventory Utilization Report sheet. */
 function getItems() {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_ITEMS);
-  if (!sheet) throw new Error('Sheet "' + SHEET_ITEMS + '" not found.');
+  const sheet = getItemSheet(ss);
+  if (!sheet) throw new Error('Sheet "' + SHEET_ITEMS + '" or "New Inventory Utilization 2025" not found.');
 
   const lastRow = sheet.getLastRow();
   const lastCol = sheet.getLastColumn();
@@ -290,6 +356,7 @@ function getItems() {
       total_inventory_qty          : totalStock,
       inventory_value_php          : safeNum(row[lc.overall_value]),
       inventory_level_days         : safeNum(row[lc.overall_level_days]),
+      date_of_impact               : lc.overall_impact_date >= 0 ? formatDate(row[lc.overall_impact_date]) : '',
       pending_po_co_qty            : safeNum(row[lc.overall_pending_po]),
       ending_inventory_qty         : safeNum(row[lc.overall_ending_qty]),
       ending_inventory_level_days  : safeNum(row[lc.overall_ending_days]),
@@ -309,31 +376,24 @@ function getItems() {
   );
 }
 
-/** Returns all reorder records from the same sheet. */
+/** Returns all reorder records from the Reorders sheet. */
 function getReorders() {
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_ITEMS);
-  if (!sheet) throw new Error('Sheet "' + SHEET_ITEMS + '" not found.');
+  let sheet = ss.getSheetByName(SHEET_REORDERS);
+  if (!sheet) {
+    try {
+      recalculateReorders();
+      sheet = ss.getSheetByName(SHEET_REORDERS);
+    } catch (e) {
+      throw new Error('Sheet "' + SHEET_REORDERS + '" not found and auto-calculation failed: ' + e.message);
+    }
+  }
+  if (!sheet) return [];
   
   const lastRow = sheet.getLastRow();
-  const lastCol = sheet.getLastColumn();
-  if (lastRow < 5) return [];
+  if (lastRow < 2) return [];
   
-  const values = sheet.getRange(5, 1, lastRow - 4, lastCol).getValues();
-  
-  return values.map(row => {
-    const reorderQty = safeNum(row[92]); // Col CO
-    return {
-      item_code: String(row[1] || '').trim(),
-      description: String(row[3] || '').trim(),
-      pharmacologic_category: String(row[6] || '').trim(),
-      avg_monthly_consumption: safeNum(row[60]),
-      inventory_level_days: safeNum(row[63]),
-      reorder_qty_6mo_safety: reorderQty,
-      pending_po_call_off: safeNum(row[65]),
-      remarks: String(row[94] || '').trim()
-    };
-  }).filter(r => r.item_code !== '' && r.reorder_qty_6mo_safety > 0);
+  return sheetToJSON(sheet);
 }
 
 /** Looks up a user by email from the Users sheet. Returns role info. */
@@ -371,10 +431,16 @@ function getStats() {
   const reorders = getReorders();
 
   const total    = items.length;
-  const critical = items.filter(it => stockDays(it) <= 7).length;
-  const low      = items.filter(it => { const d = stockDays(it); return d > 7 && d <= 30; }).length;
-  const adequate = items.filter(it => stockDays(it) > 30).length;
-  const pending  = items.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0).length;
+  
+  // Gated to 'Medicine Regular' for stock status alerts/KPIs
+  const regularItems = items.filter(it => it.pharmacy_category === 'Medicine Regular');
+  
+  const critical  = regularItems.filter(it => stockDays(it) < 30).length;
+  const low       = regularItems.filter(it => { const d = stockDays(it); return d >= 30 && d < 60; }).length;
+  const normal    = regularItems.filter(it => { const d = stockDays(it); return d >= 60 && d < 120; }).length;
+  const overstock = regularItems.filter(it => stockDays(it) >= 120).length;
+  
+  const pending   = items.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0).length;
 
   // Category breakdown
   const catMap = {};
@@ -384,7 +450,7 @@ function getStats() {
   });
 
   return {
-    total, critical, low, adequate, pending,
+    total, critical, low, normal, overstock, pending,
     categories: catMap,
     reorderCount: reorders.length,
     lastUpdated: new Date().toISOString(),
@@ -401,7 +467,8 @@ function updateInventory(params) {
   if (!item_code || !field || value === undefined) return { error: 'Missing parameters.' };
 
   const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_ITEMS);
+  const sheet = getItemSheet(ss);
+  if (!sheet) return { error: 'Inventory sheet not found.' };
   const lastRow = sheet.getLastRow();
   const lastCol = sheet.getLastColumn();
   
@@ -636,7 +703,7 @@ function recalculateReorders() {
     const rop6  = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
     const rop1  = Math.max(0, Math.round(avg * 3 + avg * 1 - stock));
     const days  = avg > 0 ? Math.round((stock / avg) * 30) : 0;
-    const status= days <= 7 ? 'Critical' : days <= 30 ? 'Low' : 'Adequate';
+    const status= days < 30 ? 'Critical' : days < 60 ? 'Low' : days < 120 ? 'Normal' : 'Over Stock';
 
     return {
       item_code:                     it.item_code || '',
