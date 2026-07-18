@@ -1424,7 +1424,10 @@ function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValV
     window[chartQtyVarName] = new Chart(ctxQty, {
       type: 'bar',
       data: {
-        labels: top10Qty.map(it => it.description.length > 25 ? it.description.substring(0,25)+'…' : it.description),
+        labels: top10Qty.map(it => {
+          const desc = it.description || '';
+          return desc.length > 35 ? desc.substring(0, 35) + '…' : desc;
+        }),
         datasets: [{
           label: 'Qty Consumed',
           data: top10Qty.map(it => parseFloat(it[qtyKey]||0)),
@@ -1435,9 +1438,17 @@ function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValV
       options: {
         responsive: true, maintainAspectRatio: false, indexAxis: 'y',
         plugins: { legend: {display:false} },
+        layout: { padding: { left: 15, right: 5 } },
         scales: {
           x: { grid: {color:'rgba(255,255,255,.05)'}, ticks: {color:'#7a8599',font:{size:9}} },
-          y: { grid: {display:false}, ticks: {color:'#e8edf5',font:{size:9}} },
+          y: { 
+            grid: {display:false}, 
+            ticks: {
+              color:'#e8edf5',
+              font:{size:9},
+              padding: 8
+            } 
+          },
         }
       }
     });
@@ -1455,7 +1466,10 @@ function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValV
     window[chartValVarName] = new Chart(ctxVal, {
       type: 'bar',
       data: {
-        labels: top10Val.map(it => it.description.length > 25 ? it.description.substring(0,25)+'…' : it.description),
+        labels: top10Val.map(it => {
+          const desc = it.description || '';
+          return desc.length > 35 ? desc.substring(0, 35) + '…' : desc;
+        }),
         datasets: [{
           label: 'Acquisition Amount (₱)',
           data: top10Val.map(it => parseFloat(it[valKey]||0)),
@@ -1475,6 +1489,7 @@ function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValV
             }
           }
         },
+        layout: { padding: { left: 15, right: 5 } },
         scales: {
           x: { 
             grid: {color:'rgba(255,255,255,.05)'}, 
@@ -1484,7 +1499,14 @@ function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValV
               callback: function(value) { return '₱' + value.toLocaleString(); }
             } 
           },
-          y: { grid: {display:false}, ticks: {color:'#e8edf5',font:{size:9}} },
+          y: { 
+            grid: {display:false}, 
+            ticks: {
+              color:'#e8edf5',
+              font:{size:9},
+              padding: 8
+            } 
+          },
         }
       }
     });
