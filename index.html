@@ -203,6 +203,21 @@
     }
     .topbar-title { font-size: 16px; font-weight: 700; flex: 1; }
     .topbar-date  { font-size: 12px; color: var(--text-muted); }
+    .menu-btn {
+      display: none; background: none; color: var(--text-main);
+      font-size: 20px; padding: 4px; margin-right: 4px;
+      align-items: center; justify-content: center; border: none; cursor: pointer;
+    }
+    .sidebar-backdrop {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2px);
+      z-index: 90; display: none; opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-backdrop.active {
+      display: block; opacity: 1;
+    }
     .search-box {
       display: flex; align-items: center; gap: 8px;
       background: var(--bg-card); border: 1px solid var(--border-lit);
@@ -403,18 +418,25 @@
     .toast.error   { border-left: 3px solid var(--danger); }
     .toast.info    { border-left: 3px solid var(--info); }
 
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
-      .sidebar { transform: translateX(-100%); }
+      .sidebar {
+        position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
+        transition: transform 0.3s ease;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        transform: translateX(-100%);
+      }
       .sidebar.open { transform: translateX(0); }
       .main-content { margin-left: 0; }
+      .menu-btn { display: inline-flex; }
       .charts-grid { grid-template-columns: 1fr; }
       .charts-subgrid { grid-template-columns: 1fr !important; }
     }
     @media (max-width: 600px) {
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
       .content-area { padding: 16px; }
       .topbar { padding: 12px 16px; }
+      .table-toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+      .table-toolbar .toolbar-title { margin-bottom: 4px; }
     }
 
     /* ===== MISC ===== */
@@ -498,6 +520,7 @@
     <!-- MAIN -->
     <div class="main-content">
       <div class="topbar">
+        <button class="menu-btn" onclick="toggleSidebar()" title="Toggle Menu">☰</button>
         <div class="topbar-title" id="topbar-title">Dashboard</div>
         <div class="search-box" id="global-search-box">
           <span>🔍</span>
@@ -1573,6 +1596,26 @@ function renderPagination(prefix, total, page, pageSize) {
 // ================================================================
 //  NAVIGATION
 // ================================================================
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('open');
+  
+  let backdrop = document.getElementById('sidebar-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.id = 'sidebar-backdrop';
+    backdrop.className = 'sidebar-backdrop';
+    backdrop.onclick = toggleSidebar;
+    document.body.appendChild(backdrop);
+  }
+  
+  if (sidebar.classList.contains('open')) {
+    backdrop.classList.add('active');
+  } else {
+    backdrop.classList.remove('active');
+  }
+}
+
 function showSection(id, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1583,6 +1626,12 @@ function showSection(id, el) {
   document.getElementById('global-search-box').style.display = (id === 'inventory') ? 'flex' : 'none';
   if (id === 'inventory') filterInventory();
   if (id === 'reorder')   filterReorder();
+
+  // Auto-close drawer on selection
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar && sidebar.classList.contains('open')) {
+    toggleSidebar();
+  }
 }
 
 function globalSearch(val) { filterInventory(); }
