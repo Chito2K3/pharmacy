@@ -967,6 +967,10 @@ function bootApp() {
   document.getElementById('user-role-display').textContent = currentUser.role;
   document.getElementById('user-avatar').textContent = currentUser.name[0].toUpperCase();
 
+  // Populate config input with current active URL
+  const configInput = document.getElementById('apps-script-url');
+  if (configInput) { configInput.value = APPS_SCRIPT_URL; }
+
   applyRoleVisibility();
   loadData();
 }
