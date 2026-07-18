@@ -17,14 +17,22 @@ const SHEET_LOG      = 'AuditLog';
 function doGet(e) {
   const params = e ? e.parameter : {};
   const action = params.action || '';
-  const email  = params.email  || '';
-  const token  = params.token  || '';
 
-  // CORS-friendly response helper
+  // If no action parameter, serve the dashboard page
+  if (!action) {
+    return HtmlService.createHtmlOutputFromFile('dashboard')
+      .setTitle('PharmaDash — Pharmacy Inventory Dashboard')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
+  // CORS-friendly JSON response helper for API calls
   const respond = (data) =>
     ContentService
       .createTextOutput(JSON.stringify(data))
       .setMimeType(ContentService.MimeType.JSON);
+
+  const email  = params.email  || '';
+  const token  = params.token  || '';
 
   try {
     switch (action) {
@@ -32,7 +40,7 @@ function doGet(e) {
       case 'getReorders':  return respond(getReorders());
       case 'getUser':      return respond(getUser(email));
       case 'getStats':     return respond(getStats());
-      case 'getSheetInfo': return respond(getSheetInfo()); // debug endpoint
+      case 'getSheetInfo': return respond(getSheetInfo());
       case 'ping':         return respond({ status: 'ok', timestamp: new Date().toISOString() });
       default:
         return respond({ error: 'Unknown action: ' + action });

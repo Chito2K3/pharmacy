@@ -917,16 +917,37 @@ function applyRoleVisibility() {
   // (simplified — full role gating done in render functions)
 }
 
-// ================================================================
-//  DATA LOADING
-// ================================================================
+// Helper: wrap google.script.run in a Promise
+function gscriptCall(fnName) {
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(resolve)
+      .withFailureHandler(reject)
+      [fnName]();
+  });
+}
+
 async function loadData() {
   showToast('Loading inventory data…', 'info');
 
-  // Skip API fetch when running from file:// (CORS will always block it)
-  const isLocal = window.location.protocol === 'file:';
+  // 1. Try google.script.run (works when served from Apps Script)
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    try {
+      const [items, reorders] = await Promise.all([
+        gscriptCall('getItems'),
+        gscriptCall('getReorders'),
+      ]);
+      allItems    = items    || [];
+      allReorders = reorders || [];
+      showToast('Live data loaded from Google Sheets ✓', 'success');
+    } catch(e) {
+      console.error('google.script.run error:', e);
+      showToast('Server error: ' + (e.message || e), 'error');
+      loadSampleData();
+    }
 
-  if (APPS_SCRIPT_URL && !isLocal) {
+  // 2. Fallback: fetch API (when URL is configured manually)
+  } else if (APPS_SCRIPT_URL) {
     try {
       const [itemsRes, reordRes] = await Promise.all([
         fetch(`${APPS_SCRIPT_URL}?action=getItems`),
@@ -935,21 +956,18 @@ async function loadData() {
       allItems    = await itemsRes.json();
       allReorders = await reordRes.json();
 
-      if (allItems && allItems.error) {
-        throw new Error(allItems.error);
-      }
-      if (allReorders && allReorders.error) {
-        throw new Error(allReorders.error);
-      }
-      if (!Array.isArray(allItems) || !Array.isArray(allReorders)) {
-        throw new Error('API response is not in array format');
-      }
+      if (allItems && allItems.error) throw new Error('Server: ' + allItems.error);
+      if (allReorders && allReorders.error) throw new Error('Server: ' + allReorders.error);
+      if (!Array.isArray(allItems) || !Array.isArray(allReorders)) throw new Error('API response is not in array format');
 
       showToast('Live data loaded from Google Sheets ✓', 'success');
     } catch(e) {
+      console.error('Fetch API error:', e);
       showToast('API Error: ' + e.message, 'error');
       loadSampleData();
     }
+
+  // 3. No connection — use sample data
   } else {
     loadSampleData();
   }
