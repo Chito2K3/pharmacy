@@ -923,7 +923,10 @@ function applyRoleVisibility() {
 async function loadData() {
   showToast('Loading inventory data…', 'info');
 
-  if (APPS_SCRIPT_URL) {
+  // Skip API fetch when running from file:// (CORS will always block it)
+  const isLocal = window.location.protocol === 'file:';
+
+  if (APPS_SCRIPT_URL && !isLocal) {
     try {
       const [itemsRes, reordRes] = await Promise.all([
         fetch(`${APPS_SCRIPT_URL}?action=getItems`),
