@@ -696,42 +696,79 @@
 
         <!-- ===== ANALYTICS SECTION ===== -->
         <div class="section admin-only" id="sec-analytics">
-          <div class="section-header">
-            <h2>Analytics</h2>
-            <p>Consumption trends and inventory health across all locations</p>
+          <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h2>Analytics</h2>
+              <p>Consumption trends and inventory health across all locations</p>
+            </div>
+            <div>
+              <select class="filter-select" id="analytics-year" onchange="updateAnalyticsCharts()" style="padding:6px 12px; font-size:13px; width:auto;">
+                <option value="2025" selected>Year 2025</option>
+                <option value="2026">Year 2026 (Annualized)</option>
+              </select>
+            </div>
           </div>
           <div class="stats-grid" id="analytics-stats"></div>
           <div class="divider"></div>
-          <div class="charts-grid">
-            <div class="chart-card" style="display:flex; flex-direction:column; gap:16px;">
-              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-                <h3 style="margin:0;">Annual Consumption (Top 10 Items)</h3>
-                <select class="filter-select" id="analytics-year" onchange="updateAnalyticsCharts()" style="padding:4px 8px; font-size:12px; width:auto;">
-                  <option value="2025" selected>Year 2025</option>
-                  <option value="2026">Year 2026 (Annualized)</option>
-                </select>
-              </div>
+          <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
+            
+            <!-- Card 1: Medicine Regular -->
+            <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
+              <h3 style="margin:0;">Medicine Regular — Annual Consumption (Top 10)</h3>
               <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
                 <div>
                   <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed</h4>
                   <div class="chart-wrap" style="height:280px">
-                    <canvas id="chart-annual-qty"></canvas>
+                    <canvas id="chart-regular-qty"></canvas>
                   </div>
                 </div>
                 <div>
                   <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Amount)</h4>
                   <div class="chart-wrap" style="height:280px">
-                    <canvas id="chart-annual-val"></canvas>
+                    <canvas id="chart-regular-val"></canvas>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="chart-card">
-              <h3>Inventory by Location</h3>
-              <div class="chart-wrap" style="height:280px">
-                <canvas id="chart-location"></canvas>
+
+            <!-- Card 2: Consignment -->
+            <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
+              <h3 style="margin:0;">Consignment — Annual Consumption (Top 10)</h3>
+              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div>
+                  <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed</h4>
+                  <div class="chart-wrap" style="height:280px">
+                    <canvas id="chart-consignment-qty"></canvas>
+                  </div>
+                </div>
+                <div>
+                  <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Amount)</h4>
+                  <div class="chart-wrap" style="height:280px">
+                    <canvas id="chart-consignment-val"></canvas>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <!-- Card 3: Donation -->
+            <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
+              <h3 style="margin:0;">Donation — Annual Consumption (Top 10)</h3>
+              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+                <div>
+                  <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed</h4>
+                  <div class="chart-wrap" style="height:280px">
+                    <canvas id="chart-donation-qty"></canvas>
+                  </div>
+                </div>
+                <div>
+                  <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Amount)</h4>
+                  <div class="chart-wrap" style="height:280px">
+                    <canvas id="chart-donation-val"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -840,9 +877,12 @@ let allReorders = [];
 
 let statusChart = null;
 let categoryChart = null;
-let annualQtyChart = null;
-let annualValChart = null;
-let locationChart = null;
+let regQtyChart = null;
+let regValChart = null;
+let conQtyChart = null;
+let conValChart = null;
+let donQtyChart = null;
+let donValChart = null;
 
 // Pagination state
 let invPage    = 1; const INV_PAGE_SIZE    = 50;
@@ -1363,31 +1403,32 @@ function buildAnalytics() {
     </div>`;
 
   buildAnnualConsumptionCharts();
-  buildLocationChart(dispensing, storage, warehouse, consignment);
 }
 
-function buildAnnualConsumptionCharts() {
+function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValVarName, canvasQtyId, canvasValId, hueBase) {
   const yr = document.getElementById('analytics-year').value || '2025';
   const qtyKey = yr === '2026' ? 'annual_qty_2026' : 'annual_qty_2025';
   const valKey = yr === '2026' ? 'annual_val_2026' : 'annual_val_2025';
 
+  const filteredItems = allItems.filter(filterFn);
+
   // 1. Qty Chart
-  const ctxQty = document.getElementById('chart-annual-qty');
+  const ctxQty = document.getElementById(canvasQtyId);
   if (ctxQty) {
-    const top10Qty = [...allItems]
+    const top10Qty = [...filteredItems]
       .filter(it => parseFloat(it[qtyKey]||0) > 0)
       .sort((a,b) => parseFloat(b[qtyKey]||0) - parseFloat(a[qtyKey]||0))
       .slice(0,10);
 
-    if (annualQtyChart) { annualQtyChart.destroy(); }
-    annualQtyChart = new Chart(ctxQty, {
+    if (window[chartQtyVarName]) { window[chartQtyVarName].destroy(); }
+    window[chartQtyVarName] = new Chart(ctxQty, {
       type: 'bar',
       data: {
-        labels: top10Qty.map(it => it.description.length > 22 ? it.description.substring(0,22)+'…' : it.description),
+        labels: top10Qty.map(it => it.description.length > 25 ? it.description.substring(0,25)+'…' : it.description),
         datasets: [{
           label: 'Qty Consumed',
           data: top10Qty.map(it => parseFloat(it[qtyKey]||0)),
-          backgroundColor: top10Qty.map((_,i) => `hsla(${185+i*8},80%,55%,0.75)`),
+          backgroundColor: top10Qty.map((_,i) => `hsla(${hueBase+i*4},80%,55%,0.75)`),
           borderRadius: 6,
         }]
       },
@@ -1403,22 +1444,22 @@ function buildAnnualConsumptionCharts() {
   }
 
   // 2. Value Chart
-  const ctxVal = document.getElementById('chart-annual-val');
+  const ctxVal = document.getElementById(canvasValId);
   if (ctxVal) {
-    const top10Val = [...allItems]
+    const top10Val = [...filteredItems]
       .filter(it => parseFloat(it[valKey]||0) > 0)
       .sort((a,b) => parseFloat(b[valKey]||0) - parseFloat(a[valKey]||0))
       .slice(0,10);
 
-    if (annualValChart) { annualValChart.destroy(); }
-    annualValChart = new Chart(ctxVal, {
+    if (window[chartValVarName]) { window[chartValVarName].destroy(); }
+    window[chartValVarName] = new Chart(ctxVal, {
       type: 'bar',
       data: {
-        labels: top10Val.map(it => it.description.length > 22 ? it.description.substring(0,22)+'…' : it.description),
+        labels: top10Val.map(it => it.description.length > 25 ? it.description.substring(0,25)+'…' : it.description),
         datasets: [{
           label: 'Acquisition Amount (₱)',
           data: top10Val.map(it => parseFloat(it[valKey]||0)),
-          backgroundColor: top10Val.map((_,i) => `hsla(${35+i*6},90%,60%,0.75)`),
+          backgroundColor: top10Val.map((_,i) => `hsla(${(hueBase + 120)%360 + i*4},90%,60%,0.75)`),
           borderRadius: 6,
         }]
       },
@@ -1450,32 +1491,37 @@ function buildAnnualConsumptionCharts() {
   }
 }
 
-function updateAnalyticsCharts() {
-  buildAnnualConsumptionCharts();
+function buildAnnualConsumptionCharts() {
+  // Medicine Regular
+  buildCategoryCharts(
+    'Medicine Regular',
+    it => it.pharmacy_category === 'Medicine Regular',
+    'regQtyChart', 'regValChart',
+    'chart-regular-qty', 'chart-regular-val',
+    185 // Teal base
+  );
+
+  // Consignment
+  buildCategoryCharts(
+    'Consignment',
+    it => String(it.pharmacy_category || '').toLowerCase().includes('consig'),
+    'conQtyChart', 'conValChart',
+    'chart-consignment-qty', 'chart-consignment-val',
+    35 // Amber base
+  );
+
+  // Donation
+  buildCategoryCharts(
+    'Donation',
+    it => String(it.pharmacy_category || '').toLowerCase().includes('donat'),
+    'donQtyChart', 'donValChart',
+    'chart-donation-qty', 'chart-donation-val',
+    280 // Purple base
+  );
 }
 
-function buildLocationChart(d, s, w, c) {
-  const ctx = document.getElementById('chart-location');
-  if (!ctx) return;
-  if (locationChart) { locationChart.destroy(); }
-  locationChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Dispensing', 'Storage', 'Warehouse', 'Consignment'],
-      datasets: [{
-        data: [d,s,w,c],
-        backgroundColor: ['#06b6d4','#10b981','#f59e0b','#8b5cf6'],
-        borderColor: '#111827', borderWidth: 3, hoverOffset: 8,
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position:'bottom', labels: {color:'#7a8599',font:{size:11},padding:14} },
-      },
-      cutout: '55%',
-    }
-  });
+function updateAnalyticsCharts() {
+  buildAnnualConsumptionCharts();
 }
 
 // ================================================================
