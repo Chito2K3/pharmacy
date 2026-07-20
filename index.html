@@ -243,13 +243,21 @@
     .kpi-card {
       background: var(--bg-card); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 20px;
-      transition: border .2s, box-shadow .2s; position: relative; overflow: hidden;
+      transition: border .2s, box-shadow .2s, transform .2s, background .2s; position: relative; overflow: hidden;
+      cursor: pointer; user-select: none;
     }
     .kpi-card::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
       background: var(--kpi-color, var(--accent));
+      transition: height .2s;
     }
-    .kpi-card:hover { border-color: var(--border-lit); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+    .kpi-card:hover { border-color: var(--border-lit); box-shadow: 0 8px 24px rgba(0,0,0,.3); transform: translateY(-2px); }
+    .kpi-card.active {
+      border-color: var(--kpi-color, var(--accent));
+      background: color-mix(in srgb, var(--kpi-color, var(--accent)) 10%, var(--bg-card));
+      box-shadow: 0 0 20px color-mix(in srgb, var(--kpi-color, var(--accent)) 30%, transparent);
+    }
+    .kpi-card.active::before { height: 5px; }
     .kpi-icon {
       width: 40px; height: 40px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
@@ -544,32 +552,32 @@
           </div>
 
           <div class="kpi-grid" id="kpi-grid">
-            <div class="kpi-card" style="--kpi-color:var(--accent)">
+            <div class="kpi-card" data-kpi="all" style="--kpi-color:var(--accent)" onclick="filterDashboardTable('all', this)">
               <div class="kpi-icon">📦</div>
               <div class="kpi-value" id="kpi-total-items">—</div>
               <div class="kpi-label">Total Active Items</div>
             </div>
-            <div class="kpi-card" style="--kpi-color:var(--danger)">
+            <div class="kpi-card active" data-kpi="critical" style="--kpi-color:var(--danger)" onclick="filterDashboardTable('critical', this)">
               <div class="kpi-icon">🚨</div>
               <div class="kpi-value" id="kpi-critical">—</div>
               <div class="kpi-label">Critical Stock (< 30 days)</div>
             </div>
-            <div class="kpi-card" style="--kpi-color:var(--warning)">
+            <div class="kpi-card" data-kpi="warning" style="--kpi-color:var(--warning)" onclick="filterDashboardTable('warning', this)">
               <div class="kpi-icon">⚠️</div>
               <div class="kpi-value" id="kpi-warning">—</div>
               <div class="kpi-label">Low Stock (30-59 days)</div>
             </div>
-            <div class="kpi-card" style="--kpi-color:var(--success)">
+            <div class="kpi-card" data-kpi="ok" style="--kpi-color:var(--success)" onclick="filterDashboardTable('ok', this)">
               <div class="kpi-icon">✅</div>
               <div class="kpi-value" id="kpi-ok">—</div>
               <div class="kpi-label">Normal Stock (60-119 days)</div>
             </div>
-            <div class="kpi-card" style="--kpi-color:var(--accent2)">
+            <div class="kpi-card" data-kpi="overstock" style="--kpi-color:var(--accent2)" onclick="filterDashboardTable('overstock', this)">
               <div class="kpi-icon">📈</div>
               <div class="kpi-value" id="kpi-overstock">—</div>
               <div class="kpi-label">Over Stock (≥ 120 days)</div>
             </div>
-            <div class="kpi-card" style="--kpi-color:var(--info)">
+            <div class="kpi-card" data-kpi="pending" style="--kpi-color:var(--info)" onclick="filterDashboardTable('pending', this)">
               <div class="kpi-icon">📋</div>
               <div class="kpi-value" id="kpi-pending">—</div>
               <div class="kpi-label">Pending PO / CO Orders</div>
@@ -591,9 +599,9 @@
             </div>
           </div>
 
-          <div class="table-card">
+          <div class="table-card" id="urgent-table-card">
             <div class="table-toolbar">
-              <div class="toolbar-title">⚠️ Urgent Items — Needs Immediate Attention</div>
+              <div class="toolbar-title" id="urgent-table-title">🚨 Critical Stock Items (< 30 Days)</div>
             </div>
             <div class="table-container">
               <table class="data-table" id="urgent-table">
@@ -1166,34 +1174,84 @@ function buildDashboard() {
   // Reorder badge
   document.getElementById('reorder-badge').textContent = (critical + warning).toString();
 
-  // Urgent table
-  const urgent = regularItems
-    .filter(it => {
-      const s = stockStatus(it.inventory_level_days);
-      return s === 'critical' || s === 'warning';
-    })
-    .sort((a,b) => parseFloat(a.inventory_level_days||0) - parseFloat(b.inventory_level_days||0))
-    .slice(0, 20);
-
-  const tbody = document.getElementById('urgent-tbody');
-  tbody.innerHTML = urgent.map(it => {
-    const days = parseFloat(it.inventory_level_days)||0;
-    const avg  = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0);
-    const stock= parseFloat(it.total_inventory_qty || 0);
-    const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
-    return `<tr>
-      <td class="code">${it.item_code}</td>
-      <td><div class="item-desc" title="${it.description}">${it.description}</div></td>
-      <td><span class="text-sm text-muted">${it.pharmacologic_category||'—'}</span></td>
-      <td class="num-cell"><strong>${fmtD(days)}</strong></td>
-      <td>${statusBadge(days)}</td>
-      <td class="num-cell">${fmt(reorderQty)}</td>
-    </tr>`;
-  }).join('') || `<tr><td colspan="6" class="empty-state"><div class="empty-icon">✅</div><p>All items adequately stocked!</p></td></tr>`;
+  // Filter & populate summary table according to active KPI card selection
+  filterDashboardTable(activeKpiFilter);
 
   // Charts
   buildStatusChart(critical, warning, ok, overstock);
   buildCategoryChart();
+}
+
+let activeKpiFilter = 'critical';
+
+function filterDashboardTable(filterType, cardEl) {
+  if (filterType) activeKpiFilter = filterType;
+
+  // Highlight active card in KPI grid
+  document.querySelectorAll('#kpi-grid .kpi-card').forEach(card => card.classList.remove('active'));
+  if (cardEl) {
+    cardEl.classList.add('active');
+  } else {
+    const target = document.querySelector(`#kpi-grid .kpi-card[data-kpi="${activeKpiFilter}"]`);
+    if (target) target.classList.add('active');
+  }
+
+  const regularItems = allItems.filter(it => it.pharmacy_category === 'Medicine Regular');
+  let filtered = [];
+  let title = '';
+
+  switch (activeKpiFilter) {
+    case 'critical':
+      filtered = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'critical');
+      title = `🚨 Critical Stock Items (< 30 Days) — ${filtered.length} Items`;
+      break;
+    case 'warning':
+      filtered = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'warning');
+      title = `⚠️ Low Stock Items (30–59 Days) — ${filtered.length} Items`;
+      break;
+    case 'ok':
+      filtered = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'ok');
+      title = `✅ Normal Stock Items (60–119 Days) — ${filtered.length} Items`;
+      break;
+    case 'overstock':
+      filtered = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'overstock');
+      title = `📈 Over Stock Items (≥ 120 Days) — ${filtered.length} Items`;
+      break;
+    case 'pending':
+      filtered = allItems.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0);
+      title = `📋 Pending PO / CO Orders — ${filtered.length} Items`;
+      break;
+    case 'all':
+    default:
+      filtered = allItems;
+      title = `📦 All Active Pharmacy Items — ${filtered.length} Items`;
+      break;
+  }
+
+  // Sort by inventory level days ascending
+  filtered.sort((a,b) => parseFloat(a.inventory_level_days || 0) - parseFloat(b.inventory_level_days || 0));
+
+  const titleEl = document.getElementById('urgent-table-title');
+  if (titleEl) titleEl.innerHTML = title;
+
+  const tbody = document.getElementById('urgent-tbody');
+  if (tbody) {
+    const displayList = filtered.slice(0, 50); // top 50
+    tbody.innerHTML = displayList.map(it => {
+      const days = parseFloat(it.inventory_level_days) || 0;
+      const avg  = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0);
+      const stock= parseFloat(it.total_inventory_qty || 0);
+      const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
+      return `<tr>
+        <td class="code">${it.item_code}</td>
+        <td><div class="item-desc" title="${it.description}">${it.description}</div></td>
+        <td><span class="text-sm text-muted">${it.pharmacologic_category || '—'}</span></td>
+        <td class="num-cell"><strong>${fmtD(days)}</strong></td>
+        <td>${statusBadge(days)}</td>
+        <td class="num-cell">${fmt(reorderQty)}</td>
+      </tr>`;
+    }).join('') || `<tr><td colspan="6" class="empty-state"><div class="empty-icon">✅</div><p>No items found for this selection.</p></td></tr>`;
+  }
 }
 
 function buildStatusChart(critical, warning, ok, overstock) {

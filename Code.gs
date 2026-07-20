@@ -559,11 +559,32 @@ function updateInventory(params) {
   const lastRow = sheet.getLastRow();
   const lastCol = sheet.getLastColumn();
   
-  const headers = sheet.getRange(4, 1, 1, lastCol).getValues()[0].map(h => String(h).trim());
-  const colIdx  = headers.indexOf(field);
+  const lc = detectInventoryColumns(sheet);
 
-  if (colIdx < 0)  return { error: `Column "${field}" not found.` };
-  
+  // Map JS model field names to 0-based column indices detected dynamically
+  const fieldToColMap = {
+    'dispensing_inventory_qty': lc.dispensing_qty,
+    'storage_inventory_qty':    lc.storage_qty,
+    'warehouse_inventory_qty':  lc.warehouse_qty,
+    'consignment_inventory_qty': lc.consignment_qty,
+    'total_inventory_qty':      lc.overall_total_qty,
+    'inventory_value_php':      lc.overall_value,
+    'pending_po_co_qty':        lc.overall_pending_po,
+    'ending_inventory_qty':     lc.overall_ending_qty,
+    'epa_balance':              lc.overall_epa_balance,
+    'ending_with_epa_qty':      lc.overall_ending_epa,
+  };
+
+  let colIdx = fieldToColMap[field] !== undefined ? fieldToColMap[field] : -1;
+
+  // Fallback: search row 4 headers if not found in fieldToColMap
+  if (colIdx < 0) {
+    const headers = sheet.getRange(4, 1, 1, lastCol).getValues()[0].map(h => String(h).trim());
+    colIdx = headers.indexOf(field);
+  }
+
+  if (colIdx < 0) return { error: `Column "${field}" not found or could not be mapped.` };
+
   const data = sheet.getRange(5, 1, lastRow - 4, lastCol).getValues();
 
   for (let i = 0; i < data.length; i++) {
