@@ -370,7 +370,14 @@
     .priority-dot.ok       { background: var(--success); }
     .priority-dot.overstock { background: var(--info); }
 
-    /* ===== STATS SECTION ===== */
+    /* ===== STATS & ANALYTICS SECTION ===== */
+    #sec-analytics { width: 100% !important; max-width: 100% !important; box-sizing: border-box; }
+    #sec-analytics .chart-card { width: 100% !important; max-width: 100% !important; box-sizing: border-box; }
+    .analytics-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; width: 100%; }
+    .analytics-sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; width: 100%; box-sizing: border-box; }
+    @media (max-width: 900px) {
+      .analytics-sub-grid { grid-template-columns: 1fr; }
+    }
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
     .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-bottom: 24px; }
     .stat-block {
@@ -775,23 +782,24 @@
               </select>
             </div>
           </div>
-          <div class="analytics-grid" id="analytics-stats"></div>
+          <div class="analytics-kpi-grid" id="analytics-kpis"></div>
+          <div class="analytics-sub-grid" id="analytics-stats"></div>
           <div class="divider"></div>
           <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
             
             <!-- Card 1: Medicine Regular -->
             <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
               <h3 style="margin:0;">Medicine Regular — Annual Consumption (Top 10)</h3>
-              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
                 <div>
                   <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed</h4>
-                  <div class="chart-wrap" style="height:280px">
+                  <div class="chart-wrap" style="height:340px; width:100%;">
                     <canvas id="chart-regular-qty"></canvas>
                   </div>
                 </div>
                 <div>
                   <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Amount)</h4>
-                  <div class="chart-wrap" style="height:280px">
+                  <div class="chart-wrap" style="height:340px; width:100%;">
                     <canvas id="chart-regular-val"></canvas>
                   </div>
                 </div>
@@ -801,16 +809,16 @@
             <!-- Card 2: Consignment -->
             <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
               <h3 style="margin:0;">Consignment — Annual Consumption (Top 10)</h3>
-              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
                 <div>
                   <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed</h4>
-                  <div class="chart-wrap" style="height:280px">
+                  <div class="chart-wrap" style="height:340px; width:100%;">
                     <canvas id="chart-consignment-qty"></canvas>
                   </div>
                 </div>
                 <div>
                   <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Amount)</h4>
-                  <div class="chart-wrap" style="height:280px">
+                  <div class="chart-wrap" style="height:340px; width:100%;">
                     <canvas id="chart-consignment-val"></canvas>
                   </div>
                 </div>
@@ -820,16 +828,16 @@
             <!-- Card 3: Donation -->
             <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
               <h3 style="margin:0;">Donation — Annual Consumption (Top 10)</h3>
-              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
                 <div>
                   <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed</h4>
-                  <div class="chart-wrap" style="height:280px">
+                  <div class="chart-wrap" style="height:340px; width:100%;">
                     <canvas id="chart-donation-qty"></canvas>
                   </div>
                 </div>
                 <div>
                   <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Amount)</h4>
-                  <div class="chart-wrap" style="height:280px">
+                  <div class="chart-wrap" style="height:340px; width:100%;">
                     <canvas id="chart-donation-val"></canvas>
                   </div>
                 </div>
@@ -1576,32 +1584,81 @@ function buildAnalytics() {
   const avgMonthly  = allItems.reduce((s,it) => s + (parseFloat(it.avg_monthly_consumption)||0), 0);
   const endingStock = allItems.reduce((s,it) => s + (parseFloat(it.ending_inventory_qty)||0), 0);
   const endingEpa   = allItems.reduce((s,it) => s + (parseFloat(it.ending_with_epa_qty)||0), 0);
-  
+  const pendingItems= allItems.filter(it => parseFloat(it.pending_po_co_qty||0)>0).length;
+
+  const kpiEl = document.getElementById('analytics-kpis');
+  if (kpiEl) {
+    kpiEl.innerHTML = `
+      <div class="kpi-card" style="--kpi-color:var(--accent)">
+        <div class="kpi-icon">📦</div>
+        <div class="kpi-value">${totalItems.toLocaleString()}</div>
+        <div class="kpi-label">Active Items (${fmt(totalStock)} Units)</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--success)">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-value" style="font-size:22px">₱${totalValue.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+        <div class="kpi-label">Total Inventory Valuation</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--info)">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-value">${Math.round(avgMonthly).toLocaleString()}</div>
+        <div class="kpi-label">Avg Monthly Demand (Units)</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:var(--warning)">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-value">${pendingItems.toLocaleString()}</div>
+        <div class="kpi-label">Items with Pending Requisitions</div>
+      </div>
+    `;
+  }
+
   // Locations breakdown
   const dispensing  = allItems.reduce((s,it) => s + (parseFloat(it.dispensing_inventory_qty)||0), 0);
   const storage     = allItems.reduce((s,it) => s + (parseFloat(it.storage_inventory_qty)||0), 0);
   const warehouse   = allItems.reduce((s,it) => s + (parseFloat(it.warehouse_inventory_qty)||0), 0);
   const consignment = allItems.reduce((s,it) => s + (parseFloat(it.consignment_inventory_qty)||0), 0);
-  const pendingItems= allItems.filter(it => parseFloat(it.pending_po_co_qty||0)>0).length;
 
-  document.getElementById('analytics-stats').innerHTML = `
-    <div class="stat-block">
-      <h4>Inventory Summary (Overall)</h4>
-      <div class="stat-row"><span class="label">Total Items</span><span class="val">${totalItems.toLocaleString()}</span></div>
-      <div class="stat-row"><span class="label">Total Stock Units</span><span class="val text-accent">${totalStock.toLocaleString()}</span></div>
-      <div class="stat-row"><span class="label">Total Inventory Value</span><span class="val text-success">₱${totalValue.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
-      <div class="stat-row"><span class="label">Total Avg Monthly Cons.</span><span class="val">${avgMonthly.toLocaleString(undefined, {maximumFractionDigits:1})}</span></div>
-      <div class="stat-row"><span class="label">Items with Pending PO/CO</span><span class="val text-warning">${pendingItems.toLocaleString()}</span></div>
-      <div class="stat-row"><span class="label">Ending Inv. (On Hand + PO)</span><span class="val">${endingStock.toLocaleString()}</span></div>
-      <div class="stat-row"><span class="label">Ending Inv. (with EPA)</span><span class="val">${endingEpa.toLocaleString()}</span></div>
-    </div>
-    <div class="stat-block">
-      <h4>Stock by Location</h4>
-      <div class="stat-row"><span class="label">Dispensing Area</span><span class="val text-accent">${dispensing.toLocaleString()}</span></div>
-      <div class="stat-row"><span class="label">Pharmacy Storage</span><span class="val text-success">${storage.toLocaleString()}</span></div>
-      <div class="stat-row"><span class="label">Warehouse</span><span class="val text-warning">${warehouse.toLocaleString()}</span></div>
-      <div class="stat-row"><span class="label">Consignment</span><span class="val text-muted">${consignment.toLocaleString()}</span></div>
-    </div>`;
+  const locTotal = (dispensing + storage + warehouse + consignment) || 1;
+  const dispPct  = ((dispensing / locTotal) * 100).toFixed(1);
+  const storPct  = ((storage / locTotal) * 100).toFixed(1);
+  const warePct  = ((warehouse / locTotal) * 100).toFixed(1);
+  const consPct  = ((consignment / locTotal) * 100).toFixed(1);
+
+  const statsEl = document.getElementById('analytics-stats');
+  if (statsEl) {
+    statsEl.innerHTML = `
+      <div class="stat-block">
+        <h4>Inventory Summary (Overall)</h4>
+        <div class="stat-row"><span class="label">Total Masterlist Items</span><span class="val">${totalItems.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="label">Total Physical Stock Units</span><span class="val text-accent">${totalStock.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="label">Total Inventory Value</span><span class="val text-success">₱${totalValue.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+        <div class="stat-row"><span class="label">Total Avg Monthly Cons.</span><span class="val">${avgMonthly.toLocaleString(undefined, {maximumFractionDigits:1})}</span></div>
+        <div class="stat-row"><span class="label">Items with Pending PO/CO</span><span class="val text-warning">${pendingItems.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="label">Ending Inv. (On Hand + PO)</span><span class="val">${endingStock.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="label">Ending Inv. (with EPA)</span><span class="val">${endingEpa.toLocaleString()}</span></div>
+      </div>
+      <div class="stat-block">
+        <h4>Stock Distribution by Location</h4>
+        <div style="display:flex; flex-direction:column; gap:14px; margin-top:8px;">
+          <div>
+            <div class="stat-row" style="border:none; padding:2px 0;"><span class="label">Dispensing Area</span><span class="val text-accent">${dispensing.toLocaleString()} units (${dispPct}%)</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:${dispPct}%; background:var(--accent)"></div></div>
+          </div>
+          <div>
+            <div class="stat-row" style="border:none; padding:2px 0;"><span class="label">Pharmacy Storage</span><span class="val text-success">${storage.toLocaleString()} units (${storPct}%)</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:${storPct}%; background:var(--success)"></div></div>
+          </div>
+          <div>
+            <div class="stat-row" style="border:none; padding:2px 0;"><span class="label">Warehouse</span><span class="val text-warning">${warehouse.toLocaleString()} units (${warePct}%)</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:${warePct}%; background:var(--warning)"></div></div>
+          </div>
+          <div>
+            <div class="stat-row" style="border:none; padding:2px 0;"><span class="label">Consignment</span><span class="val text-info">${consignment.toLocaleString()} units (${consPct}%)</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:${consPct}%; background:var(--info)"></div></div>
+          </div>
+        </div>
+      </div>`;
+  }
 
   buildAnnualConsumptionCharts();
 }
