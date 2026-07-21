@@ -544,9 +544,19 @@
 
         <!-- ===== DASHBOARD SECTION ===== -->
         <div class="section active" id="sec-dashboard">
-          <div class="section-header">
-            <h2>Overview</h2>
-            <p id="dash-subtitle">Pharmacy Inventory at a Glance</p>
+          <div class="section-header flex items-center justify-between" style="flex-wrap:wrap; gap:12px;">
+            <div>
+              <h2>Overview</h2>
+              <p id="dash-subtitle">Pharmacy Inventory at a Glance</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="form-label" style="margin:0; font-size:11px; text-transform:none;">Monitored Categories:</label>
+              <select class="filter-select" id="dash-category-scope" onchange="changeDashScope(this.value)">
+                <option value="combined" selected>All Monitored (Regular + Consignment)</option>
+                <option value="regular">Medicine Regular Only</option>
+                <option value="consignment">Consignment Only</option>
+              </select>
+            </div>
           </div>
 
           <div id="kpi-alert" class="alert-banner hidden">
@@ -611,7 +621,8 @@
                 <thead>
                   <tr>
                     <th>Item Code</th>
-                    <th>Description</th>
+                    <th>DCI Code</th>
+                    <th>Generic Name / PNF Name</th>
                     <th>Category</th>
                     <th class="num-cell">Stock Days</th>
                     <th>Status</th>
@@ -659,7 +670,8 @@
                   <tr>
                     <th>#</th>
                     <th class="sortable" onclick="sortTable('item_code')">Item Code ↕</th>
-                    <th>Description</th>
+                    <th class="sortable" onclick="sortTable('dci_code')">DCI Code ↕</th>
+                    <th class="sortable" onclick="sortTable('generic_name')">Generic Name / PNF Name ↕</th>
                     <th class="sortable" onclick="sortTable('pharmacologic_category')">Category ↕</th>
                     <th>Type</th>
                     <th>UoM</th>
@@ -709,7 +721,8 @@
                   <tr>
                     <th>Priority</th>
                     <th>Item Code</th>
-                    <th>Description</th>
+                    <th>DCI Code</th>
+                    <th>Generic Name / PNF Name</th>
                     <th>Category</th>
                     <th class="num-cell">Stock Days</th>
                     <th class="num-cell">Avg Monthly</th>
@@ -1050,6 +1063,22 @@ async function loadData() {
     loadSampleData();
   }
 
+  // Data normalization: ensure dci_code is populated (fallback to status if API served from existing Apps Script deployment)
+  if (Array.isArray(allItems)) {
+    allItems.forEach(it => {
+      if (!it.dci_code && it.status && String(it.status).trim() !== '') {
+        it.dci_code = String(it.status).trim();
+      }
+    });
+  }
+  if (Array.isArray(allReorders)) {
+    allReorders.forEach(r => {
+      if (!r.dci_code && r.status && String(r.status).trim() !== '') {
+        r.dci_code = String(r.status).trim();
+      }
+    });
+  }
+
   buildDashboard();
   buildInventory();
   buildReorder();
@@ -1087,6 +1116,8 @@ function loadSampleData() {
       const reorderQty = Math.max(0, Math.round(avg * 3 + safetyStock - stock));
       return {
         item_code: it.item_code,
+        dci_code: it.dci_code,
+        generic_name: it.generic_name,
         description: it.description,
         pharmacologic_category: it.pharmacologic_category,
         avg_monthly_consumption: it.avg_monthly_normalized_demand,
@@ -1146,16 +1177,37 @@ function fmtD(v) {
 // ================================================================
 //  DASHBOARD
 // ================================================================
+let dashCategoryScope = 'combined';
+
+function changeDashScope(scope) {
+  dashCategoryScope = scope;
+  buildDashboard();
+}
+
+function getMonitoredItems() {
+  if (dashCategoryScope === 'regular') {
+    return allItems.filter(it => it.pharmacy_category === 'Medicine Regular');
+  } else if (dashCategoryScope === 'consignment') {
+    return allItems.filter(it => String(it.pharmacy_category || '').toLowerCase().includes('consig'));
+  } else {
+    // Combined (Default): Medicine Regular + Consignment
+    return allItems.filter(it => {
+      const cat = String(it.pharmacy_category || '').toLowerCase();
+      return cat === 'medicine regular' || cat.includes('consig');
+    });
+  }
+}
+
 function buildDashboard() {
   const total    = allItems.length;
   
-  // Gate dashboard metrics to 'Medicine Regular'
-  const regularItems = allItems.filter(it => it.pharmacy_category === 'Medicine Regular');
+  // Monitored items based on selected scope (Medicine Regular + Consignment by default)
+  const monitoredItems = getMonitoredItems();
   
-  const critical  = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'critical').length;
-  const warning   = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'warning').length;
-  const ok        = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'ok').length;
-  const overstock = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'overstock').length;
+  const critical  = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'critical').length;
+  const warning   = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'warning').length;
+  const ok        = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'ok').length;
+  const overstock = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'overstock').length;
   
   const pending  = allItems.filter(it => parseFloat(it.pending_po_co_qty||0) > 0).length;
 
@@ -1199,26 +1251,28 @@ function filterDashboardTable(filterType, cardEl) {
     if (target) target.classList.add('active');
   }
 
-  const regularItems = allItems.filter(it => it.pharmacy_category === 'Medicine Regular');
+  const monitoredItems = getMonitoredItems();
   let filtered = [];
   let title = '';
 
+  const scopeLabel = dashCategoryScope === 'regular' ? 'Medicine Regular' : dashCategoryScope === 'consignment' ? 'Consignment' : 'Regular & Consignment';
+
   switch (activeKpiFilter) {
     case 'critical':
-      filtered = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'critical');
-      title = `🚨 Critical Stock Items (< 30 Days) — ${filtered.length} Items`;
+      filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'critical');
+      title = `🚨 Critical Stock Items (< 30 Days) [${scopeLabel}] — ${filtered.length} Items`;
       break;
     case 'warning':
-      filtered = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'warning');
-      title = `⚠️ Low Stock Items (30–59 Days) — ${filtered.length} Items`;
+      filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'warning');
+      title = `⚠️ Low Stock Items (30–59 Days) [${scopeLabel}] — ${filtered.length} Items`;
       break;
     case 'ok':
-      filtered = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'ok');
-      title = `✅ Normal Stock Items (60–119 Days) — ${filtered.length} Items`;
+      filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'ok');
+      title = `✅ Normal Stock Items (60–119 Days) [${scopeLabel}] — ${filtered.length} Items`;
       break;
     case 'overstock':
-      filtered = regularItems.filter(it => stockStatus(it.inventory_level_days) === 'overstock');
-      title = `📈 Over Stock Items (≥ 120 Days) — ${filtered.length} Items`;
+      filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'overstock');
+      title = `📈 Over Stock Items (≥ 120 Days) [${scopeLabel}] — ${filtered.length} Items`;
       break;
     case 'pending':
       filtered = allItems.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0);
@@ -1247,13 +1301,17 @@ function filterDashboardTable(filterType, cardEl) {
       const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
       return `<tr>
         <td class="code">${it.item_code}</td>
-        <td><div class="item-desc" title="${it.description}">${it.description}</div></td>
+        <td class="code text-muted">${it.dci_code || '—'}</td>
+        <td>
+          <div class="item-desc" title="${it.generic_name || it.description}">${it.generic_name || it.description}</div>
+          <div class="text-xs text-muted" style="margin-top:2px">${it.description || ''}</div>
+        </td>
         <td><span class="text-sm text-muted">${it.pharmacologic_category || '—'}</span></td>
         <td class="num-cell"><strong>${fmtD(days)}</strong></td>
         <td>${statusBadge(days)}</td>
         <td class="num-cell">${fmt(reorderQty)}</td>
       </tr>`;
-    }).join('') || `<tr><td colspan="6" class="empty-state"><div class="empty-icon">✅</div><p>No items found for this selection.</p></td></tr>`;
+    }).join('') || `<tr><td colspan="7" class="empty-state"><div class="empty-icon">✅</div><p>No items found for this selection.</p></td></tr>`;
   }
 }
 
@@ -1376,8 +1434,11 @@ function renderInventoryPage() {
     return `<tr>
       <td class="text-muted">${start+i+1}</td>
       <td class="code">${it.item_code}</td>
-      <td><div class="item-desc" title="${it.description}">${it.description}</div>
-          <div class="text-xs text-muted" style="margin-top:2px">${it.generic_name||''}</div></td>
+      <td class="code text-muted">${it.dci_code || '—'}</td>
+      <td>
+        <div class="item-desc" title="${it.generic_name || it.description}">${it.generic_name || it.description}</div>
+        <div class="text-xs text-muted" style="margin-top:2px">${it.description || ''}</div>
+      </td>
       <td><span class="text-xs text-muted">${it.pharmacologic_category||'—'}</span></td>
       <td><span class="badge badge-muted text-xs">${it.pharmacy_category||'—'}</span></td>
       <td class="text-muted text-sm">${it.unit_of_measure||'—'}</td>
@@ -1393,7 +1454,7 @@ function renderInventoryPage() {
       <td class="num-cell">${fmt(it.pending_po_co_qty)}</td>
       <td>${statusBadge(days)}</td>
     </tr>`;
-  }).join('') || `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🔍</div><p>No items match your filters.</p></div></td></tr>`;
+  }).join('') || `<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🔍</div><p>No items match your filters.</p></div></td></tr>`;
 
   renderPagination('inv', invFiltered.length, invPage, INV_PAGE_SIZE);
 }
@@ -1439,7 +1500,11 @@ function renderReorderPage() {
     return `<tr>
       <td><div class="reorder-priority"><div class="priority-dot ${dotCls}"></div><span class="text-sm">${label}</span></div></td>
       <td class="code">${r.item_code}</td>
-      <td><div class="item-desc" title="${r.description}">${r.description}</div></td>
+      <td class="code text-muted">${r.dci_code || '—'}</td>
+      <td>
+        <div class="item-desc" title="${r.generic_name || r.description}">${r.generic_name || r.description}</div>
+        <div class="text-xs text-muted" style="margin-top:2px">${r.description || ''}</div>
+      </td>
       <td><span class="text-xs text-muted">${r.pharmacologic_category||'—'}</span></td>
       <td class="num-cell">${fmtD(days)} days</td>
       <td class="num-cell">${fmt(r.avg_monthly_consumption)}</td>
@@ -1447,7 +1512,7 @@ function renderReorderPage() {
       <td class="num-cell">${fmt(r.pending_po_call_off)}</td>
       <td><span class="text-sm text-muted">${r.remarks||'—'}</span></td>
     </tr>`;
-  }).join('') || `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✅</div><p>No items need reordering right now.</p></div></td></tr>`;
+  }).join('') || `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">✅</div><p>No items need reordering right now.</p></div></td></tr>`;
 
   renderPagination('reorder', reordFiltered.length, reordPage, REORDER_PAGE_SIZE);
 }
@@ -1705,14 +1770,14 @@ function globalSearch(val) { filterInventory(); }
 //  EXPORT
 // ================================================================
 function exportCSV() {
-  const cols = ['item_code','dci_code','description','generic_name','pharmacy_category','pharmacologic_category','unit_of_measure','unit_cost','avg_monthly_consumption','total_inventory_qty','inventory_level_days','pending_po_co_qty'];
+  const cols = ['item_code','dci_code','generic_name','description','pharmacy_category','pharmacologic_category','unit_of_measure','unit_cost','avg_monthly_consumption','total_inventory_qty','inventory_level_days','pending_po_co_qty'];
   const header = cols.join(',');
   const rows = invFiltered.map(it => cols.map(c => `"${(it[c]||'').toString().replace(/"/g,'""')}"`).join(','));
   downloadCSV([header,...rows].join('\n'), 'inventory_export.csv');
 }
 
 function exportReorderCSV() {
-  const cols = ['item_code','description','pharmacologic_category','inventory_level_days','avg_monthly_consumption','reorder_qty_6mo_safety','pending_po_call_off','remarks'];
+  const cols = ['item_code','dci_code','generic_name','description','pharmacologic_category','inventory_level_days','avg_monthly_consumption','reorder_qty_6mo_safety','pending_po_call_off','remarks'];
   const header = cols.join(',');
   const rows = reordFiltered.map(r => cols.map(c => `"${(r[c]||'').toString().replace(/"/g,'""')}"`).join(','));
   downloadCSV([header,...rows].join('\n'), 'reorder_list.csv');

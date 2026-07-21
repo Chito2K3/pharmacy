@@ -420,7 +420,7 @@ function getItems() {
     return {
       no                           : String(row[0] || (idx + 1)),
       item_code                    : itemCode,
-      status                       : String(row[2] || '').trim(),
+      dci_code                     : String(row[2] || '').trim(),
       description                  : String(row[3] || '').trim(),
       generic_name                 : String(row[4] || '').trim(),
       pharmacy_category            : String(row[5] || '').trim(),
@@ -519,13 +519,16 @@ function getStats() {
 
   const total    = items.length;
   
-  // Gated to 'Medicine Regular' for stock status alerts/KPIs
-  const regularItems = items.filter(it => it.pharmacy_category === 'Medicine Regular');
+  // Gated to 'Medicine Regular' and Consignment items for stock status alerts/KPIs
+  const monitoredItems = items.filter(it => {
+    const cat = String(it.pharmacy_category || '').toLowerCase();
+    return cat === 'medicine regular' || cat.includes('consig');
+  });
   
-  const critical  = regularItems.filter(it => stockDays(it) < 30).length;
-  const low       = regularItems.filter(it => { const d = stockDays(it); return d >= 30 && d < 60; }).length;
-  const normal    = regularItems.filter(it => { const d = stockDays(it); return d >= 60 && d < 120; }).length;
-  const overstock = regularItems.filter(it => stockDays(it) >= 120).length;
+  const critical  = monitoredItems.filter(it => stockDays(it) < 30).length;
+  const low       = monitoredItems.filter(it => { const d = stockDays(it); return d >= 30 && d < 60; }).length;
+  const normal    = monitoredItems.filter(it => { const d = stockDays(it); return d >= 60 && d < 120; }).length;
+  const overstock = monitoredItems.filter(it => stockDays(it) >= 120).length;
   
   const pending   = items.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0).length;
 
@@ -815,7 +818,9 @@ function recalculateReorders() {
 
     return {
       item_code:                     it.item_code || '',
+      dci_code:                      it.dci_code || '',
       description:                   it.description || '',
+      generic_name:                  it.generic_name || '',
       pharmacologic_category:        it.pharmacologic_category || '',
       pharmacy_category:             it.pharmacy_category || '',
       unit_of_measure:               it.unit_of_measure || '',
