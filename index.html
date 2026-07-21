@@ -336,6 +336,7 @@
     .data-table tbody td.text-center { text-align: center; }
     .data-table tbody td.code { font-family: 'Courier New', monospace; font-size: 10.5px; color: var(--accent); white-space: nowrap; }
     .item-desc { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    .item-sub-desc { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 400; display: block; }
     .cat-truncate { max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .num-cell { text-align: right; font-variant-numeric: tabular-nums; }
     .progress-bar-wrap { background: rgba(255,255,255,.08); border-radius: 4px; height: 5px; min-width: 80px; }
@@ -1371,7 +1372,7 @@ function filterDashboardTable(filterType, cardEl) {
         <td class="code text-muted">${it.dci_code || '—'}</td>
         <td>
           <div class="item-desc" title="${it.generic_name || it.description}">${it.generic_name || it.description}</div>
-          <div class="text-xs text-muted" style="margin-top:2px">${it.description || ''}</div>
+          <div class="item-sub-desc text-xs text-muted" style="margin-top:2px" title="${it.description || ''}">${it.description || ''}</div>
         </td>
         <td><div class="cat-truncate text-xs text-muted" title="${it.pharmacologic_category||''}">${it.pharmacologic_category || '—'}</div></td>
         <td class="num-cell"><strong>${fmtD(days)}</strong></td>
@@ -1519,7 +1520,7 @@ function renderInventoryPage() {
       <td class="code text-muted">${it.dci_code || '—'}</td>
       <td>
         <div class="item-desc" title="${it.generic_name || it.description}">${it.generic_name || it.description}</div>
-        <div class="text-xs text-muted" style="margin-top:2px">${it.description || ''}</div>
+        <div class="item-sub-desc text-xs text-muted" style="margin-top:2px" title="${it.description || ''}">${it.description || ''}</div>
       </td>
       <td><div class="cat-truncate text-xs text-muted" title="${it.pharmacologic_category||''}">${it.pharmacologic_category||'—'}</div></td>
       <td><span class="badge badge-muted text-xs">${it.pharmacy_category||'—'}</span></td>
@@ -1597,7 +1598,7 @@ function renderReorderPage() {
       <td class="code text-muted">${r.dci_code || '—'}</td>
       <td>
         <div class="item-desc" title="${r.generic_name || r.description}">${r.generic_name || r.description}</div>
-        <div class="text-xs text-muted" style="margin-top:2px">${r.description || ''}</div>
+        <div class="item-sub-desc text-xs text-muted" style="margin-top:2px" title="${r.description || ''}">${r.description || ''}</div>
       </td>
       <td><div class="cat-truncate text-xs text-muted" title="${r.pharmacologic_category||''}">${r.pharmacologic_category||'—'}</div></td>
       <td class="num-cell">${fmtD(days)} days</td>
