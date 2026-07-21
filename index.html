@@ -231,11 +231,11 @@
     .search-box input { background: none; border: none; color: var(--text-main); font-size: 13px; width: 100%; }
     .search-box input::placeholder { color: var(--text-faint); }
     .search-box input:focus { outline: none; }
-    .content-area { flex: 1; padding: 24px 32px; max-width: 1680px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    .content-area { flex: 1; padding: 24px 32px; width: 100%; box-sizing: border-box; }
 
     /* ===== SECTION ===== */
-    .section { display: none; animation: fadeSlide .35s ease; }
-    .section.active { display: block; }
+    .section { display: none; animation: fadeSlide .35s ease; width: 100%; box-sizing: border-box; }
+    .section.active { display: block; width: 100%; }
     @keyframes fadeSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .section-header { margin-bottom: 20px; }
     .section-header h2 { font-size: 20px; font-weight: 800; }
@@ -1723,7 +1723,7 @@ function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValV
       data: {
         labels: top10Qty.map(it => {
           const name = it.generic_name || it.description || '';
-          return name.length > 25 ? name.substring(0, 25) + '…' : name;
+          return name.length > 38 ? name.substring(0, 38) + '…' : name;
         }),
         datasets: [{
           label: 'Qty Consumed',
@@ -1775,7 +1775,7 @@ function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValV
       data: {
         labels: top10Val.map(it => {
           const name = it.generic_name || it.description || '';
-          return name.length > 25 ? name.substring(0, 25) + '…' : name;
+          return name.length > 38 ? name.substring(0, 38) + '…' : name;
         }),
         datasets: [{
           label: 'Acquisition Amount (₱)',
