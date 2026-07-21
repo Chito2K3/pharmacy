@@ -706,6 +706,12 @@
           <div class="table-card">
             <div class="table-toolbar">
               <div class="toolbar-title">Items Needing Replenishment</div>
+              <select class="filter-select" id="reorder-filter-type" onchange="filterReorder()">
+                <option value="monitored" selected>Regular & Consignment</option>
+                <option value="regular">Medicine Regular Only</option>
+                <option value="consignment">Consignment Only</option>
+                <option value="all">All Types (incl. EP & DON)</option>
+              </select>
               <select class="filter-select" id="reorder-filter-status" onchange="filterReorder()">
                 <option value="">All Priority</option>
                 <option value="critical">Critical (< 30d)</option>
@@ -1120,6 +1126,7 @@ function loadSampleData() {
         generic_name: it.generic_name,
         description: it.description,
         pharmacologic_category: it.pharmacologic_category,
+        pharmacy_category: it.pharmacy_category,
         avg_monthly_consumption: it.avg_monthly_normalized_demand,
         inventory_level_days: it.inventory_level_days,
         reorder_qty_6mo_safety: reorderQty.toString(),
@@ -1469,20 +1476,32 @@ function sortTable(key) {
 //  REORDER TABLE
 // ================================================================
 function buildReorder() {
-  reordFiltered = allReorders.filter(r => parseFloat(r.reorder_qty_6mo_safety||0) > 0);
-  reordFiltered.sort((a,b) => parseFloat(a.inventory_level_days||0) - parseFloat(b.inventory_level_days||0));
-  reordPage = 1;
-  renderReorderPage();
+  filterReorder();
 }
 
 function filterReorder() {
-  const s = document.getElementById('reorder-filter-status').value;
+  const statusVal = document.getElementById('reorder-filter-status')?.value || '';
+  const typeVal   = document.getElementById('reorder-filter-type')?.value || 'monitored';
+
   reordFiltered = allReorders.filter(r => {
-    if (parseFloat(r.reorder_qty_6mo_safety||0) <= 0) return false;
-    if (s) return stockStatus(r.inventory_level_days) === s;
+    if (parseFloat(r.reorder_qty_6mo_safety || 0) <= 0) return false;
+
+    // Category Type filtering
+    const pCat = String(r.pharmacy_category || '').toLowerCase();
+    if (typeVal === 'monitored') {
+      if (pCat !== 'medicine regular' && !pCat.includes('consig')) return false;
+    } else if (typeVal === 'regular') {
+      if (pCat !== 'medicine regular') return false;
+    } else if (typeVal === 'consignment') {
+      if (!pCat.includes('consig')) return false;
+    }
+
+    // Priority Status filtering
+    if (statusVal && stockStatus(r.inventory_level_days) !== statusVal) return false;
     return true;
   });
-  reordFiltered.sort((a,b) => parseFloat(a.inventory_level_days||0) - parseFloat(b.inventory_level_days||0));
+
+  reordFiltered.sort((a,b) => parseFloat(a.inventory_level_days || 0) - parseFloat(b.inventory_level_days || 0));
   reordPage = 1;
   renderReorderPage();
 }
