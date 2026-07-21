@@ -371,7 +371,10 @@
     .priority-dot.overstock { background: var(--info); }
 
     /* ===== STATS & ANALYTICS SECTION ===== */
-    #sec-analytics {
+    #sec-analytics:not(.active) {
+      display: none !important;
+    }
+    #sec-analytics.active {
       width: 100% !important;
       max-width: 100% !important;
       display: flex !important;
