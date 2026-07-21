@@ -605,8 +605,12 @@
               </div>
             </div>
             <div class="chart-card">
-              <h3>Stock Status Breakdown</h3>
-              <div class="chart-wrap" style="height:260px">
+              <div class="flex items-center justify-between" style="margin-bottom:6px;">
+                <h3 style="margin-bottom:0;">Stock Status Breakdown</h3>
+                <span class="badge badge-accent text-xs" id="chart-status-scope">Regular & Consignment</span>
+              </div>
+              <p class="text-xs text-muted" id="chart-status-desc" style="margin-bottom:12px;">Includes Medicine Regular & Consignment items</p>
+              <div class="chart-wrap" style="height:230px">
                 <canvas id="chart-status"></canvas>
               </div>
             </div>
@@ -1323,6 +1327,21 @@ function filterDashboardTable(filterType, cardEl) {
 }
 
 function buildStatusChart(critical, warning, ok, overstock) {
+  const scopeBadge = document.getElementById('chart-status-scope');
+  const scopeDesc  = document.getElementById('chart-status-desc');
+  if (scopeBadge && scopeDesc) {
+    if (dashCategoryScope === 'regular') {
+      scopeBadge.textContent = 'Medicine Regular Only';
+      scopeDesc.textContent  = 'Includes Medicine Regular items only';
+    } else if (dashCategoryScope === 'consignment') {
+      scopeBadge.textContent = 'Consignment Only';
+      scopeDesc.textContent  = 'Includes Consignment items only';
+    } else {
+      scopeBadge.textContent = 'Regular & Consignment';
+      scopeDesc.textContent  = 'Includes Medicine Regular & Consignment items';
+    }
+  }
+
   const ctx = document.getElementById('chart-status');
   if (!ctx) return;
   if (statusChart) { statusChart.destroy(); }
