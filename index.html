@@ -2777,6 +2777,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
 
           buildAnnualConsumptionCharts();
+          buildConsolidatedInventoryData();
         }
 
         function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValVarName, canvasQtyId, canvasValId, hueBase) {
@@ -3105,6 +3106,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 name: rawName,
                 dci_code: it.dci_code || '',
                 totalQty: 0,
+                haystack: `${rawName} ${it.description || ''} ${it.generic_name || ''} ${it.dci_code || ''} ${it.item_code || ''}`.toLowerCase(),
                 categories: {
                   'Medicine Regular': 0,
                   'Consignment': 0,
@@ -3112,6 +3114,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   'Donation': 0
                 }
               };
+            } else {
+              groupMap[key].haystack += ` ${it.description || ''} ${it.generic_name || ''} ${it.dci_code || ''} ${it.item_code || ''}`.toLowerCase();
             }
 
             groupMap[key].totalQty += totalQty;
@@ -3136,13 +3140,25 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         }
 
         function filterConsolidatedInventory() {
+          if (!allConsolidatedInventory || allConsolidatedInventory.length === 0) {
+            if (allItems && allItems.length > 0) {
+              buildConsolidatedInventoryData();
+              return;
+            }
+          }
+
           const searchVal = (document.getElementById('cons-inv-search')?.value || '').toLowerCase().trim();
           const filterType = document.getElementById('cons-inv-filter-type')?.value || 'all';
+
+          const searchTokens = searchVal ? searchVal.replace(/,/g, ' ').split(/\s+/).filter(Boolean) : [];
 
           consInvFiltered = allConsolidatedInventory.filter(item => {
             if (filterType === 'multi' && item.activeCategoryCount <= 1) return false;
             if (filterType === 'single' && item.activeCategoryCount !== 1) return false;
-            if (searchVal && !item.name.toLowerCase().includes(searchVal)) return false;
+            if (searchTokens.length > 0) {
+              const matched = searchTokens.every(token => item.haystack.includes(token));
+              if (!matched) return false;
+            }
             return true;
           });
 
