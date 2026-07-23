@@ -1804,31 +1804,26 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                       <div>
                         <h3 style="margin:0; font-size:15px; color:var(--text-main); font-weight:800; display:flex; align-items:center; gap:8px;">
-                          <span>📦 Consolidated Total Inventory & Multi-Category Stock Breakdown</span>
+                          <span>📦 Inventory Count Per Category</span>
                         </h3>
                         <p style="margin:4px 0 0 0; font-size:12px; color:var(--text-muted);">
                           Aggregated physical inventory volume (Column AM) per drug across Medicine Regular, Consignment, Emergency Purchase & Donation
                         </p>
                       </div>
                       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <input type="text" id="cons-inv-search" placeholder="Search consolidated drugs..." oninput="filterConsolidatedInventory()" class="search-input" style="padding:6px 12px; font-size:12px; width:220px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main);" />
-                        <select id="cons-inv-filter-type" onchange="filterConsolidatedInventory()" class="filter-select" style="padding:6px 12px; font-size:12px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main);">
-                          <option value="all">All Items</option>
-                          <option value="multi">Multi-Category Stocked (>1 Category)</option>
-                          <option value="single">Single Category Stocked (=1 Category)</option>
-                        </select>
+                        <input type="text" id="cons-inv-search" placeholder="Search drug name (e.g. Amlodipine)..." oninput="filterConsolidatedInventory()" class="search-input" style="padding:6px 12px; font-size:12px; width:280px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main);" />
                       </div>
                     </div>
 
                     <!-- Summary Banner -->
                     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; padding:12px; background:rgba(0,0,0,0.2); border-radius:8px; border:1px solid rgba(255,255,255,0.05);">
                       <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total Consolidated Items</span>
+                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total Items Found</span>
                         <strong id="cons-total-drugs" style="font-size:16px; color:#3b82f6;">0</strong>
                       </div>
                       <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Multi-Category Stocked</span>
-                        <strong id="cons-multi-drugs" style="font-size:16px; color:#10b981;">0</strong>
+                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Category Presence Count</span>
+                        <strong id="cons-multi-drugs" style="font-size:15px; color:#10b981;">0</strong>
                       </div>
                       <div style="display:flex; flex-direction:column; gap:2px;">
                         <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total Combined Physical Stock</span>
@@ -3148,13 +3143,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
 
           const searchVal = (document.getElementById('cons-inv-search')?.value || '').toLowerCase().trim();
-          const filterType = document.getElementById('cons-inv-filter-type')?.value || 'all';
-
           const searchTokens = searchVal ? searchVal.replace(/,/g, ' ').split(/\s+/).filter(Boolean) : [];
 
           consInvFiltered = allConsolidatedInventory.filter(item => {
-            if (filterType === 'multi' && item.activeCategoryCount <= 1) return false;
-            if (filterType === 'single' && item.activeCategoryCount !== 1) return false;
             if (searchTokens.length > 0) {
               const matched = searchTokens.every(token => item.haystack.includes(token));
               if (!matched) return false;
@@ -3176,7 +3167,18 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const totalStockEl = document.getElementById('cons-total-stock');
 
           if (totalDrugsEl) totalDrugsEl.textContent = consInvFiltered.length.toLocaleString();
-          if (multiDrugsEl) multiDrugsEl.textContent = consInvFiltered.filter(i => i.activeCategoryCount > 1).length.toLocaleString();
+
+          if (multiDrugsEl) {
+            if (consInvFiltered.length === 1) {
+              const item = consInvFiltered[0];
+              const activeList = item.activeCategories.map(c => c.replace('Medicine ', '').replace('Emergency Purchase', 'EP')).join(', ');
+              multiDrugsEl.textContent = `${item.activeCategoryCount} Categories (${activeList || 'None'})`;
+            } else {
+              const multiCount = consInvFiltered.filter(i => i.activeCategoryCount > 1).length;
+              multiDrugsEl.textContent = `${multiCount.toLocaleString()} items in Multi-Categories`;
+            }
+          }
+
           if (totalStockEl) {
             const sumQty = consInvFiltered.reduce((acc, i) => acc + i.totalQty, 0);
             totalStockEl.textContent = `${fmt(sumQty)} units`;
