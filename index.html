@@ -1778,22 +1778,31 @@
                 <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
 
                   <!-- Card 0: Consolidated (All Categories Combined) -->
-                  <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%; border: 1px solid rgba(6,182,212,0.4); background: linear-gradient(180deg, rgba(6,182,212,0.06) 0%, var(--bg-card) 100%);">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                      <h3 style="margin:0; font-size:15px; color:var(--text-main); font-weight:800; display:flex; align-items:center; gap:8px;">
+                  <div class="chart-card"
+                    style="display:flex; flex-direction:column; gap:16px; width:100%; border: 1px solid rgba(6,182,212,0.4); background: linear-gradient(180deg, rgba(6,182,212,0.06) 0%, var(--bg-card) 100%);">
+                    <div
+                      style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                      <h3
+                        style="margin:0; font-size:15px; color:var(--text-main); font-weight:800; display:flex; align-items:center; gap:8px;">
                         <span>🏆 Consolidated Annual Consumption (Top 10 — All Categories Combined)</span>
                       </h3>
-                      <span class="badge badge-accent" style="font-size:11px;">Medicine Regular + Consignment + EP + Donation</span>
+                      <span class="badge badge-accent" style="font-size:11px;">Medicine Regular + Consignment + EP +
+                        Donation</span>
                     </div>
-                    <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
+                    <div class="charts-subgrid"
+                      style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
                       <div>
-                        <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed (Combined)</h4>
+                        <h4
+                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
+                          By Qty Consumed (Combined)</h4>
                         <div class="chart-wrap" style="height:340px; width:100%;">
                           <canvas id="chart-consolidated-qty"></canvas>
                         </div>
                       </div>
                       <div>
-                        <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Combined Amount ₱)</h4>
+                        <h4
+                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
+                          By Acquisition Value (Combined Amount ₱)</h4>
                         <div class="chart-wrap" style="height:340px; width:100%;">
                           <canvas id="chart-consolidated-val"></canvas>
                         </div>
@@ -1802,33 +1811,43 @@
                   </div>
 
                   <!-- Consolidated Inventory Stock & Category Distribution -->
-                  <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%; border: 1px solid rgba(59,130,246,0.3); background: linear-gradient(180deg, rgba(59,130,246,0.04) 0%, var(--bg-card) 100%); margin-top: 8px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                  <div class="chart-card"
+                    style="display:flex; flex-direction:column; gap:16px; width:100%; border: 1px solid rgba(59,130,246,0.3); background: linear-gradient(180deg, rgba(59,130,246,0.04) 0%, var(--bg-card) 100%); margin-top: 8px;">
+                    <div
+                      style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                       <div>
-                        <h3 style="margin:0; font-size:15px; color:var(--text-main); font-weight:800; display:flex; align-items:center; gap:8px;">
+                        <h3
+                          style="margin:0; font-size:15px; color:var(--text-main); font-weight:800; display:flex; align-items:center; gap:8px;">
                           <span>📦 Inventory Count Per Category</span>
                         </h3>
                         <p style="margin:4px 0 0 0; font-size:12px; color:var(--text-muted);">
-                          Aggregated physical inventory volume (Column AM) per drug across Medicine Regular, Consignment, Emergency Purchase & Donation
+                          Aggregated physical inventory volume per item across Medicine Regular, Consignment, Emergency
+                          Purchase & Donation
                         </p>
                       </div>
                       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <input type="text" id="cons-inv-search" placeholder="Search drug name (e.g. Amlodipine)..." oninput="filterConsolidatedInventory()" class="search-input" style="padding:6px 12px; font-size:12px; width:280px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main);" />
+                        <input type="text" id="cons-inv-search" placeholder="Search drug name (e.g. Amlodipine)..."
+                          oninput="filterConsolidatedInventory()" class="search-input"
+                          style="padding:6px 12px; font-size:12px; width:280px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-card); color:var(--text-main);" />
                       </div>
                     </div>
 
                     <!-- Summary Banner -->
-                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; padding:12px; background:rgba(0,0,0,0.2); border-radius:8px; border:1px solid rgba(255,255,255,0.05);">
+                    <div
+                      style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; padding:12px; background:rgba(0,0,0,0.2); border-radius:8px; border:1px solid rgba(255,255,255,0.05);">
                       <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total Items Found</span>
+                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total Items
+                          Found</span>
                         <strong id="cons-total-drugs" style="font-size:16px; color:#3b82f6;">0</strong>
                       </div>
                       <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Category Presence Count</span>
+                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Category
+                          Presence Count</span>
                         <strong id="cons-multi-drugs" style="font-size:15px; color:#10b981;">0</strong>
                       </div>
                       <div style="display:flex; flex-direction:column; gap:2px;">
-                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total Combined Physical Stock</span>
+                        <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Total Combined
+                          Physical Stock</span>
                         <strong id="cons-total-stock" style="font-size:16px; color:#06b6d4;">0 units</strong>
                       </div>
                     </div>
@@ -1846,14 +1865,21 @@
                           </tr>
                         </thead>
                         <tbody id="cons-inv-tbody">
-                          <tr><td colspan="5" class="empty-state"><div class="empty-icon">⏳</div><p>Loading consolidated inventory...</p></td></tr>
+                          <tr>
+                            <td colspan="5" class="empty-state">
+                              <div class="empty-icon">⏳</div>
+                              <p>Loading consolidated inventory...</p>
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
 
                     <!-- Pagination -->
-                    <div class="pagination-bar" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                      <div class="page-info" id="cons-inv-page-info" style="font-size:12px; color:var(--text-muted);">Showing 0 of 0</div>
+                    <div class="pagination-bar"
+                      style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                      <div class="page-info" id="cons-inv-page-info" style="font-size:12px; color:var(--text-muted);">
+                        Showing 0 of 0</div>
                       <div class="page-btns" id="cons-inv-page-btns"></div>
                     </div>
                   </div>
@@ -1875,7 +1901,8 @@
                       <p>Go to <strong>sheets.google.com</strong> → create a new sheet. Rename tabs to:
                         <strong>Items</strong>, <strong>Reorders</strong>, <strong>Users</strong>. Then import your
                         extracted <code>items.json</code> and <code>reorders.json</code> files using the import tool or
-                        a script.</p>
+                        a script.
+                      </p>
                     </div>
                   </div>
                   <div class="step-card">
@@ -1883,7 +1910,8 @@
                     <div class="step-body">
                       <h4>Deploy Google Apps Script API</h4>
                       <p>In your Google Sheet → Extensions → Apps Script. Paste the backend code below, click
-                        <strong>Deploy → New Deployment → Web App</strong>. Set access to "Anyone".</p>
+                        <strong>Deploy → New Deployment → Web App</strong>. Set access to "Anyone".
+                      </p>
                       <code>// Google Apps Script backend (paste this in Apps Script editor)
 function doGet(e) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet();
