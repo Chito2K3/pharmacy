@@ -2242,6 +2242,30 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
+        function renderItemNameCell(it) {
+          if (!it) return '';
+          const desc = String(it.description || it.generic_name || '—').trim();
+          const gen = String(it.generic_name || '').trim();
+
+          let isRedundant = false;
+          if (gen && desc) {
+            const dLower = desc.toLowerCase();
+            const gLower = gen.toLowerCase();
+            isRedundant = (
+              dLower === gLower ||
+              dLower.includes(gLower) ||
+              gLower.includes(dLower) ||
+              dLower.replace(/[^a-z0-9]/g, '') === gLower.replace(/[^a-z0-9]/g, '')
+            );
+          }
+
+          const subDesc = (!isRedundant && gen)
+            ? `<div class="item-sub-desc text-xs text-muted" style="margin-top:2px" title="${gen}">${gen}</div>`
+            : '';
+
+          return `<div class="item-desc" title="${desc}">${desc}</div>${subDesc}`;
+        }
+
         function buildDashboard() {
           const total = allItems.length;
 
@@ -2447,10 +2471,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         }
 
         function filterInventory() {
-          const catVal = document.getElementById('filter-category').value;
-          const pharmVal = document.getElementById('filter-pharmacy-cat').value;
-          const statVal = document.getElementById('filter-status').value;
-          const searchVal = document.getElementById('global-search').value.toLowerCase();
+          const catVal = document.getElementById('filter-category')?.value || '';
+          const pharmVal = document.getElementById('filter-pharmacy-cat')?.value || '';
+          const statVal = document.getElementById('filter-status')?.value || '';
+          const searchVal = (document.getElementById('global-search')?.value || '').toLowerCase().trim();
 
           invFiltered = allItems.filter(it => {
             if (catVal && it.pharmacologic_category !== catVal) return false;
