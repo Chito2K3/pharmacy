@@ -958,6 +958,15 @@
       font-weight: 500;
     }
 
+    .cons-item-desc {
+      max-width: 550px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
     .item-sub-desc {
       max-width: 220px;
       white-space: nowrap;
@@ -1858,7 +1867,7 @@
                         <thead>
                           <tr>
                             <th style="width:40px;">#</th>
-                            <th style="min-width:240px;">GENERIC DRUG DESCRIPTION</th>
+                            <th style="min-width:400px;">GENERIC DRUG DESCRIPTION</th>
                             <th style="width:200px;">STOCK DIVERSITY</th>
                             <th style="width:140px;" class="num-cell">TOTAL STOCK (QTY)</th>
                             <th style="min-width:320px;">CATEGORY BREAKDOWN (REG | CONSIG | EP | DON)</th>
@@ -3168,7 +3177,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             return `<tr>
               <td class="text-muted text-xs">${start + i + 1}</td>
               <td>
-                <div class="item-desc" title="${item.name}">${item.name}</div>
+                <div class="cons-item-desc" title="${item.name}">${item.name}</div>
               </td>
               <td>${countBadge}</td>
               <td class="num-cell"><strong>${fmt(item.totalQty)}</strong></td>
