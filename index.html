@@ -2346,10 +2346,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               return `<tr>
         <td class="code">${it.item_code}</td>
         <td class="code text-muted">${it.dci_code || '—'}</td>
-        <td>
-          <div class="item-desc" title="${it.description || it.generic_name}">${it.description || it.generic_name}</div>
-          <div class="item-sub-desc text-xs text-muted" style="margin-top:2px" title="${it.generic_name || ''}">${it.generic_name || ''}</div>
-        </td>
+        <td>${renderItemNameCell(it)}</td>
         <td><div class="cat-truncate text-xs text-muted" title="${it.pharmacologic_category || ''}">${it.pharmacologic_category || '—'}</div></td>
         <td class="num-cell"><strong>${fmtD(days)}</strong></td>
         <td class="text-center">${statusBadge(days)}</td>
@@ -2494,10 +2491,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
       <td class="text-muted">${start + i + 1}</td>
       <td class="code">${it.item_code}</td>
       <td class="code text-muted">${it.dci_code || '—'}</td>
-      <td>
-        <div class="item-desc" title="${it.description || it.generic_name}">${it.description || it.generic_name}</div>
-        <div class="item-sub-desc text-xs text-muted" style="margin-top:2px" title="${it.generic_name || ''}">${it.generic_name || ''}</div>
-      </td>
+      <td>${renderItemNameCell(it)}</td>
       <td><div class="cat-truncate text-xs text-muted" title="${it.pharmacologic_category || ''}">${it.pharmacologic_category || '—'}</div></td>
       <td><span class="badge badge-muted text-xs">${it.pharmacy_category || '—'}</span></td>
       <td class="text-muted text-sm">${it.unit_of_measure || '—'}</td>
@@ -2572,10 +2566,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
       <td><div class="reorder-priority"><div class="priority-dot ${dotCls}"></div><span class="text-sm">${label}</span></div></td>
       <td class="code">${r.item_code}</td>
       <td class="code text-muted">${r.dci_code || '—'}</td>
-      <td>
-        <div class="item-desc" title="${r.description || r.generic_name}">${r.description || r.generic_name}</div>
-        <div class="item-sub-desc text-xs text-muted" style="margin-top:2px" title="${r.generic_name || ''}">${r.generic_name || ''}</div>
-      </td>
+      <td>${renderItemNameCell(r)}</td>
       <td><div class="cat-truncate text-xs text-muted" title="${r.pharmacologic_category || ''}">${r.pharmacologic_category || '—'}</div></td>
       <td class="num-cell">${fmtD(days)} days</td>
       <td class="num-cell">${fmt(r.avg_monthly_consumption)}</td>
