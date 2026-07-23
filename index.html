@@ -1777,6 +1777,30 @@
                 <div class="divider"></div>
                 <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
 
+                  <!-- Card 0: Consolidated (All Categories Combined) -->
+                  <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%; border: 1px solid rgba(6,182,212,0.4); background: linear-gradient(180deg, rgba(6,182,212,0.06) 0%, var(--bg-card) 100%);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                      <h3 style="margin:0; font-size:15px; color:var(--text-main); font-weight:800; display:flex; align-items:center; gap:8px;">
+                        <span>🏆 Consolidated Annual Consumption (Top 10 — All Categories Combined)</span>
+                      </h3>
+                      <span class="badge badge-accent" style="font-size:11px;">Medicine Regular + Consignment + EP + Donation</span>
+                    </div>
+                    <div class="charts-subgrid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
+                      <div>
+                        <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Qty Consumed (Combined)</h4>
+                        <div class="chart-wrap" style="height:340px; width:100%;">
+                          <canvas id="chart-consolidated-qty"></canvas>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">By Acquisition Value (Combined Amount ₱)</h4>
+                        <div class="chart-wrap" style="height:340px; width:100%;">
+                          <canvas id="chart-consolidated-val"></canvas>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Card 1: Medicine Regular -->
                   <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
                     <h3 style="margin:0;">Medicine Regular — Annual Consumption (Top 10)</h3>
@@ -1967,6 +1991,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
         let statusChart = null;
         let categoryChart = null;
+        let consQtyChart = null;
+        let consValChart = null;
         let regQtyChart = null;
         let regValChart = null;
         let conQtyChart = null;
@@ -2815,7 +2841,150 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
+        function buildConsolidatedCharts() {
+          const yr = document.getElementById('analytics-year').value || '2025';
+          const qtyKey = yr === '2026' ? 'annual_qty_2026' : 'annual_qty_2025';
+          const valKey = yr === '2026' ? 'annual_val_2026' : 'annual_val_2025';
+
+          // Group all items across all categories (Medicine Regular, Consignment, Emergency Purchase, Donation)
+          const groupMap = {};
+          allItems.forEach(it => {
+            const q = parseFloat(it[qtyKey] || 0);
+            const v = parseFloat(it[valKey] || 0);
+            if (q <= 0 && v <= 0) return;
+
+            // Group by DCI code if valid, otherwise by clean generic_name or description
+            const key = (it.dci_code && String(it.dci_code).trim() !== '' && String(it.dci_code).trim() !== '—')
+              ? String(it.dci_code).trim()
+              : String(it.generic_name || it.description || '').trim().toLowerCase();
+
+            if (!groupMap[key]) {
+              groupMap[key] = {
+                name: it.generic_name || it.description || it.item_code,
+                dci_code: it.dci_code || '',
+                qty: 0,
+                val: 0,
+                categories: {}
+              };
+            }
+            groupMap[key].qty += q;
+            groupMap[key].val += v;
+            const cat = it.pharmacy_category || 'Other';
+            groupMap[key].categories[cat] = (groupMap[key].categories[cat] || 0) + q;
+          });
+
+          const aggregatedList = Object.values(groupMap);
+
+          // 1. Consolidated Qty Chart
+          const ctxQty = document.getElementById('chart-consolidated-qty');
+          if (ctxQty) {
+            const top10Qty = [...aggregatedList]
+              .filter(item => item.qty > 0)
+              .sort((a, b) => b.qty - a.qty)
+              .slice(0, 10);
+
+            if (consQtyChart) { consQtyChart.destroy(); }
+            consQtyChart = new Chart(ctxQty, {
+              type: 'bar',
+              data: {
+                labels: top10Qty.map(it => {
+                  const name = it.name || '';
+                  return name.length > 38 ? name.substring(0, 38) + '…' : name;
+                }),
+                datasets: [{
+                  label: 'Combined Qty Consumed',
+                  data: top10Qty.map(it => it.qty),
+                  backgroundColor: top10Qty.map((_, i) => `hsla(${175 + i * 5}, 85%, 48%, 0.8)`),
+                  borderRadius: 6,
+                }]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      title: (items) => {
+                        const idx = items[0].dataIndex;
+                        return top10Qty[idx]?.name || '';
+                      },
+                      label: (context) => {
+                        const item = top10Qty[context.dataIndex];
+                        const catStr = Object.entries(item.categories).map(([c, q]) => `${c}: ${q.toLocaleString()}`).join(' | ');
+                        return [` Total Qty: ${context.raw.toLocaleString()} units`, ` Breakdown: ${catStr}`];
+                      }
+                    }
+                  }
+                },
+                layout: { padding: { left: 10, right: 10 } },
+                scales: {
+                  x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#7a8599', font: { size: 10 } } },
+                  y: { grid: { display: false }, ticks: { color: '#cbd5e1', font: { size: 10.5 }, padding: 6 } },
+                }
+              }
+            });
+          }
+
+          // 2. Consolidated Value Chart
+          const ctxVal = document.getElementById('chart-consolidated-val');
+          if (ctxVal) {
+            const top10Val = [...aggregatedList]
+              .filter(item => item.val > 0)
+              .sort((a, b) => b.val - a.val)
+              .slice(0, 10);
+
+            if (consValChart) { consValChart.destroy(); }
+            consValChart = new Chart(ctxVal, {
+              type: 'bar',
+              data: {
+                labels: top10Val.map(it => {
+                  const name = it.name || '';
+                  return name.length > 38 ? name.substring(0, 38) + '…' : name;
+                }),
+                datasets: [{
+                  label: 'Combined Acquisition Value (₱)',
+                  data: top10Val.map(it => it.val),
+                  backgroundColor: top10Val.map((_, i) => `hsla(${275 + i * 5}, 85%, 60%, 0.8)`),
+                  borderRadius: 6,
+                }]
+              },
+              options: {
+                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      title: (items) => {
+                        const idx = items[0].dataIndex;
+                        return top10Val[idx]?.name || '';
+                      },
+                      label: (context) => {
+                        return ' Total Amount: ₱' + context.raw.toLocaleString('en-PH', { maximumFractionDigits: 2 });
+                      }
+                    }
+                  }
+                },
+                layout: { padding: { left: 10, right: 10 } },
+                scales: {
+                  x: {
+                    grid: { color: 'rgba(255,255,255,.05)' },
+                    ticks: {
+                      color: '#7a8599',
+                      font: { size: 10 },
+                      callback: function (value) { return '₱' + value.toLocaleString(); }
+                    }
+                  },
+                  y: { grid: { display: false }, ticks: { color: '#cbd5e1', font: { size: 10.5 }, padding: 6 } },
+                }
+              }
+            });
+          }
+        }
+
         function buildAnnualConsumptionCharts() {
+          // Consolidated All Categories (Regular + Consignment + EP + Donation)
+          buildConsolidatedCharts();
+
           // Medicine Regular
           buildCategoryCharts(
             'Medicine Regular',
