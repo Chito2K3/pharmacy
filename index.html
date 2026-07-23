@@ -1801,6 +1801,78 @@
                     </div>
                   </div>
 
+                  <!-- Card 1: Medicine Regular -->
+                  <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
+                    <h3 style="margin:0;">Medicine Regular — Annual Consumption (Top 10)</h3>
+                    <div class="charts-subgrid"
+                      style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
+                      <div>
+                        <h4
+                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
+                          By Qty Consumed</h4>
+                        <div class="chart-wrap" style="height:340px; width:100%;">
+                          <canvas id="chart-regular-qty"></canvas>
+                        </div>
+                      </div>
+                      <div>
+                        <h4
+                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
+                          By Acquisition Value (Amount)</h4>
+                        <div class="chart-wrap" style="height:340px; width:100%;">
+                          <canvas id="chart-regular-val"></canvas>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 2: Consignment -->
+                  <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
+                    <h3 style="margin:0;">Consignment — Annual Consumption (Top 10)</h3>
+                    <div class="charts-subgrid"
+                      style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
+                      <div>
+                        <h4
+                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
+                          By Qty Consumed</h4>
+                        <div class="chart-wrap" style="height:340px; width:100%;">
+                          <canvas id="chart-consignment-qty"></canvas>
+                        </div>
+                      </div>
+                      <div>
+                        <h4
+                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
+                          By Acquisition Value (Amount)</h4>
+                        <div class="chart-wrap" style="height:340px; width:100%;">
+                          <canvas id="chart-consignment-val"></canvas>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Card 3: Donation -->
+                  <div class="chart-card" style="display:flex; flex-direction:column; gap:16px; width:100%;">
+                    <h3 style="margin:0;">Donation — Annual Consumption (Top 10)</h3>
+                    <div class="charts-subgrid"
+                      style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
+                      <div>
+                        <h4
+                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
+                          By Qty Consumed</h4>
+                        <div class="chart-wrap" style="height:340px; width:100%;">
+                          <canvas id="chart-donation-qty"></canvas>
+                        </div>
+                      </div>
+                      <div>
+                        <h4
+                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
+                          By Acquisition Value (Amount)</h4>
+                        <div class="chart-wrap" style="height:340px; width:100%;">
+                          <canvas id="chart-donation-val"></canvas>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
@@ -2912,6 +2984,33 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         function buildAnnualConsumptionCharts() {
           // Consolidated All Categories (Regular + Consignment + EP + Donation)
           buildConsolidatedCharts();
+
+          // Medicine Regular
+          buildCategoryCharts(
+            'Medicine Regular',
+            it => it.pharmacy_category === 'Medicine Regular',
+            'regQtyChart', 'regValChart',
+            'chart-regular-qty', 'chart-regular-val',
+            185 // Teal base
+          );
+
+          // Consignment
+          buildCategoryCharts(
+            'Consignment',
+            it => String(it.pharmacy_category || '').toLowerCase().includes('consig'),
+            'conQtyChart', 'conValChart',
+            'chart-consignment-qty', 'chart-consignment-val',
+            35 // Amber base
+          );
+
+          // Donation
+          buildCategoryCharts(
+            'Donation',
+            it => String(it.pharmacy_category || '').toLowerCase().includes('donat'),
+            'donQtyChart', 'donValChart',
+            'chart-donation-qty', 'chart-donation-val',
+            280 // Purple base
+          );
         }
 
         function updateAnalyticsCharts() {
