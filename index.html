@@ -2853,14 +2853,15 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const v = parseFloat(it[valKey] || 0);
             if (q <= 0 && v <= 0) return;
 
-            // Group by DCI code if valid, otherwise by clean generic_name or description
-            const key = (it.dci_code && String(it.dci_code).trim() !== '' && String(it.dci_code).trim() !== '—')
-              ? String(it.dci_code).trim()
-              : String(it.generic_name || it.description || '').trim().toLowerCase();
+            // Normalize item name for cross-category grouping (strip prefixes like (C), (EP), (DON))
+            const cleanName = String(it.generic_name || it.description || it.item_code)
+              .replace(/^\((c|ep|don)\)\s*/i, '')
+              .trim();
+            const key = cleanName.toLowerCase();
 
             if (!groupMap[key]) {
               groupMap[key] = {
-                name: it.generic_name || it.description || it.item_code,
+                name: cleanName,
                 dci_code: it.dci_code || '',
                 qty: 0,
                 val: 0,
