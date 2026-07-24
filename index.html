@@ -1673,12 +1673,6 @@
               </div>
             </div>
 
-            <div id="kpi-alert" class="alert-banner hidden">
-              <span class="alert-icon">🚨</span>
-              <div><strong id="kpi-alert-count">0</strong> items are critically low on stock — immediate reordering
-                required.</div>
-            </div>
-
             <div class="kpi-grid" id="kpi-grid">
               <div class="kpi-card" data-kpi="all" style="--kpi-color:var(--accent)"
                 onclick="filterDashboardTable('all', this)">
@@ -2472,14 +2466,6 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           document.getElementById('kpi-ok').textContent = ok.toLocaleString();
           document.getElementById('kpi-overstock').textContent = overstock.toLocaleString();
           document.getElementById('kpi-pending').textContent = pending.toLocaleString();
-
-          const alertEl = document.getElementById('kpi-alert');
-          if (critical > 0) {
-            alertEl.classList.remove('hidden');
-            document.getElementById('kpi-alert-count').textContent = critical;
-          } else {
-            alertEl.classList.add('hidden');
-          }
 
           // Reorder badge
           document.getElementById('reorder-badge').textContent = (critical + warning).toString();
