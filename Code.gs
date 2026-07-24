@@ -112,21 +112,19 @@ function parseHeaderDate(val) {
   const parts = str.split(/[- ]/);
   if (parts.length >= 2) {
     const months = {
-      jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11,
-      january:0, february:1, march:2, april:3, june:5, july:6, august:7, september:8, october:9, november:10, december:11
+      jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6, aug:7, sep:8, oct:9, nov:10, dec:11
     };
     const m = months[parts[0].substring(0,3)];
-    let y = parseInt(parts[1].replace(/[^0-9]/g, ''));
+    let y = parseInt(parts[1]);
     if (m !== undefined && !isNaN(y)) {
       if (y < 100) y += 2000;
       return new Date(y, m, 1);
     }
   }
   
-  const yearMatch = str.match(/\b(20\d\d)\b/);
-  if (yearMatch) {
-    const y = parseInt(yearMatch[1]);
-    if (y >= 2020 && y <= 2040) return new Date(y, 0, 1);
+  const standaloneYear = parseInt(str);
+  if (!isNaN(standaloneYear) && standaloneYear >= 2020 && standaloneYear <= 2030) {
+    return new Date(standaloneYear, 0, 1);
   }
   return null;
 }
@@ -367,27 +365,48 @@ function getItems() {
   // ---- AUTO-DETECT location columns from sheet headers ----
   const lc = detectInventoryColumns(sheet);
 
-  // Group month columns dynamically by year from sheet headers (Row 4 & Row 5)
+  // Group columns for 2025 and 2026 consumption
   const hRow4 = sheet.getRange(4, 1, 1, lastCol).getValues()[0];
   const hRow5 = sheet.getRange(5, 1, 1, lastCol).getValues()[0];
-  const yearColsMap = {};
-
+  const cols2025 = [];
+  const cols2026 = [];
+  
   for (let c = 10; c < lc.overall_start; c++) {
     const val4 = hRow4[c];
     const val5 = hRow5[c];
-    const date = parseHeaderDate(val5) || parseHeaderDate(val4);
+    const date = parseHeaderDate(val4) || parseHeaderDate(val5);
     if (date) {
-      const yr = String(date.getFullYear());
-      if (!yearColsMap[yr]) yearColsMap[yr] = [];
-      yearColsMap[yr].push(c);
+      const yr = date.getFullYear();
+      if (yr === 2025) {
+        cols2025.push(c);
+      } else if (yr === 2026) {
+        cols2026.push(c);
+      }
     }
   }
+  const count2026 = cols2026.length;
 
   const values = sheet.getRange(5, 1, lastRow - 4, lastCol).getValues();
 
   return values.map((row, idx) => {
     const itemCode = String(row[1] || '').trim();
-    const unitCost = safeNum(row[8]);
+
+    // Calculate 2025 and 2026 annualized qty
+    let sum2025 = 0;
+    for (let i = 0; i < cols2025.length; i++) {
+      sum2025 += safeNum(row[cols2025[i]]);
+    }
+    
+    let sum2026 = 0;
+    for (let i = 0; i < cols2026.length; i++) {
+      sum2026 += safeNum(row[cols2026[i]]);
+    }
+    
+    const annualQty2025 = sum2025;
+    const annualVal2025 = annualQty2025 * safeNum(row[8]);
+    
+    const annualQty2026 = count2026 > 0 ? (sum2026 / count2026) * 12 : 0;
+    const annualVal2026 = annualQty2026 * safeNum(row[8]);
 
     // Location inventory
     const dispensingStock  = lc.dispensing_qty  >= 0 ? safeNum(row[lc.dispensing_qty])  : 0;
@@ -398,7 +417,7 @@ function getItems() {
     // OVERALL stats
     const totalStock = lc.overall_total_qty >= 0 ? safeNum(row[lc.overall_total_qty]) : 0;
 
-    const itemObj = {
+    return {
       no                           : String(row[0] || (idx + 1)),
       item_code                    : itemCode,
       status                       : String(row[2] || '').trim(),
@@ -407,7 +426,7 @@ function getItems() {
       pharmacy_category            : String(row[5] || '').trim(),
       pharmacologic_category       : String(row[6] || '').trim(),
       unit_of_measure              : String(row[7] || '').trim(),
-      unit_cost                    : unitCost,
+      unit_cost                    : safeNum(row[8]),
       avg_monthly_consumption      : safeNum(row[lc.overall_avg_monthly]),
       avg_monthly_normalized_demand: safeNum(row[lc.overall_normalized]),
       total_inventory_qty          : totalStock,
@@ -420,36 +439,17 @@ function getItems() {
       epa_balance                  : safeNum(row[lc.overall_epa_balance]),
       ending_with_epa_qty          : safeNum(row[lc.overall_ending_epa]),
 
+      annual_qty_2025              : annualQty2025,
+      annual_val_2025              : annualVal2025,
+      annual_qty_2026              : annualQty2026,
+      annual_val_2026              : annualVal2026,
+ 
       dispensing_inventory_qty     : dispensingStock,
       storage_inventory_qty        : storageStock,
       warehouse_inventory_qty      : warehouseStock,
       consignment_inventory_qty    : consignmentStock,
       rank                         : String(row[0] || '')
     };
-
-    // Calculate annual quantities and values dynamically for every detected year
-    Object.keys(yearColsMap).forEach(yr => {
-      const cols = yearColsMap[yr];
-      let sum = 0;
-      for (let i = 0; i < cols.length; i++) {
-        sum += safeNum(row[cols[i]]);
-      }
-      // If partial year (less than 12 months recorded), annualize quantity
-      const annQty = (cols.length > 0 && cols.length < 12) ? (sum / cols.length) * 12 : sum;
-      const annVal = annQty * unitCost;
-
-      itemObj[`annual_qty_${yr}`] = annQty;
-      itemObj[`annual_val_${yr}`] = annVal;
-      itemObj[`annual_months_${yr}`] = cols.length;
-    });
-
-    // Backward compatibility aliases
-    itemObj.annual_qty_2025 = itemObj.annual_qty_2025 || 0;
-    itemObj.annual_val_2025 = itemObj.annual_val_2025 || 0;
-    itemObj.annual_qty_2026 = itemObj.annual_qty_2026 || 0;
-    itemObj.annual_val_2026 = itemObj.annual_val_2026 || 0;
-
-    return itemObj;
   }).filter(item =>
     item.item_code !== '' &&
     item.item_code.toLowerCase() !== 'item code' &&

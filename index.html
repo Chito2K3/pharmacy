@@ -1886,7 +1886,7 @@
                     <select class="filter-select" id="analytics-year" onchange="updateAnalyticsCharts()"
                       style="padding:6px 12px; font-size:13px; width:auto;">
                       <option value="2025" selected>Year 2025</option>
-                      <option value="2026">Year 2026 (Annualized)</option>
+                      <option value="2026">Year 2026</option>
                     </select>
                   </div>
                 </div>
@@ -2192,9 +2192,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const sortedYears = Array.from(yearsSet).sort((a, b) => parseInt(a) - parseInt(b));
 
           select.innerHTML = sortedYears.map(yr => {
-            const isAnnualized = yr === '2026'; // tag partial year as annualized
-            const label = `Year ${yr}` + (isAnnualized ? ' (Annualized)' : '');
-            return `<option value="${yr}">${label}</option>`;
+            return `<option value="${yr}">Year ${yr}</option>`;
           }).join('');
 
           if (currentSel && yearsSet.has(currentSel)) {
