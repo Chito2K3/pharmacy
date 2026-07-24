@@ -780,6 +780,118 @@
       letter-spacing: .05em;
     }
 
+    /* ===== CATEGORY INVENTORY BREAKDOWN GRID ===== */
+    .cat-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .cat-summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cat-summary-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      transition: border .2s, box-shadow .2s, transform .2s, background .2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cat-summary-card:hover {
+      border-color: var(--border-lit);
+      background: rgba(255, 255, 255, 0.035);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .cat-summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--cat-accent, var(--accent));
+      border-radius: 4px 0 0 4px;
+    }
+
+    .cat-summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .cat-summary-title {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cat-summary-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: var(--cat-bg, rgba(6, 182, 212, 0.15));
+      color: var(--cat-color, var(--accent));
+    }
+
+    .cat-summary-metrics {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .cat-metric-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cat-metric-num {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .cat-metric-lbl {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    .cat-share-bar-wrap {
+      height: 5px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .cat-share-bar {
+      height: 100%;
+      background: var(--cat-accent, var(--accent));
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
     .chart-wrap {
       position: relative;
       width: 100%;
@@ -1608,9 +1720,12 @@
 
               <div class="charts-grid">
                 <div class="chart-card">
-                  <h3>Stock Level Distribution by Category</h3>
-                  <div class="chart-wrap" style="height:260px">
-                    <canvas id="chart-category"></canvas>
+                  <div class="flex items-center justify-between" style="margin-bottom:10px;">
+                    <h3 style="margin-bottom:0;">Category Inventory Breakdown</h3>
+                    <span class="badge badge-muted text-xs">4 Categories</span>
+                  </div>
+                  <div id="category-summary-container" class="cat-summary-grid">
+                    <!-- Populated dynamically by buildCategorySummary() -->
                   </div>
                 </div>
                 <div class="chart-card">
@@ -2109,6 +2224,27 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           });
         }
 
+        async function loadLocalJsonData() {
+          try {
+            const [itemsRes, reordRes] = await Promise.all([
+              fetch('items.json'),
+              fetch('reorders.json'),
+            ]);
+            if (!itemsRes.ok) return false;
+            const items = await itemsRes.json();
+            const reorders = reordRes.ok ? await reordRes.json() : [];
+            if (Array.isArray(items) && items.length > 0) {
+              allItems = items;
+              allReorders = Array.isArray(reorders) ? reorders : [];
+              showToast(`Loaded masterlist data (${allItems.length.toLocaleString()} items) ✓`, 'success');
+              return true;
+            }
+          } catch (e) {
+            console.warn('Local JSON load fallback error:', e);
+          }
+          return false;
+        }
+
         async function loadData() {
           showToast('Loading inventory data…', 'info');
 
@@ -2125,7 +2261,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             } catch (e) {
               console.error('google.script.run error:', e);
               showToast('Server error: ' + (e.message || e), 'error');
-              loadSampleData();
+              const loadedLocal = await loadLocalJsonData();
+              if (!loadedLocal) loadSampleData();
             }
 
             // 2. Fallback: fetch API (when URL is configured manually)
@@ -2145,13 +2282,15 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               showToast('Live data loaded from Google Sheets ✓', 'success');
             } catch (e) {
               console.error('Fetch API error:', e);
-              showToast('API Error: ' + e.message, 'error');
-              loadSampleData();
+              showToast('API Error: ' + e.message + ' — trying local data...', 'warning');
+              const loadedLocal = await loadLocalJsonData();
+              if (!loadedLocal) loadSampleData();
             }
 
-            // 3. No connection — use sample data
+            // 3. No connection — try local JSON first, then sample data
           } else {
-            loadSampleData();
+            const loadedLocal = await loadLocalJsonData();
+            if (!loadedLocal) loadSampleData();
           }
 
           // Data normalization: ensure dci_code is populated (fallback to status if API served from existing Apps Script deployment)
@@ -2350,7 +2489,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           // Charts
           buildStatusChart(critical, warning, ok, overstock);
-          buildCategoryChart();
+          buildCategorySummary();
         }
 
         let activeKpiFilter = 'critical';
@@ -2469,43 +2608,93 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           });
         }
 
-        function buildCategoryChart() {
-          const ctx = document.getElementById('chart-category');
-          if (!ctx) return;
-          // Group by pharmacologic category
-          const catMap = {};
-          allItems.forEach(it => {
-            const cat = (it.pharmacologic_category || 'Other').replace(' & ', ' &\n');
-            const avg = parseFloat(it.avg_monthly_consumption || 0);
-            catMap[cat] = (catMap[cat] || 0) + avg;
-          });
-          const sorted = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
-          const labels = sorted.map(e => e[0]);
-          const values = sorted.map(e => e[1]);
+        function buildCategorySummary() {
+          const container = document.getElementById('category-summary-container');
+          if (!container) return;
 
-          if (categoryChart) { categoryChart.destroy(); }
-          categoryChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels,
-              datasets: [{
-                label: 'Avg Monthly Consumption',
-                data: values,
-                backgroundColor: 'rgba(6,182,212,.7)',
-                borderColor: 'rgba(6,182,212,1)',
-                borderWidth: 1, borderRadius: 6,
-              }]
+          function isNonZero(it) {
+            const q1 = parseFloat(it.total_inventory_qty || 0);
+            const q2 = parseFloat(it.ending_inventory_qty || 0);
+            const q3 = parseFloat(it.dispensing_inventory_qty || 0);
+            const q4 = parseFloat(it.storage_inventory_qty || 0);
+            const q5 = parseFloat(it.warehouse_inventory_qty || 0);
+            const q6 = parseFloat(it.consignment_inventory_qty || 0);
+            const val = parseFloat(it.inventory_value_php || 0);
+            return (q1 > 0 || q2 > 0 || q3 > 0 || q4 > 0 || q5 > 0 || q6 > 0 || val > 0);
+          }
+
+          const CAT_DEFINITIONS = [
+            {
+              key: 'regular',
+              name: 'Medicine Regular',
+              icon: '💊',
+              color: '#06b6d4',
+              bg: 'rgba(6, 182, 212, 0.15)',
+              match: (cat) => cat === 'medicine regular' || (cat.includes('regular') && !cat.includes('consig'))
             },
-            options: {
-              responsive: true, maintainAspectRatio: false,
-              indexAxis: 'y',
-              plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toLocaleString()} units/mo` } } },
-              scales: {
-                x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#7a8599', font: { size: 10 } } },
-                y: { grid: { display: false }, ticks: { color: '#e8edf5', font: { size: 10 } } },
-              }
+            {
+              key: 'donation',
+              name: 'Donation',
+              icon: '🎁',
+              color: '#a855f7',
+              bg: 'rgba(168, 85, 247, 0.15)',
+              match: (cat) => cat.includes('donat')
+            },
+            {
+              key: 'consignment',
+              name: 'Consignment',
+              icon: '🤝',
+              color: '#f59e0b',
+              bg: 'rgba(245, 158, 11, 0.15)',
+              match: (cat) => cat.includes('consig')
+            },
+            {
+              key: 'emergency',
+              name: 'Emergency Purchase',
+              icon: '🚨',
+              color: '#ec4899',
+              bg: 'rgba(236, 72, 153, 0.15)',
+              match: (cat) => cat.includes('emergency') || cat.includes('ep')
             }
+          ];
+
+          const stats = CAT_DEFINITIONS.map(def => {
+            const matchingItems = allItems.filter(it => {
+              const cat = String(it.pharmacy_category || '').toLowerCase().trim();
+              return def.match(cat);
+            });
+
+            const totalItemCount = matchingItems.length;
+            const nonZeroCount = matchingItems.filter(isNonZero).length;
+            const stockedPct = totalItemCount > 0 ? ((nonZeroCount / totalItemCount) * 100).toFixed(1) : '0.0';
+
+            return { ...def, totalItemCount, nonZeroCount, stockedPct };
           });
+
+          container.innerHTML = stats.map(st => `
+            <div class="cat-summary-card" style="--cat-accent:${st.color}; --cat-bg:${st.bg}; --cat-color:${st.color};">
+              <div class="cat-summary-header">
+                <div class="cat-summary-title">
+                  <span>${st.icon}</span>
+                  <span>${st.name}</span>
+                </div>
+                <span class="cat-summary-badge">${st.stockedPct}% Stocked</span>
+              </div>
+              <div class="cat-summary-metrics">
+                <div class="cat-metric-box">
+                  <div class="cat-metric-num" style="color:${st.color};">${fmt(st.nonZeroCount)}</div>
+                  <div class="cat-metric-lbl">In-Stock Items (>0)</div>
+                </div>
+                <div class="cat-metric-box">
+                  <div class="cat-metric-num" style="color:var(--text-muted);">${fmt(st.totalItemCount)}</div>
+                  <div class="cat-metric-lbl">Total Item Count</div>
+                </div>
+              </div>
+              <div class="cat-share-bar-wrap" title="${st.nonZeroCount} of ${st.totalItemCount} items have inventory stock (${st.stockedPct}%)">
+                <div class="cat-share-bar" style="width:${Math.min(100, Math.max(0, parseFloat(st.stockedPct)))}%"></div>
+              </div>
+            </div>
+          `).join('');
         }
 
         // ================================================================
