@@ -2239,6 +2239,43 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           return false;
         }
 
+        function populateAnalyticsYearDropdown() {
+          const select = document.getElementById('analytics-year');
+          if (!select) return;
+
+          const currentSel = select.value;
+          const yearsSet = new Set();
+
+          if (Array.isArray(allItems)) {
+            allItems.forEach(it => {
+              Object.keys(it).forEach(key => {
+                const m = key.match(/^annual_qty_(\d{4})$/);
+                if (m) yearsSet.add(m[1]);
+              });
+            });
+          }
+
+          // Fallback if no dynamic keys found
+          if (yearsSet.size === 0) {
+            yearsSet.add('2025');
+            yearsSet.add('2026');
+          }
+
+          const sortedYears = Array.from(yearsSet).sort((a, b) => parseInt(a) - parseInt(b));
+
+          select.innerHTML = sortedYears.map(yr => {
+            const isAnnualized = yr === '2026'; // tag partial year as annualized
+            const label = `Year ${yr}` + (isAnnualized ? ' (Annualized)' : '');
+            return `<option value="${yr}">${label}</option>`;
+          }).join('');
+
+          if (currentSel && yearsSet.has(currentSel)) {
+            select.value = currentSel;
+          } else {
+            select.value = sortedYears[sortedYears.length - 1]; // select latest year
+          }
+        }
+
         async function loadData() {
           showToast('Loading inventory data…', 'info');
 
@@ -2303,6 +2340,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             });
           }
 
+          populateAnalyticsYearDropdown();
           buildDashboard();
           buildInventory();
           buildReorder();
@@ -2919,8 +2957,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
         function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValVarName, canvasQtyId, canvasValId, hueBase) {
           const yr = document.getElementById('analytics-year').value || '2025';
-          const qtyKey = yr === '2026' ? 'annual_qty_2026' : 'annual_qty_2025';
-          const valKey = yr === '2026' ? 'annual_val_2026' : 'annual_val_2025';
+          const qtyKey = `annual_qty_${yr}`;
+          const valKey = `annual_val_${yr}`;
 
           const filteredItems = allItems.filter(filterFn);
 
@@ -3041,8 +3079,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
         function buildConsolidatedCharts() {
           const yr = document.getElementById('analytics-year').value || '2025';
-          const qtyKey = yr === '2026' ? 'annual_qty_2026' : 'annual_qty_2025';
-          const valKey = yr === '2026' ? 'annual_val_2026' : 'annual_val_2025';
+          const qtyKey = `annual_qty_${yr}`;
+          const valKey = `annual_val_${yr}`;
 
           // Group all items across all categories (Medicine Regular, Consignment, Emergency Purchase, Donation)
           const groupMap = {};
