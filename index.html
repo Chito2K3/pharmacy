@@ -1806,6 +1806,14 @@
       padding: 4px 12px;
       border-radius: 20px;
     }
+
+    @keyframes spinIcon {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spinning {
+      animation: spinIcon 0.8s linear infinite;
+    }
   </style>
 </head>
 
@@ -2132,8 +2140,8 @@
                   <div class="flex items-center justify-between" style="margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                     <h3 style="font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-main);">FLOOR PLAN — PALLET LOCATIONS</h3>
                     <div class="flex items-center gap-2">
-                      <span class="badge badge-accent text-xs" id="locator-loaded-count">0 items loaded</span>
-                      <button class="btn-export" onclick="loadLocatorData()" title="Sync latest live changes from Google Sheet" style="padding:4px 10px; font-size:11px;">🔄 Sync Live Data</button>
+                      <span class="badge badge-accent text-xs" id="locator-loaded-count" style="transition:transform 0.25s ease;">0 items loaded</span>
+                      <button class="btn-export" id="btn-sync-locator" onclick="loadLocatorData(true)" title="Sync latest live changes from Google Sheet" style="padding:5px 12px; font-size:11px; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s ease;"><span class="sync-icon" style="display:inline-block;">🔄</span> Sync Live Data</button>
                     </div>
                   </div>
 
@@ -3606,7 +3614,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           });
         }
 
-        async function loadLocatorData() {
+        async function loadLocatorData(userClicked = false) {
+          const syncBtn = document.getElementById('btn-sync-locator');
+          const syncIcon = syncBtn ? syncBtn.querySelector('.sync-icon') : null;
+
+          if (userClicked && syncBtn) {
+            syncBtn.disabled = true;
+            if (syncIcon) syncIcon.classList.add('spinning');
+            syncBtn.style.opacity = '0.85';
+          }
+
           let itemsLoaded = [];
           let isLive = false;
 
@@ -3692,10 +3709,27 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const badge = document.getElementById('locator-loaded-count');
           if (badge) {
             badge.textContent = `${allLocatorItems.length.toLocaleString()} items loaded ${isLive ? '• Live Synced 🟢' : '• Offline Cache 📁'}`;
+            badge.style.transform = 'scale(1.08)';
+            setTimeout(() => { badge.style.transform = 'scale(1)'; }, 250);
           }
 
           const searchInput = document.getElementById('locator-search-input');
           filterLocator(searchInput ? searchInput.value : '');
+
+          if (syncBtn) {
+            if (syncIcon) syncIcon.classList.remove('spinning');
+            syncBtn.disabled = false;
+            syncBtn.style.opacity = '1';
+
+            if (userClicked) {
+              const origContent = syncBtn.innerHTML;
+              syncBtn.innerHTML = `<span style="color:#10b981;">✅</span> Live Synced!`;
+              showToast(isLive ? `✅ Synced ${allLocatorItems.length.toLocaleString()} items live from Google Sheets!` : `📁 Loaded ${allLocatorItems.length.toLocaleString()} items from offline backup.`);
+              setTimeout(() => {
+                syncBtn.innerHTML = origContent;
+              }, 1800);
+            }
+          }
         }
 
         function parseCSVLocator(csvText) {
