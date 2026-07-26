@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="locator_data.js"></script>
   <style>
     /* ===== CSS RESET & TOKENS ===== */
     *,
@@ -1567,6 +1568,244 @@
       font-size: 11px;
       color: var(--text-faint);
     }
+
+    /* ===== MAP LOCATOR SECTION ===== */
+    .locator-search-wrap {
+      position: relative;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .locator-search-input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      color: var(--text-main);
+      font-size: 15px;
+      font-weight: 500;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.08);
+      transition: all 0.25s ease;
+    }
+
+    .locator-search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.25), 0 0 0 3px var(--accent-glow);
+      background: var(--bg-card2);
+    }
+
+    .locator-search-wrap .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: var(--accent);
+      pointer-events: none;
+    }
+
+    .floor-plan-wrap {
+      background: var(--bg-deep);
+      border: 1px solid var(--border-lit);
+      border-radius: 16px;
+      padding: 24px;
+      margin: 16px 0;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .pallet-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 1200px) {
+      .pallet-row {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .pallet-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .pallet-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pallet-card-header {
+      margin-bottom: 8px;
+    }
+
+    .pallet-card-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
+      line-height: 1;
+    }
+
+    .pallet-card-sub {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .pallet-card-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .pallet-card-empty {
+      font-size: 11.5px;
+      color: var(--text-faint);
+    }
+
+    .pallet-card-matches-count {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(6, 182, 212, 0.2);
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .pallet-card-item-list {
+      width: 100%;
+      text-align: left;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 90px;
+      overflow-y: auto;
+    }
+
+    .pallet-item-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border-left: 2px solid var(--accent);
+      border-radius: 4px;
+      padding: 3px 6px;
+      line-height: 1.25;
+    }
+
+    .pallet-item-code {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      color: var(--accent);
+    }
+
+    .pallet-item-desc {
+      color: var(--text-main);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* MATCHED / ACTIVE PALLET CARD GLOW */
+    .pallet-card.matched {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(6, 182, 212, 0.15) 0%, var(--bg-card) 100%);
+      box-shadow: 0 0 24px rgba(6, 182, 212, 0.3), inset 0 0 12px rgba(6, 182, 212, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .pallet-card.matched .pallet-card-title {
+      color: #fff;
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.8);
+    }
+
+    .aisle-walkway {
+      margin: 18px 0;
+      padding: 8px 16px;
+      border-top: 1px dashed rgba(6, 182, 212, 0.3);
+      border-bottom: 1px dashed rgba(6, 182, 212, 0.3);
+      background: rgba(6, 182, 212, 0.03);
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .aisle-walkway span {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .locator-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .legend-items {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-box {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+
+    .legend-box.idle {
+      background: var(--bg-card2);
+    }
+
+    .legend-box.active {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      border-color: var(--accent);
+    }
+
+    .match-count-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
   </style>
 </head>
 
@@ -1620,6 +1859,9 @@
           <div class="nav-item" data-section="reorder" onclick="showSection('reorder',this)" id="nav-reorder">
             <span class="nav-icon">🔄</span> Reordering
             <span class="nav-badge" id="reorder-badge">0</span>
+          </div>
+          <div class="nav-item" data-section="locator" onclick="showSection('locator',this)">
+            <span class="nav-icon">🗺️</span> Locator
           </div>
           <div class="nav-item admin-only" data-section="analytics" onclick="showSection('analytics',this)">
             <span class="nav-icon">📈</span> Analytics
@@ -1794,6 +2036,7 @@
                           <th>#</th>
                           <th class="sortable" onclick="sortTable('item_code')">Item Code ↕</th>
                           <th class="sortable" onclick="sortTable('dci_code')">DCI Code ↕</th>
+                          <th class="text-center">Pallet</th>
                           <th class="sortable" onclick="sortTable('generic_name')">Generic Name / PNF Name ↕</th>
                           <th class="sortable" onclick="sortTable('pharmacologic_category')">Category ↕</th>
                           <th>Type</th>
@@ -1870,6 +2113,50 @@
                   <div class="pagination" id="reorder-pagination">
                     <div id="reorder-page-info">—</div>
                     <div class="page-btns" id="reorder-page-btns"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ===== MAP LOCATOR SECTION ===== -->
+              <div class="section" id="sec-locator">
+                <div class="section-header" style="margin-bottom:16px;">
+                  <div class="nav-section-label" style="padding:0; margin-bottom:6px; color:var(--text-muted);">SEARCH INVENTORY</div>
+                  <div class="locator-search-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="locator-search-input" class="locator-search-input" placeholder="Type item name to locate its pallet... (e.g. Paracetamol)" oninput="filterLocator(this.value)" />
+                  </div>
+                  <p class="text-xs text-muted" style="margin-top:8px;" id="locator-search-status">Ready — type an item name to locate it on the floor plan.</p>
+                </div>
+
+                <div class="table-card" style="padding:22px; background:var(--bg-card);">
+                  <div class="flex items-center justify-between" style="margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                    <h3 style="font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-main);">FLOOR PLAN — PALLET LOCATIONS</h3>
+                    <div class="flex items-center gap-2">
+                      <span class="badge badge-accent text-xs" id="locator-loaded-count">0 items loaded</span>
+                      <button class="btn-export" onclick="loadLocatorData()" title="Sync latest live changes from Google Sheet" style="padding:4px 10px; font-size:11px;">🔄 Sync Live Data</button>
+                    </div>
+                  </div>
+
+                  <div class="floor-plan-wrap">
+                    <!-- Top Row (L2, L4, L6, L8, L10, L12, L14) -->
+                    <div class="pallet-row" id="pallet-row-top"></div>
+
+                    <!-- Central Walkway -->
+                    <div class="aisle-walkway">
+                      <span>⇡ CENTRAL AISLE WALKWAY ⇣</span>
+                    </div>
+
+                    <!-- Bottom Row (L1, L3, L5, L7, L9, L11, L13) -->
+                    <div class="pallet-row" id="pallet-row-bottom"></div>
+                  </div>
+
+                  <!-- Legend Footer -->
+                  <div class="locator-footer">
+                    <div class="legend-items">
+                      <div class="legend-item"><span class="legend-box idle"></span><span class="text-xs text-muted">Available / Idle Pallet</span></div>
+                      <div class="legend-item"><span class="legend-box active"></span><span class="text-xs text-accent font-semibold">Search Match — Item Located</span></div>
+                    </div>
+                    <div class="match-count-badge" id="locator-match-count">⚡ 0 matches</div>
                   </div>
                 </div>
               </div>
@@ -2025,7 +2312,33 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             </div><!-- /content-area -->
           </div><!-- /main-content -->
         </div><!-- /app-layout -->
-      </div><!-- /app -->
+      <!-- ========================= PALLET DETAIL MODAL ========================= -->
+      <div id="pallet-modal" class="sidebar-backdrop" style="align-items:center; justify-content:center; padding:20px; z-index:200;">
+        <div class="table-card" style="width: 720px; max-width: 95vw; max-height: 85vh; display:flex; flex-direction:column; background:var(--bg-card); border:1px solid var(--border-lit); border-radius:18px; box-shadow:var(--shadow);">
+          <div class="table-toolbar" style="padding:16px 20px;">
+            <div class="toolbar-title" id="pallet-modal-title" style="font-size:15px; font-weight:800; color:var(--accent);">📍 Pallet Details</div>
+            <button onclick="closePalletModal()" style="background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer;" title="Close Modal">✕</button>
+          </div>
+          <div style="padding: 14px 20px 0 20px;">
+            <input type="text" id="pallet-modal-search" class="form-input" placeholder="Filter items on this pallet…" oninput="filterPalletModalItems(this.value)" style="width:100%;" />
+          </div>
+          <div class="table-container" style="flex:1; padding:16px 20px; max-height:420px; overflow-y:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Item Code</th>
+                  <th>DCI Code</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody id="pallet-modal-tbody"></tbody>
+            </table>
+          </div>
+          <div class="table-toolbar" style="border-top:1px solid var(--border); padding:12px 20px; justify-content:flex-end;">
+            <button class="btn-save" onclick="closePalletModal()" style="padding:7px 18px;">Close</button>
+          </div>
+        </div>
+      </div>
 
       <div id="toast-container"></div>
 
@@ -2272,6 +2585,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           buildReorder();
           buildAnalytics();
           buildCategoryFilter();
+          renderLocatorGrid();
+          loadLocatorData();
         }
 
         function loadSampleData() {
@@ -2361,6 +2676,18 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const n = parseFloat(v);
           if (isNaN(n) || n <= 0) return '—';
           return n.toLocaleString('en-PH', { maximumFractionDigits: 1 });
+        }
+
+        function formatExcelDate(val) {
+          if (val === null || val === undefined || val === '') return '—';
+          const str = String(val).trim();
+          if (str.indexOf('#') === 0) return '—';
+          const num = Number(str);
+          if (!isNaN(num) && num > 30000 && num < 60000) {
+            const d = new Date((num - 25569) * 86400 * 1000);
+            return (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
+          }
+          return str;
         }
 
         // ================================================================
@@ -2702,6 +3029,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
       <td class="text-muted">${start + i + 1}</td>
       <td class="code">${it.item_code}</td>
       <td class="code text-muted">${it.dci_code || '—'}</td>
+      <td class="text-center">${locationBadge(it.item_code)}</td>
       <td>${renderItemNameCell(it)}</td>
       <td><div class="cat-truncate text-xs text-muted" title="${it.pharmacologic_category || ''}">${it.pharmacologic_category || '—'}</div></td>
       <td><span class="badge badge-muted text-xs">${it.pharmacy_category || '—'}</span></td>
@@ -2714,7 +3042,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           ${stockBar(days)}
         </div>
       </td>
-      <td class="num-cell text-muted">${it.date_of_impact || '—'}</td>
+      <td class="num-cell text-muted">${formatExcelDate(it.date_of_impact)}</td>
       <td class="num-cell">${fmt(it.pending_po_co_qty)}</td>
       <td class="text-center">${statusBadge(days)}</td>
     </tr>`;
@@ -2878,7 +3206,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
 
           buildAnnualConsumptionCharts();
-          buildConsolidatedInventoryData();
+          if (typeof buildConsolidatedInventoryData === 'function') {
+            buildConsolidatedInventoryData();
+          }
         }
 
         function buildCategoryCharts(categoryLabel, filterFn, chartQtyVarName, chartValVarName, canvasQtyId, canvasValId, hueBase) {
@@ -3180,6 +3510,365 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         // ================================================================
         //  NAVIGATION
         // ================================================================
+        // ================================================================
+        //  MAP LOCATOR
+        // ================================================================
+        let allLocatorItems = [];
+        const TOP_PALLETS = ['L2', 'L4', 'L6', 'L8', 'L10', 'L12', 'L14'];
+        const BOTTOM_PALLETS = ['L1', 'L3', 'L5', 'L7', 'L9', 'L11', 'L13'];
+
+        function renderLocatorGrid() {
+          const topRow = document.getElementById('pallet-row-top');
+          const botRow = document.getElementById('pallet-row-bottom');
+          if (!topRow || !botRow) return;
+
+          function createCardHtml(pId, subLabel) {
+            return `
+              <div class="pallet-card" id="pallet-card-${pId}" onclick="openPalletModal('${pId}')" style="cursor:pointer;" title="Click to view all items stored on Pallet ${pId}">
+                <div class="pallet-card-header">
+                  <div class="pallet-card-title">${pId}</div>
+                  <div class="pallet-card-sub">${subLabel}</div>
+                </div>
+                <div class="pallet-card-body" id="pallet-body-${pId}">
+                  <span class="pallet-card-empty">No match</span>
+                </div>
+              </div>
+            `;
+          }
+
+          topRow.innerHTML = TOP_PALLETS.map(p => createCardHtml(p, 'TOP ROW')).join('');
+          botRow.innerHTML = BOTTOM_PALLETS.map(p => createCardHtml(p, 'BOTTOM ROW')).join('');
+        }
+
+        function loadLocatorDataFromGViz() {
+          return new Promise((resolve) => {
+            const callbackName = 'handleGVizLocator_' + Math.floor(Math.random() * 1000000);
+            const timeout = setTimeout(() => {
+              delete window[callbackName];
+              resolve([]);
+            }, 5000);
+
+            window[callbackName] = function(res) {
+              clearTimeout(timeout);
+              delete window[callbackName];
+              try {
+                if (!res || !res.table || !res.table.rows) return resolve([]);
+                const rows = res.table.rows;
+                if (rows.length < 2) return resolve([]);
+
+                const headers = (rows[0].c || []).map(cell => cell && cell.v != null ? String(cell.v).toLowerCase().trim() : '');
+                const itemCodeIdx = headers.findIndex(h => h.includes('item code'));
+                const dciIdx      = headers.findIndex(h => h.includes('dci code'));
+                const descIdx     = headers.findIndex(h => h.includes('description'));
+                const locIdx      = headers.findIndex(h => h.includes('location'));
+
+                const items = [];
+                for (let i = 1; i < rows.length; i++) {
+                  const c = rows[i].c || [];
+                  const code = itemCodeIdx >= 0 && c[itemCodeIdx] && c[itemCodeIdx].v != null ? String(c[itemCodeIdx].v).trim() : '';
+                  if (code && code.toLowerCase() !== 'item code') {
+                    items.push({
+                      item_code: code,
+                      dci_code: dciIdx >= 0 && c[dciIdx] && c[dciIdx].v != null ? String(c[dciIdx].v).trim() : '',
+                      description: descIdx >= 0 && c[descIdx] && c[descIdx].v != null ? String(c[descIdx].v).trim() : '',
+                      location: locIdx >= 0 && c[locIdx] && c[locIdx].v != null ? String(c[locIdx].v).trim() : ''
+                    });
+                  }
+                }
+                resolve(items);
+              } catch (err) {
+                resolve([]);
+              }
+            };
+
+            const script = document.createElement('script');
+            script.src = `https://docs.google.com/spreadsheets/d/1Nyzo7WCS90_t88Pz0wQ35sx4sBN-SSSVFSsLHc9d21w/gviz/tq?tqx=responseHandler:${callbackName}&_t=${Date.now()}`;
+            script.onerror = () => {
+              clearTimeout(timeout);
+              delete window[callbackName];
+              resolve([]);
+            };
+            document.body.appendChild(script);
+          });
+        }
+
+        async function loadLocatorData() {
+          let itemsLoaded = [];
+          let isLive = false;
+
+          // 1. Try Google Sheets GViz JSONP API (bypasses local file:// CORS restrictions completely)
+          try {
+            const gvizItems = await loadLocatorDataFromGViz();
+            if (Array.isArray(gvizItems) && gvizItems.length > 0) {
+              itemsLoaded = gvizItems;
+              isLive = true;
+            }
+          } catch (e) {
+            console.warn('GViz JSONP fetch error:', e);
+          }
+
+          // 2. Try Direct Google Sheet CSV export fetch
+          if (!isLive) {
+            try {
+              const liveUrl = 'https://docs.google.com/spreadsheets/d/1Nyzo7WCS90_t88Pz0wQ35sx4sBN-SSSVFSsLHc9d21w/export?format=csv&gid=0&_t=' + Date.now();
+              const res = await fetch(liveUrl, { cache: 'no-store' });
+              if (res.ok) {
+                const text = await res.text();
+                const parsed = parseCSVLocator(text);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  itemsLoaded = parsed;
+                  isLive = true;
+                }
+              }
+            } catch (e) {
+              console.warn('Live Google Sheet CSV fetch error:', e);
+            }
+          }
+
+          // 3. Try Apps Script API URL
+          if (!isLive && APPS_SCRIPT_URL) {
+            try {
+              const res = await fetch(`${APPS_SCRIPT_URL}?action=getLocator&_t=${Date.now()}`);
+              const data = await res.json();
+              if (Array.isArray(data) && data.length > 0) {
+                itemsLoaded = data;
+                isLive = true;
+              }
+            } catch (e) {
+              console.warn('Apps Script getLocator fetch error:', e);
+            }
+          }
+
+          // 4. Try google.script.run (if running in Apps Script environment)
+          if (!isLive && typeof google !== 'undefined' && google.script && google.script.run) {
+            try {
+              const res = await gscriptCall('getLocatorData');
+              if (Array.isArray(res) && res.length > 0) {
+                itemsLoaded = res;
+                isLive = true;
+              }
+            } catch (e) {
+              console.warn('gscriptCall getLocatorData error:', e);
+            }
+          }
+
+          // 5. Offline Fallback: window.LOCATOR_DATA (from locator_data.js)
+          if (itemsLoaded.length === 0 && typeof window !== 'undefined' && Array.isArray(window.LOCATOR_DATA) && window.LOCATOR_DATA.length > 0) {
+            itemsLoaded = window.LOCATOR_DATA;
+          }
+
+          // 6. Offline Fallback: locator.json
+          if (itemsLoaded.length === 0) {
+            try {
+              const res = await fetch('locator.json');
+              if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data) && data.length > 0) itemsLoaded = data;
+              }
+            } catch (e) {
+              console.warn('locator.json fetch error:', e);
+            }
+          }
+
+          allLocatorItems = itemsLoaded;
+
+          // Clear cached map so masterlist badges update to new locations
+          window.LOCATOR_MAP = null;
+
+          const badge = document.getElementById('locator-loaded-count');
+          if (badge) {
+            badge.textContent = `${allLocatorItems.length.toLocaleString()} items loaded ${isLive ? '• Live Synced 🟢' : '• Offline Cache 📁'}`;
+          }
+
+          const searchInput = document.getElementById('locator-search-input');
+          filterLocator(searchInput ? searchInput.value : '');
+        }
+
+        function parseCSVLocator(csvText) {
+          const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== '');
+          if (lines.length < 2) return [];
+          const parseRow = (line) => {
+            const result = []; let current = ''; let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+              const c = line[i];
+              if (c === '"') inQuotes = !inQuotes;
+              else if (c === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
+              else current += c;
+            }
+            result.push(current.trim());
+            return result;
+          };
+
+          const headers = parseRow(lines[0]).map(h => h.toLowerCase().replace(/"/g, ''));
+          const itemCodeIdx = headers.indexOf('item code');
+          const dciIdx      = headers.indexOf('dci code');
+          const descIdx     = headers.indexOf('item description');
+          const locIdx      = headers.indexOf('location');
+
+          const items = [];
+          for (let i = 1; i < lines.length; i++) {
+            const row = parseRow(lines[i]);
+            const code = itemCodeIdx >= 0 ? (row[itemCodeIdx] || '').replace(/"/g, '') : '';
+            if (code && code.toLowerCase() !== 'item code') {
+              items.push({
+                item_code: code,
+                dci_code: dciIdx >= 0 ? (row[dciIdx] || '').replace(/"/g, '') : '',
+                description: descIdx >= 0 ? (row[descIdx] || '').replace(/"/g, '') : '',
+                location: locIdx >= 0 ? (row[locIdx] || '').replace(/"/g, '') : ''
+              });
+            }
+          }
+          return items;
+        }
+
+        function filterLocator(query) {
+          const q = (query || '').trim().toLowerCase();
+          const qNorm = q.replace(/[\s\-_]/g, '');
+          const statusEl = document.getElementById('locator-search-status');
+          const matchBadge = document.getElementById('locator-match-count');
+          const allPallets = [...TOP_PALLETS, ...BOTTOM_PALLETS];
+
+          if (!q) {
+            allPallets.forEach(pId => {
+              const card = document.getElementById(`pallet-card-${pId}`);
+              const body = document.getElementById(`pallet-body-${pId}`);
+              if (card) card.classList.remove('matched');
+              if (body) body.innerHTML = '<span class="pallet-card-empty">No match</span>';
+            });
+            if (statusEl) statusEl.textContent = 'Ready — type an item name to locate it on the floor plan.';
+            if (matchBadge) matchBadge.textContent = '⚡ 0 matches';
+            return;
+          }
+
+          // Search in item_code, dci_code, or description (with space/hyphen normalization)
+          const matches = allLocatorItems.filter(it => {
+            const hay = `${it.item_code} ${it.dci_code || ''} ${it.description || ''}`.toLowerCase();
+            const hayNorm = hay.replace(/[\s\-_]/g, '');
+            return hay.includes(q) || (qNorm.length >= 3 && hayNorm.includes(qNorm));
+          });
+
+          // Group by location (L1..L14)
+          const locMap = {};
+          matches.forEach(it => {
+            const loc = (it.location || '').toUpperCase().trim();
+            if (loc) {
+              if (!locMap[loc]) locMap[loc] = [];
+              locMap[loc].push(it);
+            }
+          });
+
+          allPallets.forEach(pId => {
+            const card = document.getElementById(`pallet-card-${pId}`);
+            const body = document.getElementById(`pallet-body-${pId}`);
+            const palletMatches = locMap[pId] || [];
+
+            if (palletMatches.length > 0) {
+              if (card) card.classList.add('matched');
+              if (body) {
+                const displayList = palletMatches.slice(0, 3);
+                const moreCount = palletMatches.length - 3;
+                body.innerHTML = `
+                  <div class="pallet-card-matches-count">${palletMatches.length} match${palletMatches.length > 1 ? 'es' : ''}</div>
+                  <div class="pallet-card-item-list">
+                    ${displayList.map(it => `
+                      <div class="pallet-item-chip" title="${it.description || ''}">
+                        <div class="pallet-item-code">${it.item_code} ${it.dci_code ? '(' + it.dci_code + ')' : ''}</div>
+                        <div class="pallet-item-desc">${it.description || ''}</div>
+                      </div>
+                    `).join('')}
+                    ${moreCount > 0 ? `<div style="font-size:10px; font-weight:700; color:var(--accent); text-align:center; margin-top:2px;">+${moreCount} more</div>` : ''}
+                  </div>
+                `;
+              }
+            } else {
+              if (card) card.classList.remove('matched');
+              if (body) body.innerHTML = '<span class="pallet-card-empty">No match</span>';
+            }
+          });
+
+          const matchedPalletCount = Object.keys(locMap).length;
+          if (statusEl) {
+            statusEl.innerHTML = matches.length > 0
+              ? `<span class="text-accent font-semibold">Found ${matches.length} matching item(s) across ${matchedPalletCount} pallet location(s).</span>`
+              : `<span class="text-warning">No items found matching "${q}".</span>`;
+          }
+          if (matchBadge) {
+            matchBadge.textContent = `⚡ ${matches.length} match${matches.length === 1 ? '' : 'es'}`;
+          }
+        }
+
+        function locationBadge(itemCode) {
+          if (!window.LOCATOR_MAP) {
+            window.LOCATOR_MAP = {};
+            (allLocatorItems || window.LOCATOR_DATA || []).forEach(it => {
+              if (it.item_code && it.location) {
+                window.LOCATOR_MAP[it.item_code.trim()] = it.location.trim();
+              }
+            });
+          }
+          const loc = window.LOCATOR_MAP[String(itemCode).trim()];
+          if (loc) {
+            return `<span class="badge badge-accent" style="cursor:pointer;" onclick="showSection('locator'); const inp=document.getElementById('locator-search-input'); if(inp){ inp.value='${itemCode}'; filterLocator('${itemCode}'); }" title="Click to locate ${itemCode} on Pallet ${loc}">📍 ${loc}</span>`;
+          }
+          return `<span class="text-xs text-muted">—</span>`;
+        }
+
+        let currentPalletModalId = '';
+        let currentPalletItems = [];
+
+        function openPalletModal(pId) {
+          currentPalletModalId = pId;
+          currentPalletItems = (allLocatorItems || window.LOCATOR_DATA || []).filter(it => (it.location || '').toUpperCase().trim() === pId);
+
+          const titleEl = document.getElementById('pallet-modal-title');
+          if (titleEl) titleEl.innerHTML = `📍 Pallet ${pId} — Stored Items (${currentPalletItems.length} items)`;
+
+          const searchEl = document.getElementById('pallet-modal-search');
+          if (searchEl) searchEl.value = '';
+
+          renderPalletModalTbody(currentPalletItems);
+
+          const modal = document.getElementById('pallet-modal');
+          if (modal) {
+            modal.style.display = 'flex';
+            modal.style.opacity = '1';
+          }
+        }
+
+        function closePalletModal() {
+          const modal = document.getElementById('pallet-modal');
+          if (modal) {
+            modal.style.display = 'none';
+            modal.style.opacity = '0';
+          }
+        }
+
+        function filterPalletModalItems(q) {
+          const query = (q || '').trim().toLowerCase();
+          const filtered = currentPalletItems.filter(it => {
+            return `${it.item_code} ${it.dci_code || ''} ${it.description || ''}`.toLowerCase().includes(query);
+          });
+          renderPalletModalTbody(filtered);
+        }
+
+        function renderPalletModalTbody(items) {
+          const tbody = document.getElementById('pallet-modal-tbody');
+          if (!tbody) return;
+
+          if (items.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3"><div class="empty-state" style="padding:30px;"><p>No items stored on this pallet match your filter.</p></div></td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = items.map(it => `
+            <tr>
+              <td class="code">${it.item_code}</td>
+              <td class="code text-muted">${it.dci_code || '—'}</td>
+              <td style="white-space:normal; font-weight:500;">${it.description || '—'}</td>
+            </tr>
+          `).join('');
+        }
+
         function toggleSidebar() {
           const sidebar = document.getElementById('sidebar');
           sidebar.classList.toggle('open');
@@ -3205,11 +3894,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
           document.getElementById('sec-' + id)?.classList.add('active');
           el?.classList.add('active');
-          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', analytics: 'Analytics', setup: 'Setup & Config' };
+          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', locator: 'Pallet Map Locator', analytics: 'Analytics', setup: 'Setup & Config' };
           document.getElementById('topbar-title').textContent = titles[id] || id;
           document.getElementById('global-search-box').style.display = (id === 'inventory') ? 'flex' : 'none';
           if (id === 'inventory') filterInventory();
           if (id === 'reorder') filterReorder();
+          if (id === 'locator') {
+            if (allLocatorItems.length === 0) loadLocatorData();
+            const input = document.getElementById('locator-search-input');
+            if (input) filterLocator(input.value);
+          }
 
           // Auto-close drawer on selection
           const sidebar = document.getElementById('sidebar');

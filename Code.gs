@@ -38,6 +38,7 @@ function doGet(e) {
     switch (action) {
       case 'getItems':     return respond(getItems());
       case 'getReorders':  return respond(getReorders());
+      case 'getLocator':   return respond(getLocatorData());
       case 'getUser':      return respond(getUser(email));
       case 'getStats':     return respond(getStats());
       case 'getSheetInfo': return respond(getSheetInfo());
@@ -51,15 +52,16 @@ function doGet(e) {
 }
 
 function doPost(e) {
-  const params = JSON.parse(e.postData.contents || '{}');
-  const action = params.action || '';
-
   const respond = (data) =>
     ContentService
       .createTextOutput(JSON.stringify(data))
       .setMimeType(ContentService.MimeType.JSON);
 
   try {
+    const rawContent = (e && e.postData && e.postData.contents) ? e.postData.contents : '{}';
+    const params = JSON.parse(rawContent || '{}');
+    const action = params.action || '';
+
     switch (action) {
       case 'updateInventory': return respond(updateInventory(params));
       case 'addUser':         return respond(addUser(params));
@@ -420,6 +422,7 @@ function getItems() {
     return {
       no                           : String(row[0] || (idx + 1)),
       item_code                    : itemCode,
+      dci_code                     : String(row[2] || '').trim(),
       status                       : String(row[2] || '').trim(),
       description                  : String(row[3] || '').trim(),
       generic_name                 : String(row[4] || '').trim(),
@@ -475,6 +478,36 @@ function getReorders() {
   if (lastRow < 2) return [];
   
   return sheetToJSON(sheet);
+}
+
+/** Returns pallet locator records from the Locator sheet or Google Sheet CSV export. */
+function getLocatorData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName('Locator') || ss.getSheetByName('Map Locator');
+  if (sheet) {
+    return sheetToJSON(sheet);
+  }
+  try {
+    const url = 'https://docs.google.com/spreadsheets/d/1Nyzo7WCS90_t88Pz0wQ35sx4sBN-SSSVFSsLHc9d21w/export?format=csv&gid=0';
+    const res = UrlFetchApp.fetch(url);
+    const csv = Utilities.parseCsv(res.getContentText());
+    if (csv.length < 2) return [];
+    const headers = csv[0].map(h => String(h).trim().toLowerCase());
+    const itemCodeIdx = headers.indexOf('item code');
+    const dciIdx      = headers.indexOf('dci code');
+    const descIdx     = headers.indexOf('item description');
+    const locIdx      = headers.indexOf('location');
+
+    return csv.slice(1).map(row => ({
+      item_code:   itemCodeIdx >= 0 ? row[itemCodeIdx] : '',
+      dci_code:    dciIdx      >= 0 ? row[dciIdx]      : '',
+      description: descIdx     >= 0 ? row[descIdx]     : '',
+      location:    locIdx      >= 0 ? row[locIdx]      : ''
+    })).filter(r => r.item_code);
+  } catch (e) {
+    Logger.log('Locator fetch error: ' + e.message);
+    return [];
+  }
 }
 
 /** Looks up a user by email from the Users sheet. Returns role info. */
