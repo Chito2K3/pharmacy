@@ -2325,16 +2325,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               </div>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
-              <button class="btn-export" onclick="exportCurrentPalletCSV()" title="Export CSV list of items on this pallet" style="padding:6px 14px; font-size:12px;">⬇ Export Pallet CSV</button>
               <button onclick="closePalletModal()" style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; padding:4px 8px; border-radius:8px; line-height:1; transition:color 0.15s;" title="Close (Esc)">✕</button>
-            </div>
-          </div>
-
-          <!-- Search Filter Bar -->
-          <div style="padding: 16px 24px; background:var(--bg-card); border-bottom:1px solid var(--border);">
-            <div class="locator-search-wrap" style="margin:0;">
-              <span class="search-icon">🔍</span>
-              <input type="text" id="pallet-modal-search" class="locator-search-input" placeholder="Type item name, code, or description to filter..." oninput="filterPalletModalItems(this.value)" style="padding-left:38px;" />
             </div>
           </div>
 
@@ -2344,10 +2335,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               <thead style="position:sticky; top:0; z-index:10; background:var(--bg-card2);">
                 <tr>
                   <th style="width:50px;" class="text-center">#</th>
-                  <th style="width:170px;">Item Code</th>
-                  <th style="width:140px;">DCI Code</th>
+                  <th style="width:160px;">Item Code</th>
+                  <th style="width:130px;">DCI Code</th>
                   <th>Description</th>
-                  <th style="width:130px;" class="text-center">Status</th>
+                  <th style="width:160px;" class="num-cell">Actual Qty (Warehouse)</th>
+                  <th style="width:120px;" class="text-center">Status</th>
                 </tr>
               </thead>
               <tbody id="pallet-modal-tbody"></tbody>
@@ -3913,6 +3905,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           tbody.innerHTML = items.map((it, idx) => {
             const master = masterLookup[it.item_code ? it.item_code.trim() : ''];
             let statusBadge = '<span class="badge badge-muted text-xs">Mapped</span>';
+            let actualQty = '0';
+
             if (master) {
               const days = parseFloat(master.inventory_level_days) || 0;
               const st = stockStatus(days);
@@ -3923,6 +3917,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 overstock: '<span class="badge badge-accent text-xs">Overstock</span>'
               };
               statusBadge = badges[st] || statusBadge;
+              const rawQty = parseFloat(master.warehouse_inventory_qty != null ? master.warehouse_inventory_qty : master.total_inventory_qty) || 0;
+              actualQty = fmt(rawQty);
+            } else if (it.warehouse_inventory_qty != null) {
+              actualQty = fmt(parseFloat(it.warehouse_inventory_qty) || 0);
             }
 
             return `
@@ -3931,6 +3929,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 <td class="code" style="font-weight:700;">${it.item_code}</td>
                 <td class="code text-muted">${it.dci_code || '—'}</td>
                 <td style="white-space:normal; font-weight:500; line-height:1.4;">${it.description || '—'}</td>
+                <td class="num-cell" style="font-weight:700; color:var(--accent);">${actualQty}</td>
                 <td class="text-center">${statusBadge}</td>
               </tr>
             `;
