@@ -2313,29 +2313,51 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           </div><!-- /main-content -->
         </div><!-- /app-layout -->
       <!-- ========================= PALLET DETAIL MODAL ========================= -->
-      <div id="pallet-modal" class="sidebar-backdrop" style="align-items:center; justify-content:center; padding:20px; z-index:200;">
-        <div class="table-card" style="width: 720px; max-width: 95vw; max-height: 85vh; display:flex; flex-direction:column; background:var(--bg-card); border:1px solid var(--border-lit); border-radius:18px; box-shadow:var(--shadow);">
-          <div class="table-toolbar" style="padding:16px 20px;">
-            <div class="toolbar-title" id="pallet-modal-title" style="font-size:15px; font-weight:800; color:var(--accent);">📍 Pallet Details</div>
-            <button onclick="closePalletModal()" style="background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer;" title="Close Modal">✕</button>
+      <div id="pallet-modal" class="sidebar-backdrop" onclick="if(event.target===this)closePalletModal()" style="align-items:center; justify-content:center; padding:20px; z-index:999; backdrop-filter:blur(6px); transition:opacity 0.25s ease;">
+        <div class="table-card" style="width: 860px; max-width: 95vw; max-height: 88vh; display:flex; flex-direction:column; background:var(--bg-card); border:1px solid var(--border-lit); border-radius:20px; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow:hidden;">
+          <!-- Header -->
+          <div class="table-toolbar" style="padding:18px 24px; background:var(--bg-card2); border-bottom:1px solid var(--border-lit); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:38px; height:38px; border-radius:10px; background:var(--accent-glow); border:1px solid rgba(6,182,212,0.3); display:flex; align-items:center; justify-content:center; font-size:18px;">📍</div>
+              <div>
+                <h3 id="pallet-modal-title" style="margin:0; font-size:16px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">Pallet Details</h3>
+                <p id="pallet-modal-sub" class="text-xs text-muted" style="margin-top:2px;">Viewing items assigned to this floor plan pallet card</p>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <button class="btn-export" onclick="exportCurrentPalletCSV()" title="Export CSV list of items on this pallet" style="padding:6px 14px; font-size:12px;">⬇ Export Pallet CSV</button>
+              <button onclick="closePalletModal()" style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; padding:4px 8px; border-radius:8px; line-height:1; transition:color 0.15s;" title="Close (Esc)">✕</button>
+            </div>
           </div>
-          <div style="padding: 14px 20px 0 20px;">
-            <input type="text" id="pallet-modal-search" class="form-input" placeholder="Filter items on this pallet…" oninput="filterPalletModalItems(this.value)" style="width:100%;" />
+
+          <!-- Search Filter Bar -->
+          <div style="padding: 16px 24px; background:var(--bg-card); border-bottom:1px solid var(--border);">
+            <div class="locator-search-wrap" style="margin:0;">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="pallet-modal-search" class="locator-search-input" placeholder="Type item name, code, or description to filter..." oninput="filterPalletModalItems(this.value)" style="padding-left:38px;" />
+            </div>
           </div>
-          <div class="table-container" style="flex:1; padding:16px 20px; max-height:420px; overflow-y:auto;">
+
+          <!-- Table Content Area -->
+          <div class="table-container" style="flex:1; padding:0; overflow-y:auto;">
             <table class="data-table">
-              <thead>
+              <thead style="position:sticky; top:0; z-index:10; background:var(--bg-card2);">
                 <tr>
-                  <th>Item Code</th>
-                  <th>DCI Code</th>
+                  <th style="width:50px;" class="text-center">#</th>
+                  <th style="width:170px;">Item Code</th>
+                  <th style="width:140px;">DCI Code</th>
                   <th>Description</th>
+                  <th style="width:130px;" class="text-center">Status</th>
                 </tr>
               </thead>
               <tbody id="pallet-modal-tbody"></tbody>
             </table>
           </div>
-          <div class="table-toolbar" style="border-top:1px solid var(--border); padding:12px 20px; justify-content:flex-end;">
-            <button class="btn-save" onclick="closePalletModal()" style="padding:7px 18px;">Close</button>
+
+          <!-- Footer -->
+          <div class="table-toolbar" style="border-top:1px solid var(--border-lit); padding:14px 24px; background:var(--bg-card2); justify-content:space-between; align-items:center;">
+            <span id="pallet-modal-footer-count" class="text-xs text-muted">0 items</span>
+            <button class="btn-save" onclick="closePalletModal()" style="padding:7px 20px;">Done</button>
           </div>
         </div>
       </div>
@@ -3815,59 +3837,135 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
         let currentPalletModalId = '';
         let currentPalletItems = [];
+        let filteredPalletItems = [];
 
         function openPalletModal(pId) {
           currentPalletModalId = pId;
-          currentPalletItems = (allLocatorItems || window.LOCATOR_DATA || []).filter(it => (it.location || '').toUpperCase().trim() === pId);
+          const targetLoc = pId.toUpperCase().trim();
+          currentPalletItems = (allLocatorItems || window.LOCATOR_DATA || []).filter(it => (it.location || '').toUpperCase().trim() === targetLoc);
+          filteredPalletItems = [...currentPalletItems];
 
           const titleEl = document.getElementById('pallet-modal-title');
-          if (titleEl) titleEl.innerHTML = `📍 Pallet ${pId} — Stored Items (${currentPalletItems.length} items)`;
+          if (titleEl) {
+            titleEl.innerHTML = `Pallet ${pId} <span class="badge badge-accent" style="font-size:11px; padding:3px 10px;">${currentPalletItems.length.toLocaleString()} Items Stored</span>`;
+          }
+
+          const subEl = document.getElementById('pallet-modal-sub');
+          if (subEl) {
+            subEl.textContent = `All inventory items assigned to Pallet ${pId} on the warehouse floor plan.`;
+          }
 
           const searchEl = document.getElementById('pallet-modal-search');
           if (searchEl) searchEl.value = '';
 
-          renderPalletModalTbody(currentPalletItems);
+          renderPalletModalTbody(filteredPalletItems);
 
           const modal = document.getElementById('pallet-modal');
           if (modal) {
             modal.style.display = 'flex';
-            modal.style.opacity = '1';
+            setTimeout(() => { modal.style.opacity = '1'; }, 10);
           }
         }
 
         function closePalletModal() {
           const modal = document.getElementById('pallet-modal');
           if (modal) {
-            modal.style.display = 'none';
             modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 200);
           }
         }
 
         function filterPalletModalItems(q) {
           const query = (q || '').trim().toLowerCase();
-          const filtered = currentPalletItems.filter(it => {
-            return `${it.item_code} ${it.dci_code || ''} ${it.description || ''}`.toLowerCase().includes(query);
-          });
-          renderPalletModalTbody(filtered);
+          const queryNorm = query.replace(/[\s\-_]/g, '');
+
+          if (!query) {
+            filteredPalletItems = [...currentPalletItems];
+          } else {
+            filteredPalletItems = currentPalletItems.filter(it => {
+              const hay = `${it.item_code} ${it.dci_code || ''} ${it.description || ''}`.toLowerCase();
+              const hayNorm = hay.replace(/[\s\-_]/g, '');
+              return hay.includes(query) || (queryNorm.length >= 3 && hayNorm.includes(queryNorm));
+            });
+          }
+          renderPalletModalTbody(filteredPalletItems);
         }
 
         function renderPalletModalTbody(items) {
           const tbody = document.getElementById('pallet-modal-tbody');
+          const footerEl = document.getElementById('pallet-modal-footer-count');
+          if (footerEl) {
+            footerEl.textContent = `Showing ${items.length.toLocaleString()} of ${currentPalletItems.length.toLocaleString()} items on Pallet ${currentPalletModalId}`;
+          }
           if (!tbody) return;
 
           if (items.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3"><div class="empty-state" style="padding:30px;"><p>No items stored on this pallet match your filter.</p></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state" style="padding:40px 20px;"><p style="font-size:14px; font-weight:600; color:var(--text-muted);">No items found on Pallet ${currentPalletModalId} matching filter query.</p></div></td></tr>`;
             return;
           }
 
-          tbody.innerHTML = items.map(it => `
-            <tr>
-              <td class="code">${it.item_code}</td>
-              <td class="code text-muted">${it.dci_code || '—'}</td>
-              <td style="white-space:normal; font-weight:500;">${it.description || '—'}</td>
-            </tr>
-          `).join('');
+          // Build item lookup for stock days status
+          const masterLookup = {};
+          (allItems || []).forEach(it => {
+            if (it.item_code) masterLookup[it.item_code.trim()] = it;
+          });
+
+          tbody.innerHTML = items.map((it, idx) => {
+            const master = masterLookup[it.item_code ? it.item_code.trim() : ''];
+            let statusBadge = '<span class="badge badge-muted text-xs">Mapped</span>';
+            if (master) {
+              const days = parseFloat(master.inventory_level_days) || 0;
+              const st = stockStatus(days);
+              const badges = {
+                critical: '<span class="badge badge-critical text-xs">Critical</span>',
+                warning: '<span class="badge badge-warning text-xs">Low Stock</span>',
+                ok: '<span class="badge badge-ok text-xs">Normal</span>',
+                overstock: '<span class="badge badge-accent text-xs">Overstock</span>'
+              };
+              statusBadge = badges[st] || statusBadge;
+            }
+
+            return `
+              <tr>
+                <td class="text-center text-muted" style="font-size:12px;">${idx + 1}</td>
+                <td class="code" style="font-weight:700;">${it.item_code}</td>
+                <td class="code text-muted">${it.dci_code || '—'}</td>
+                <td style="white-space:normal; font-weight:500; line-height:1.4;">${it.description || '—'}</td>
+                <td class="text-center">${statusBadge}</td>
+              </tr>
+            `;
+          }).join('');
         }
+
+        function exportCurrentPalletCSV() {
+          if (!currentPalletModalId || filteredPalletItems.length === 0) {
+            alert('No items to export for this pallet.');
+            return;
+          }
+
+          const cols = ['item_code', 'dci_code', 'description', 'location'];
+          const header = cols.join(',');
+          const rows = filteredPalletItems.map(it => {
+            return cols.map(c => `"${String(it[c] || '').replace(/"/g, '""')}"`).join(',');
+          });
+
+          const csvContent = [header, ...rows].join('\n');
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `Pallet_${currentPalletModalId}_Items.csv`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            closePalletModal();
+          }
+        });
 
         function toggleSidebar() {
           const sidebar = document.getElementById('sidebar');
