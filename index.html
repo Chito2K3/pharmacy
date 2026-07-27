@@ -2361,6 +2361,137 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         </div>
       </div>
 
+      <!-- ========================= ITEM LOCATION BREAKDOWN MODAL ========================= -->
+      <div id="item-detail-modal" class="sidebar-backdrop" onclick="if(event.target===this)closeItemModal()" style="align-items:center; justify-content:center; padding:20px; z-index:999; backdrop-filter:blur(8px); transition:opacity 0.25s ease; display:none;">
+        <div class="table-card" style="width: 880px; max-width: 95vw; max-height: 90vh; display:flex; flex-direction:column; background:var(--bg-card); border:1px solid var(--border-lit); border-radius:20px; box-shadow:0 25px 60px -10px rgba(0, 0, 0, 0.6); overflow:hidden;">
+          
+          <!-- Header Bar -->
+          <div class="table-toolbar" style="padding:18px 24px; background:var(--bg-card2); border-bottom:1px solid var(--border-lit); display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+            <div style="display:flex; align-items:flex-start; gap:14px; flex:1;">
+              <div style="width:44px; height:44px; border-radius:12px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.3); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">💊</div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
+                  <span id="item-modal-code" class="code" style="font-weight:800; font-size:14px; color:var(--accent);">—</span>
+                  <span id="item-modal-dci" class="code text-muted" style="font-size:12px;">—</span>
+                  <span id="item-modal-category" class="badge badge-muted text-xs">—</span>
+                  <span id="item-modal-status" class="text-center">—</span>
+                </div>
+                <h3 id="item-modal-title" style="margin:0; font-size:17px; font-weight:800; color:var(--text-main); line-height:1.3;">Item Description</h3>
+                <p id="item-modal-pharm" class="text-xs text-muted" style="margin-top:4px;">Pharmacologic Category</p>
+              </div>
+            </div>
+            <button onclick="closeItemModal()" style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; padding:4px 8px; border-radius:8px; line-height:1; transition:color 0.15s;" title="Close (Esc)">✕</button>
+          </div>
+
+          <!-- Body Container -->
+          <div style="flex:1; padding:24px; overflow-y:auto; display:flex; flex-direction:column; gap:20px;">
+            
+            <!-- Section 1: Location Inventory Breakdown (Columns BA, BH, BO, BV) -->
+            <div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                <h4 style="font-size:13px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">📍 Inventory Volume by Location</h4>
+                <span id="item-modal-total-stock-badge" class="badge badge-accent" style="font-size:12px;">Total Stock: 0</span>
+              </div>
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:14px;">
+                
+                <!-- Dispensing (Col BA) -->
+                <div style="background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.2); border-radius:14px; padding:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:12px; font-weight:700; color:#06b6d4;">💊 Dispensing Area</span>
+                    <span style="font-size:10px; font-weight:700; color:var(--text-muted);">Col BA</span>
+                  </div>
+                  <div id="item-modal-dispensing-qty" style="font-size:24px; font-weight:800; color:var(--text-main);">0</div>
+                  <div class="progress-bar-wrap" style="margin-top:10px; height:6px;">
+                    <div id="item-modal-dispensing-bar" class="progress-bar" style="width:0%; background:#06b6d4;"></div>
+                  </div>
+                  <div id="item-modal-dispensing-pct" style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:right;">0% of stock</div>
+                </div>
+
+                <!-- Storage (Col BH) -->
+                <div style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.2); border-radius:14px; padding:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:12px; font-weight:700; color:#10b981;">🏭 Pharmacy Storage</span>
+                    <span style="font-size:10px; font-weight:700; color:var(--text-muted);">Col BH</span>
+                  </div>
+                  <div id="item-modal-storage-qty" style="font-size:24px; font-weight:800; color:var(--text-main);">0</div>
+                  <div class="progress-bar-wrap" style="margin-top:10px; height:6px;">
+                    <div id="item-modal-storage-bar" class="progress-bar" style="width:0%; background:#10b981;"></div>
+                  </div>
+                  <div id="item-modal-storage-pct" style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:right;">0% of stock</div>
+                </div>
+
+                <!-- Warehouse (Col BO) -->
+                <div style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2); border-radius:14px; padding:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:12px; font-weight:700; color:#f59e0b;">📦 Warehouse</span>
+                    <span style="font-size:10px; font-weight:700; color:var(--text-muted);">Col BO</span>
+                  </div>
+                  <div id="item-modal-warehouse-qty" style="font-size:24px; font-weight:800; color:var(--text-main);">0</div>
+                  <div class="progress-bar-wrap" style="margin-top:10px; height:6px;">
+                    <div id="item-modal-warehouse-bar" class="progress-bar" style="width:0%; background:#f59e0b;"></div>
+                  </div>
+                  <div id="item-modal-warehouse-pct" style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:right;">0% of stock</div>
+                </div>
+
+                <!-- Consignment (Col BV) -->
+                <div style="background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.2); border-radius:14px; padding:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:12px; font-weight:700; color:#a855f7;">🤝 Consignment</span>
+                    <span style="font-size:10px; font-weight:700; color:var(--text-muted);">Col BV</span>
+                  </div>
+                  <div id="item-modal-consignment-qty" style="font-size:24px; font-weight:800; color:var(--text-main);">0</div>
+                  <div class="progress-bar-wrap" style="margin-top:10px; height:6px;">
+                    <div id="item-modal-consignment-bar" class="progress-bar" style="width:0%; background:#a855f7;"></div>
+                  </div>
+                  <div id="item-modal-consignment-pct" style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:right;">0% of stock</div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Section 2: Metrics & Inventory Specs -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
+              
+              <div style="background:var(--bg-card2); border:1px solid var(--border-lit); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px;">
+                <h4 style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📊 Demand & Stock Days</h4>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Stock Level (Days)</span><strong id="item-modal-days" class="text-accent">—</strong></div>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Avg Monthly Demand</span><span id="item-modal-avg-monthly" style="font-weight:600;">—</span></div>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Normalized Monthly</span><span id="item-modal-normalized" style="font-weight:600;">—</span></div>
+              </div>
+
+              <div style="background:var(--bg-card2); border:1px solid var(--border-lit); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px;">
+                <h4 style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">💰 Cost & Valuation</h4>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Unit Cost</span><span id="item-modal-unit-cost" style="font-weight:600;">—</span></div>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Total Valuation (₱)</span><strong id="item-modal-total-val" class="text-success">—</strong></div>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Unit of Measure (UOM)</span><span id="item-modal-uom" style="font-weight:600;">—</span></div>
+              </div>
+
+              <div style="background:var(--bg-card2); border:1px solid var(--border-lit); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px;">
+                <h4 style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📋 Requisitions & Impact Date</h4>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Date of Impact (Expiry)</span><span id="item-modal-impact-date" style="font-weight:600;">—</span></div>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Pending PO / CO Qty</span><strong id="item-modal-pending-po" class="text-warning">—</strong></div>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Ending Inventory (w/ EPA)</span><span id="item-modal-ending-epa" style="font-weight:600;">—</span></div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Footer Toolbar -->
+          <div class="table-toolbar" style="border-top:1px solid var(--border-lit); padding:14px 24px; background:var(--bg-card2); justify-content:space-between; align-items:center;">
+            <div id="item-modal-pallet-wrap" style="display:flex; align-items:center; gap:8px;">
+              <span class="text-xs text-muted">Pallet Location:</span>
+              <span id="item-modal-pallet-badge">—</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <button id="btn-locate-floor" class="btn-save" style="padding:7px 16px; background:var(--bg-card); border:1px solid var(--border-lit); color:var(--text-main);" onclick="locateItemFromModal()">📍 Locate on Floor Plan</button>
+              <button class="btn-save" onclick="closeItemModal()" style="padding:7px 20px;">Close</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <div id="toast-container"></div>
 
       <script>
@@ -2916,7 +3047,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               const avg = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0);
               const stock = parseFloat(it.total_inventory_qty || 0);
               const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
-              return '<tr>' +
+              return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + it.item_code + '">' +
         '<td class="code">' + it.item_code + '</td>' +
         '<td class="code text-muted">' + (it.dci_code || '—') + '</td>' +
         '<td>' + renderItemNameCell(it) + '</td>' +
@@ -3110,11 +3241,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           tbody.innerHTML = page.map((it, i) => {
             const days = parseFloat(it.inventory_level_days) || 0;
-            return '<tr>' +
+            return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + it.item_code + '">' +
       '<td class="text-muted">' + (start + i + 1) + '</td>' +
       '<td class="code">' + it.item_code + '</td>' +
       '<td class="code text-muted">' + (it.dci_code || '—') + '</td>' +
-      '<td class="text-center">' + locationBadge(it.item_code) + '</td>' +
+      '<td class="text-center" onclick="event.stopPropagation();">' + locationBadge(it.item_code) + '</td>' +
       '<td>' + renderItemNameCell(it) + '</td>' +
       '<td><div class="cat-truncate text-xs text-muted" title="' + (it.pharmacologic_category || '') + '">' + (it.pharmacologic_category || '—') + '</div></td>' +
       '<td><span class="badge badge-muted text-xs">' + (it.pharmacy_category || '—') + '</span></td>' +
@@ -3186,7 +3317,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const s = stockStatus(days);
             const dotCls = s === 'critical' ? 'critical' : s === 'warning' ? 'warning' : s === 'ok' ? 'ok' : 'overstock';
             const label = s === 'critical' ? 'Critical' : s === 'warning' ? 'Low' : s === 'ok' ? 'Normal' : 'Over Stock';
-            return '<tr>' +
+            return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + r.item_code + '\')" title="Click to view location stock breakdown for ' + r.item_code + '">' +
       '<td><div class="reorder-priority"><div class="priority-dot ' + dotCls + '"></div><span class="text-sm">' + label + '</span></div></td>' +
       '<td class="code">' + r.item_code + '</td>' +
       '<td class="code text-muted">' + (r.dci_code || '—') + '</td>' +
@@ -4053,9 +4184,109 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           URL.revokeObjectURL(url);
         }
 
+        let activeModalItemCode = '';
+
+        function openItemModal(itemCode) {
+          if (!itemCode) return;
+          activeModalItemCode = String(itemCode).trim();
+          const item = allItems.find(it => String(it.item_code).trim() === activeModalItemCode);
+          if (!item) {
+            showToast('Item details not found: ' + activeModalItemCode, 'error');
+            return;
+          }
+
+          const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+          const setHtml = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+
+          setTxt('item-modal-code', item.item_code);
+          setTxt('item-modal-dci', item.dci_code ? '(' + item.dci_code + ')' : '');
+          setTxt('item-modal-category', item.pharmacy_category || '—');
+          setHtml('item-modal-status', statusBadge(item.inventory_level_days));
+          setTxt('item-modal-title', item.description || item.generic_name || '—');
+          setTxt('item-modal-pharm', item.pharmacologic_category || '—');
+
+          // Location Stocks (Columns BA, BH, BO, BV)
+          const disp = parseFloat(item.dispensing_inventory_qty) || 0;
+          const stor = parseFloat(item.storage_inventory_qty) || 0;
+          const ware = parseFloat(item.warehouse_inventory_qty) || 0;
+          const cons = parseFloat(item.consignment_inventory_qty) || 0;
+
+          const totalStock = parseFloat(item.total_inventory_qty) || (disp + stor + ware + cons);
+          const baseTotal = totalStock > 0 ? totalStock : 1;
+
+          setTxt('item-modal-total-stock-badge', 'Total Stock: ' + fmt(totalStock) + ' units');
+
+          setTxt('item-modal-dispensing-qty', fmt(disp));
+          const dispPct = ((disp / baseTotal) * 100).toFixed(1);
+          setTxt('item-modal-dispensing-pct', dispPct + '% of total stock');
+          const dispBar = document.getElementById('item-modal-dispensing-bar');
+          if (dispBar) dispBar.style.width = Math.min(100, Math.max(0, dispPct)) + '%';
+
+          setTxt('item-modal-storage-qty', fmt(stor));
+          const storPct = ((stor / baseTotal) * 100).toFixed(1);
+          setTxt('item-modal-storage-pct', storPct + '% of total stock');
+          const storBar = document.getElementById('item-modal-storage-bar');
+          if (storBar) storBar.style.width = Math.min(100, Math.max(0, storPct)) + '%';
+
+          setTxt('item-modal-warehouse-qty', fmt(ware));
+          const warePct = ((ware / baseTotal) * 100).toFixed(1);
+          setTxt('item-modal-warehouse-pct', warePct + '% of total stock');
+          const wareBar = document.getElementById('item-modal-warehouse-bar');
+          if (wareBar) wareBar.style.width = Math.min(100, Math.max(0, warePct)) + '%';
+
+          setTxt('item-modal-consignment-qty', fmt(cons));
+          const consPct = ((cons / baseTotal) * 100).toFixed(1);
+          setTxt('item-modal-consignment-pct', consPct + '% of total stock');
+          const consBar = document.getElementById('item-modal-consignment-bar');
+          if (consBar) consBar.style.width = Math.min(100, Math.max(0, consPct)) + '%';
+
+          // Specs Grid
+          setTxt('item-modal-days', fmtD(item.inventory_level_days) + ' Days');
+          setTxt('item-modal-avg-monthly', fmt(item.avg_monthly_consumption));
+          setTxt('item-modal-normalized', fmt(item.avg_monthly_normalized_demand));
+
+          const cost = parseFloat(item.unit_cost) || 0;
+          setTxt('item-modal-unit-cost', cost > 0 ? '₱' + cost.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—');
+          const val = parseFloat(item.inventory_value_php) || (totalStock * cost);
+          setTxt('item-modal-total-val', val > 0 ? '₱' + val.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—');
+          setTxt('item-modal-uom', item.unit_of_measure || '—');
+
+          setTxt('item-modal-impact-date', formatExcelDate(item.date_of_impact));
+          setTxt('item-modal-pending-po', fmt(item.pending_po_co_qty));
+          setTxt('item-modal-ending-epa', fmt(item.ending_with_epa_qty || item.ending_inventory_qty));
+
+          setHtml('item-modal-pallet-badge', locationBadge(item.item_code));
+
+          const modal = document.getElementById('item-detail-modal');
+          if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.style.opacity = '1'; }, 10);
+          }
+        }
+
+        function closeItemModal() {
+          const modal = document.getElementById('item-detail-modal');
+          if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 200);
+          }
+        }
+
+        function locateItemFromModal() {
+          if (!activeModalItemCode) return;
+          closeItemModal();
+          showSection('locator');
+          const inp = document.getElementById('locator-search-input');
+          if (inp) {
+            inp.value = activeModalItemCode;
+            filterLocator(activeModalItemCode);
+          }
+        }
+
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
             closePalletModal();
+            closeItemModal();
           }
         });
 
