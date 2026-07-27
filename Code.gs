@@ -253,8 +253,10 @@ function detectInventoryColumns(sheet) {
     cols.overall_ending_epa  = 48;
   }
 
-  if (cols.dispensing_qty === -1) cols.dispensing_qty = 78;
-  if (cols.storage_qty === -1) cols.storage_qty = 85;
+  if (cols.dispensing_qty  === -1) cols.dispensing_qty  = 52; // Column BA
+  if (cols.storage_qty     === -1) cols.storage_qty     = 59; // Column BH
+  if (cols.warehouse_qty   === -1) cols.warehouse_qty   = 66; // Column BO
+  if (cols.consignment_qty === -1) cols.consignment_qty = 73; // Column BV
 
   // Refine using scanning if OVERALL start is found
   if (cols.overall_start !== -1) {
