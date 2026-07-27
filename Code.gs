@@ -18,11 +18,17 @@ function doGet(e) {
   const params = e ? e.parameter : {};
   const action = params.action || '';
 
-  // If no action parameter, serve the dashboard page
+  // If no action parameter, serve the dashboard page (supports 'index' or 'dashboard' HTML file names)
   if (!action) {
-    return HtmlService.createHtmlOutputFromFile('dashboard')
-      .setTitle('PharmaDash — Pharmacy Inventory Dashboard')
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    try {
+      return HtmlService.createHtmlOutputFromFile('index')
+        .setTitle('PharmaDash — Pharmacy Inventory Dashboard')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    } catch (e) {
+      return HtmlService.createHtmlOutputFromFile('dashboard')
+        .setTitle('PharmaDash — Pharmacy Inventory Dashboard')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    }
   }
 
   // CORS-friendly JSON response helper for API calls
