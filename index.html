@@ -2731,24 +2731,25 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           // 1. Try google.script.run (when hosted inside Apps Script)
           if (typeof google !== 'undefined' && google.script && google.script.run) {
             try {
-              const [items, reorders] = await Promise.all([
-                gscriptCall('getItems'),
-                gscriptCall('getReorders'),
-              ]);
+              let items = [];
+              try { items = await gscriptCall('getItems'); } catch (err1) { console.warn('getItems error:', err1); }
+
+              let reorders = [];
+              try { reorders = await gscriptCall('getReorders'); } catch (err2) { console.warn('getReorders error:', err2); }
+
               if (Array.isArray(items) && items.length > 0) {
                 allItems = items;
                 allReorders = Array.isArray(reorders) ? reorders : [];
                 loaded = true;
-                showToast('Live data loaded from Google Sheets ✓', 'success');
+                showToast('Live data loaded from Google Sheets (' + allItems.length.toLocaleString() + ' items) ✓', 'success');
               }
             } catch (e) {
               console.warn('google.script.run error:', e);
-              showToast('Sheets notice: ' + (e.message || e), 'info');
             }
           }
 
-          // 2. Fallback: fetch API (when hosted on GitHub Pages or external web host)
-          if (!loaded && APPS_SCRIPT_URL && typeof google === 'undefined') {
+          // 2. Fallback: fetch API (if not loaded via google.script.run)
+          if (!loaded && APPS_SCRIPT_URL) {
             try {
               const [itemsRes, reordRes] = await Promise.all([
                 fetch(APPS_SCRIPT_URL + '?action=getItems'),
@@ -2761,7 +2762,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 allItems = items;
                 allReorders = Array.isArray(reorders) ? reorders : [];
                 loaded = true;
-                showToast('Live data loaded via Apps Script API ✓', 'success');
+                showToast('Live data loaded via Apps Script API (' + allItems.length.toLocaleString() + ' items) ✓', 'success');
               }
             } catch (e) {
               console.warn('Fetch API error:', e);
@@ -2775,6 +2776,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           // 4. Final Fallback: embedded sample dataset
           if (!loaded) {
+            showToast('Loaded offline sample dataset (15 items)', 'warning');
             loadSampleData();
           }
 

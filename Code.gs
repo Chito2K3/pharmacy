@@ -477,7 +477,8 @@ function getReorders() {
       recalculateReorders();
       sheet = ss.getSheetByName(SHEET_REORDERS);
     } catch (e) {
-      throw new Error('Sheet "' + SHEET_REORDERS + '" not found and auto-calculation failed: ' + e.message);
+      Logger.log('[PharmaDash] getReorders notice: ' + e.message);
+      return [];
     }
   }
   if (!sheet) return [];
