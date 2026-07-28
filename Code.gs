@@ -232,25 +232,25 @@ function detectInventoryColumns(sheet) {
       cols.overall_value       = start + 4;    // Col AN (39)
       cols.overall_level_days  = start + 5;    // Col AO (40)
       cols.overall_impact_date = start + 6;    // Col AP (41)
-      cols.overall_pending_po  = start + 8;
-      cols.overall_ending_qty  = start + 9;
-      cols.overall_ending_days = start + 10;
-      cols.overall_epa_balance = start + 12;
-      cols.overall_ending_epa  = start + 13;
+      cols.overall_pending_po  = 43;           // Col AR (43) - Pending PO / CO Qty
+      cols.overall_ending_qty  = 44;           // Col AS (44)
+      cols.overall_ending_days = 45;           // Col AT (45)
+      cols.overall_epa_balance = 46;           // Col AU (46)
+      cols.overall_ending_epa  = 47;           // Col AV (47) - Ending Inventory (w/ EPA)
     }
   } else {
-    // Ultimate fallback (Col AJ=35, Col AL=37)
+    // Ultimate fallback (Col AJ=35, Col AL=37, Col AR=43, Col AV=47)
     cols.overall_avg_monthly = 35; // Col AJ
     cols.overall_normalized  = 37; // Col AL (Average Monthly Normalized Demand)
     cols.overall_total_qty   = 38; // Col AM
     cols.overall_value       = 39; // Col AN
     cols.overall_level_days  = 40; // Col AO
     cols.overall_impact_date = 41; // Col AP
-    cols.overall_pending_po  = 43;
-    cols.overall_ending_qty  = 44;
-    cols.overall_ending_days = 45;
-    cols.overall_epa_balance = 47;
-    cols.overall_ending_epa  = 48;
+    cols.overall_pending_po  = 43; // Col AR (Pending PO / CO Qty)
+    cols.overall_ending_qty  = 44; // Col AS
+    cols.overall_ending_days = 45; // Col AT
+    cols.overall_epa_balance = 46; // Col AU
+    cols.overall_ending_epa  = 47; // Col AV (Ending Inventory w/ EPA)
   }
 
   if (cols.dispensing_qty  === -1) cols.dispensing_qty  = 52; // Column BA
