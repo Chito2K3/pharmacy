@@ -274,12 +274,11 @@ function detectInventoryColumns(sheet) {
         else if ((cell.includes('TOTAL INVENTORY VOLUME') || cell.includes('TOTAL INVENTORY(QTY)') || cell.includes('TOTAL INVENTORY VOLUME (QTY)')) && !cell.includes('ENDING')) cols.overall_total_qty = c;
         else if ((cell.includes('INVENTORY (VALUE)') || (cell.includes('INVENTORY') && cell.includes('VALUE'))) && !cell.includes('ENDING') && !cell.includes('HOLDING')) cols.overall_value = c;
         else if (cell.includes('LEVEL DAYS') && !cell.includes('ENDING')) cols.overall_level_days = c;
-        else if ((cell.includes('DATE OF IMPACT') || cell.includes('IMPACT DATE') || cell.includes('DATE OF') || cell.includes('IMPACT')) && !cell.includes('ENDING')) cols.overall_impact_date = c;
+        else if ((cell.includes('DATE OF IMPACT') || cell.includes('IMPACT DATE')) && !cell.includes('ENDING')) cols.overall_impact_date = c;
         else if ((cell.includes('PENDING PO') || cell.includes('PO/CO') || cell.includes('QTY OF PENDING')) && !cell.includes('ENDING') && !cell.includes('HAND')) cols.overall_pending_po = c;
-        else if (cell.includes('ENDING INVENTORY') && !cell.includes('DAYS') && !cell.includes('EPA') && !cell.includes('BALANCES')) cols.overall_ending_qty = c;
+        else if (cell.includes('ENDING INVENTORY') && !cell.includes('DAYS') && !cell.includes('EPA') && !cell.includes('BALANCES') && !cell.includes('IMPACT')) cols.overall_ending_qty = c;
         else if (cell.includes('ENDING INVENTORY LEVEL DAYS')) cols.overall_ending_days = c;
-        else if (cell.includes('EPA') && cell.includes('BALANCE')) cols.overall_epa_balance = c;
-        else if (cell.includes('ENDING IMPACT DATE') || (cell.includes('ENDING') && cell.includes('IMPACT'))) cols.overall_ending_epa = c;
+        else if ((cell.includes('EPA') && cell.includes('CALL-OFF')) || (cell.includes('EPA') && cell.includes('BALANCE'))) cols.overall_ending_epa = c;
       }
     }
   }
