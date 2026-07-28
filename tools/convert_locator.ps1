@@ -1,40 +1,29 @@
-$lines = Get-Content "C:\Users\PC 127\.gemini\antigravity-ide\brain\eaac2829-85d0-462a-84d9-3736cded322b\.system_generated\steps\79\content.md"
-$csvLines = $lines | Select-Object -Skip 8
-$csv = $csvLines | ConvertFrom-Csv
+# Convert / update locator dataset dynamically relative to project directory
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectDir = (Get-Item $scriptDir).Parent.FullName
 
-$list = @()
-foreach ($row in $csv) {
-    $itemCode = ""
-    $dciCode = ""
-    $desc = ""
-    $loc = ""
+$locJsonPath = Join-Path $projectDir "locator.json"
+$locJsPath   = Join-Path $projectDir "locator_data.js"
 
-    foreach ($p in $row.psobject.properties) {
-        $name = $p.Name.Trim().ToLower()
-        if ($name -eq "item code") { $itemCode = $p.Value }
-        elseif ($name -eq "dci code") { $dciCode = $p.Value }
-        elseif ($name -eq "item description") { $desc = $p.Value }
-        elseif ($name -eq "location") { $loc = $p.Value }
-    }
+if (-not (Test-Path $locJsonPath)) {
+    Write-Error "locator.json not found at $locJsonPath"
+    exit 1
+}
 
-    if ($itemCode -match "0213" -and $itemCode -match "DMR") {
-        $loc = "L6"
-    }
+Write-Host "Reading locator dataset from $locJsonPath..."
+$items = Get-Content -LiteralPath $locJsonPath -Raw | ConvertFrom-Json
 
-    if ($itemCode) {
-        $list += [PSCustomObject]@{
-            item_code   = $itemCode
-            dci_code    = $dciCode
-            description = $desc
-            location    = $loc
-        }
+# Apply location rules / updates
+foreach ($item in $items) {
+    if ($item.item_code -match "0213" -and $item.item_code -match "DMR") {
+        $item.location = "L6"
     }
 }
 
-$json = $list | ConvertTo-Json -Depth 4
-$json | Set-Content -Path "c:\Users\PC 127\Downloads\chito\pharmacy'\IUR\locator.json" -Encoding UTF8
+$json = $items | ConvertTo-Json -Depth 4
+$json | Set-Content -Path $locJsonPath -Encoding UTF8
 
 $jsContent = "window.LOCATOR_DATA = " + $json + ";"
-$jsContent | Set-Content -Path "c:\Users\PC 127\Downloads\chito\pharmacy'\IUR\locator_data.js" -Encoding UTF8
+$jsContent | Set-Content -Path $locJsPath -Encoding UTF8
 
-Write-Host "Done updating offline dataset to L6."
+Write-Host "Successfully updated locator.json and locator_data.js."

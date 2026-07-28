@@ -2332,6 +2332,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               </div>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
+              <div class="locator-search-wrap" style="width:240px; margin:0;">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="pallet-modal-search" class="locator-search-input" placeholder="Search in pallet..." oninput="filterPalletModalItems(this.value)" style="padding:6px 12px 6px 32px; font-size:12px; height:34px;" />
+              </div>
               <button onclick="closePalletModal()" style="background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer; padding:4px 8px; border-radius:8px; line-height:1; transition:color 0.15s;" title="Close (Esc)">✕</button>
             </div>
           </div>
@@ -2456,7 +2460,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 <h4 style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📊 Demand & Stock Days</h4>
                 <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Stock Level (Days)</span><strong id="item-modal-days" class="text-accent">—</strong></div>
                 <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Avg Monthly Demand</span><span id="item-modal-avg-monthly" style="font-weight:600;">—</span></div>
-                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Normalized Monthly</span><span id="item-modal-normalized" style="font-weight:600;">—</span></div>
+                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Avg Monthly Normalized Demand</span><span id="item-modal-normalized" style="font-weight:600;">—</span></div>
               </div>
 
               <div style="background:var(--bg-card2); border:1px solid var(--border-lit); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px;">

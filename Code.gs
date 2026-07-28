@@ -225,13 +225,13 @@ function detectInventoryColumns(sheet) {
       cols.overall_epa_balance = start + 9;
       cols.overall_ending_epa  = start + 11;
     } else {
-      // Live Google Sheet / Sheet 2 layout
-      cols.overall_avg_monthly = start;
-      cols.overall_normalized  = start + 1;
-      cols.overall_total_qty   = start + 2;
-      cols.overall_value       = start + 3;
-      cols.overall_level_days  = start + 4;
-      cols.overall_impact_date = start + 5; // Col AO
+      // Live Google Sheet / Sheet 2 layout (Start at Col AJ = 35)
+      cols.overall_avg_monthly = start;        // Col AJ (35)
+      cols.overall_normalized  = start + 2;    // Col AL (37) - Average Monthly Normalized Demand
+      cols.overall_total_qty   = start + 3;    // Col AM (38)
+      cols.overall_value       = start + 4;    // Col AN (39)
+      cols.overall_level_days  = start + 5;    // Col AO (40)
+      cols.overall_impact_date = start + 6;    // Col AP (41)
       cols.overall_pending_po  = start + 8;
       cols.overall_ending_qty  = start + 9;
       cols.overall_ending_days = start + 10;
@@ -239,13 +239,13 @@ function detectInventoryColumns(sheet) {
       cols.overall_ending_epa  = start + 13;
     }
   } else {
-    // Ultimate fallback
-    cols.overall_avg_monthly = 35;
-    cols.overall_normalized  = 36;
-    cols.overall_total_qty   = 37;
-    cols.overall_value       = 38;
-    cols.overall_level_days  = 39;
-    cols.overall_impact_date = 40;
+    // Ultimate fallback (Col AJ=35, Col AL=37)
+    cols.overall_avg_monthly = 35; // Col AJ
+    cols.overall_normalized  = 37; // Col AL (Average Monthly Normalized Demand)
+    cols.overall_total_qty   = 38; // Col AM
+    cols.overall_value       = 39; // Col AN
+    cols.overall_level_days  = 40; // Col AO
+    cols.overall_impact_date = 41; // Col AP
     cols.overall_pending_po  = 43;
     cols.overall_ending_qty  = 44;
     cols.overall_ending_days = 45;
