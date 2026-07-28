@@ -269,10 +269,10 @@ function detectInventoryColumns(sheet) {
         const cell = String(row[c] || '').trim().toUpperCase();
         if (!cell) continue;
 
-        if (cell.includes('AVERAGE MONTHLY CONSUMPTION')) cols.overall_avg_monthly = c;
-        else if (cell.includes('NORMALIZED DEMAND')) cols.overall_normalized = c;
+        if (cell.includes('AVERAGE MONTHLY CONSUMPTION') && !cell.includes('NORMALIZED')) cols.overall_avg_monthly = c;
+        else if ((cell.includes('NORMALIZED DEMAND') || cell.includes('NORMALIZED')) && !cell.includes('LEVEL DAYS') && !cell.includes('INVENTORY LEVEL')) cols.overall_normalized = c;
         else if ((cell.includes('TOTAL INVENTORY VOLUME') || cell.includes('TOTAL INVENTORY(QTY)') || cell.includes('TOTAL INVENTORY VOLUME (QTY)')) && !cell.includes('ENDING')) cols.overall_total_qty = c;
-        else if ((cell.includes('INVENTORY (VALUE)') || (cell.includes('INVENTORY') && cell.includes('VALUE'))) && !cell.includes('ENDING')) cols.overall_value = c;
+        else if ((cell.includes('INVENTORY (VALUE)') || (cell.includes('INVENTORY') && cell.includes('VALUE'))) && !cell.includes('ENDING') && !cell.includes('HOLDING')) cols.overall_value = c;
         else if (cell.includes('LEVEL DAYS') && !cell.includes('ENDING')) cols.overall_level_days = c;
         else if ((cell.includes('DATE OF IMPACT') || cell.includes('IMPACT DATE') || cell.includes('DATE OF') || cell.includes('IMPACT')) && !cell.includes('ENDING')) cols.overall_impact_date = c;
         else if ((cell.includes('PENDING PO') || cell.includes('PO/CO') || cell.includes('QTY OF PENDING')) && !cell.includes('ENDING') && !cell.includes('HAND')) cols.overall_pending_po = c;
