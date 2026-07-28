@@ -4259,7 +4259,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           setTxt('item-modal-impact-date', formatExcelDate(item.date_of_impact));
           setTxt('item-modal-pending-po', fmt(item.pending_po_co_qty));
-          setTxt('item-modal-ending-epa', fmt(item.ending_with_epa_qty || item.ending_inventory_qty));
+          const endEpa = (item.ending_with_epa_qty !== undefined && item.ending_with_epa_qty !== null && item.ending_with_epa_qty !== '') ? item.ending_with_epa_qty : item.ending_inventory_qty;
+          setTxt('item-modal-ending-epa', fmt(endEpa));
 
           setHtml('item-modal-pallet-badge', locationBadge(item.item_code));
 
