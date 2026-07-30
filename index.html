@@ -1707,7 +1707,7 @@
       background: rgba(255, 255, 255, 0.04);
       border-left: 2px solid var(--accent);
       border-radius: 4px;
-      padding: 3px 6px;
+      padding: 4px 6px;
       line-height: 1.25;
     }
 
@@ -1717,12 +1717,25 @@
       color: var(--accent);
     }
 
+    .pallet-item-qty {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--warning);
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 1px 5px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
     .pallet-item-desc {
       color: var(--text-main);
       font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-top: 2px;
     }
 
     /* MATCHED / ACTIVE PALLET CARD GLOW */
@@ -3980,6 +3993,12 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             return;
           }
 
+          // Build master lookup to retrieve Column BO quantity (warehouse_inventory_qty)
+          const masterLookup = {};
+          (allItems || []).forEach(it => {
+            if (it.item_code) masterLookup[it.item_code.trim()] = it;
+          });
+
           // Search in item_code, dci_code, or description (with space/hyphen normalization)
           const matches = allLocatorItems.filter(it => {
             const hay = (it.item_code + ' ' + (it.dci_code || '') + ' ' + (it.description || '')).toLowerCase();
@@ -4011,8 +4030,18 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   '<div class="pallet-card-matches-count">' + palletMatches.length + ' match' + (palletMatches.length > 1 ? 'es' : '') + '</div>' +
                   '<div class="pallet-card-item-list">' +
                     displayList.map(function(it) {
+                      const master = masterLookup[it.item_code ? it.item_code.trim() : ''];
+                      const rawQty = master && master.warehouse_inventory_qty != null
+                        ? master.warehouse_inventory_qty
+                        : (it.warehouse_inventory_qty != null ? it.warehouse_inventory_qty : (master ? master.total_inventory_qty : (it.qty || 0)));
+                      const qtyVal = parseFloat(rawQty) || 0;
+                      const formattedQty = fmt(qtyVal);
+
                       return '<div class="pallet-item-chip" title="' + (it.description || '').replace(/"/g, '&quot;') + '">' +
-                        '<div class="pallet-item-code">' + it.item_code + ' ' + (it.dci_code ? '(' + it.dci_code + ')' : '') + '</div>' +
+                        '<div class="flex items-center justify-between" style="gap:4px;">' +
+                          '<div class="pallet-item-code">' + it.item_code + ' ' + (it.dci_code ? '(' + it.dci_code + ')' : '') + '</div>' +
+                          '<div class="pallet-item-qty" title="Warehouse Inventory (Col BO)">Qty: ' + formattedQty + '</div>' +
+                        '</div>' +
                         '<div class="pallet-item-desc">' + (it.description || '') + '</div>' +
                       '</div>';
                     }).join('') +
