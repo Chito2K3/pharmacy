@@ -1063,31 +1063,31 @@
     }
 
     .item-desc {
-      min-width: 260px;
-      max-width: 480px;
+      min-width: 420px;
+      max-width: 750px;
       white-space: normal;
       word-break: break-word;
-      line-height: 1.35;
+      line-height: 1.4;
       font-weight: 600;
       color: var(--text-main);
     }
 
     .cons-item-desc {
-      min-width: 280px;
-      max-width: 550px;
+      min-width: 420px;
+      max-width: 750px;
       white-space: normal;
       word-break: break-word;
-      line-height: 1.35;
+      line-height: 1.4;
       font-weight: 600;
       color: var(--text-main);
     }
 
     .item-sub-desc {
-      min-width: 260px;
-      max-width: 480px;
+      min-width: 420px;
+      max-width: 750px;
       white-space: normal;
       word-break: break-word;
-      line-height: 1.3;
+      line-height: 1.35;
       font-weight: 400;
       display: block;
     }
@@ -2009,7 +2009,6 @@
                     <table class="data-table" id="urgent-table">
                       <thead>
                         <tr>
-                          <th>Item Code</th>
                           <th>DCI Code</th>
                           <th>Generic Name / PNF Name</th>
                           <th>Category</th>
@@ -2058,7 +2057,6 @@
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th class="sortable" onclick="sortTable('item_code')">Item Code ↕</th>
                           <th class="sortable" onclick="sortTable('dci_code')">DCI Code ↕</th>
                           <th class="text-center">Pallet</th>
                           <th class="sortable" onclick="sortTable('generic_name')">Generic Name / PNF Name ↕</th>
@@ -2120,7 +2118,6 @@
                       <thead>
                         <tr>
                           <th>Priority</th>
-                          <th>Item Code</th>
                           <th>DCI Code</th>
                           <th>Generic Name / PNF Name</th>
                           <th>Category</th>
@@ -3064,15 +3061,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               const stock = parseFloat(it.total_inventory_qty || 0);
               const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
               return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + it.item_code + '">' +
-        '<td class="code">' + it.item_code + '</td>' +
-        '<td class="code text-muted">' + (it.dci_code || '—') + '</td>' +
+        '<td class="code">' + (it.dci_code || '—') + '</td>' +
         '<td>' + renderItemNameCell(it) + '</td>' +
         '<td><div class="cat-truncate text-xs text-muted" title="' + (it.pharmacologic_category || '') + '">' + (it.pharmacologic_category || '—') + '</div></td>' +
         '<td class="num-cell"><strong>' + fmtD(days) + '</strong></td>' +
         '<td class="text-center">' + statusBadge(days) + '</td>' +
         '<td class="num-cell">' + fmt(reorderQty) + '</td>' +
       '</tr>';
-            }).join('') || '<tr><td colspan="7" class="empty-state"><div class="empty-icon">✅</div><p>No items found for this selection.</p></td></tr>';
+            }).join('') || '<tr><td colspan="6" class="empty-state"><div class="empty-icon">✅</div><p>No items found for this selection.</p></td></tr>';
           }
         }
 
@@ -3259,8 +3255,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const days = parseFloat(it.inventory_level_days) || 0;
             return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + it.item_code + '">' +
       '<td class="text-muted">' + (start + i + 1) + '</td>' +
-      '<td class="code">' + it.item_code + '</td>' +
-      '<td class="code text-muted">' + (it.dci_code || '—') + '</td>' +
+      '<td class="code">' + (it.dci_code || '—') + '</td>' +
       '<td class="text-center" onclick="event.stopPropagation();">' + locationBadge(it.item_code) + '</td>' +
       '<td>' + renderItemNameCell(it) + '</td>' +
       '<td><div class="cat-truncate text-xs text-muted" title="' + (it.pharmacologic_category || '') + '">' + (it.pharmacologic_category || '—') + '</div></td>' +
@@ -3335,8 +3330,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const label = s === 'critical' ? 'Critical' : s === 'warning' ? 'Low' : s === 'ok' ? 'Normal' : 'Over Stock';
             return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + r.item_code + '\')" title="Click to view location stock breakdown for ' + r.item_code + '">' +
       '<td><div class="reorder-priority"><div class="priority-dot ' + dotCls + '"></div><span class="text-sm">' + label + '</span></div></td>' +
-      '<td class="code">' + r.item_code + '</td>' +
-      '<td class="code text-muted">' + (r.dci_code || '—') + '</td>' +
+      '<td class="code">' + (r.dci_code || '—') + '</td>' +
       '<td>' + renderItemNameCell(r) + '</td>' +
       '<td><div class="cat-truncate text-xs text-muted" title="' + (r.pharmacologic_category || '') + '">' + (r.pharmacologic_category || '—') + '</div></td>' +
       '<td class="num-cell">' + fmtD(days) + ' days</td>' +
@@ -3345,7 +3339,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
       '<td class="num-cell">' + fmt(r.pending_po_call_off) + '</td>' +
       '<td><span class="text-sm text-muted">' + (r.remarks || '—') + '</span></td>' +
     '</tr>';
-          }).join('') || '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">✅</div><p>No items need reordering right now.</p></div></td></tr>';
+          }).join('') || '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✅</div><p>No items need reordering right now.</p></div></td></tr>';
 
           renderPagination('reorder', reordFiltered.length, reordPage, REORDER_PAGE_SIZE);
         }
