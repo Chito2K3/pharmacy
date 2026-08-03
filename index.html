@@ -1818,9 +1818,104 @@
       font-weight: 700;
       color: var(--accent);
       background: var(--accent-glow);
-      border: 1px solid rgba(6, 182, 212, 0.3);
       padding: 4px 12px;
       border-radius: 20px;
+      border: 1px solid var(--border-lit);
+    }
+
+    /* ===== MULTI-FOLDER TAB SELECTOR ===== */
+    .folder-tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 2px solid var(--border-lit);
+      margin-bottom: 20px;
+      padding-left: 2px;
+    }
+
+    .folder-tab {
+      background: var(--bg-card2);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 22px;
+      border-radius: 12px 12px 0 0;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      bottom: -2px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .folder-tab:hover {
+      background: #1e293b;
+      color: var(--text-main);
+    }
+
+    .folder-tab.active {
+      background: var(--bg-card);
+      color: var(--accent);
+      border-color: var(--accent);
+      border-bottom: 2px solid var(--bg-card);
+      box-shadow: 0 -4px 14px var(--accent-glow);
+    }
+
+    .folder-tab .tab-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .folder-tab.active .tab-tag {
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+
+    .locator-tab-pane {
+      display: none;
+    }
+
+    .locator-tab-pane.active {
+      display: block;
+    }
+
+    .placeholder-card {
+      background: var(--bg-card);
+      border: 1px dashed var(--border-lit);
+      border-radius: var(--radius);
+      padding: 56px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      box-shadow: var(--shadow);
+    }
+
+    .placeholder-card .ph-icon {
+      font-size: 44px;
+      margin-bottom: 14px;
+      opacity: 0.85;
+    }
+
+    .placeholder-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .placeholder-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.55;
     }
 
     @keyframes spinIcon {
@@ -2140,44 +2235,80 @@
 
               <!-- ===== MAP LOCATOR SECTION ===== -->
               <div class="section" id="sec-locator">
-                <div class="section-header" style="margin-bottom:16px;">
-                  <div class="nav-section-label" style="padding:0; margin-bottom:6px; color:var(--text-muted);">SEARCH INVENTORY</div>
-                  <div class="locator-search-wrap">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="locator-search-input" class="locator-search-input" placeholder="Type item name to locate its pallet... (e.g. Paracetamol)" oninput="filterLocator(this.value)" />
-                  </div>
-                  <p class="text-xs text-muted" style="margin-top:8px;" id="locator-search-status">Ready — type an item name to locate it on the floor plan.</p>
+                <!-- MULTI-FOLDER TAB SELECTOR -->
+                <div class="folder-tab-bar">
+                  <button class="folder-tab active" data-tab="enclosure" onclick="switchLocatorTab('enclosure', this)">
+                    <span>📁 Enclosure</span>
+                  </button>
+                  <button class="folder-tab" data-tab="hallway" onclick="switchLocatorTab('hallway', this)">
+                    <span>🌿 Hallway</span>
+                    <span class="tab-tag" style="background:rgba(16, 185, 129, 0.15); color:#10b981; border:1px solid rgba(16, 185, 129, 0.3);">Placeholder</span>
+                  </button>
+                  <button class="folder-tab" data-tab="ivf" onclick="switchLocatorTab('ivf', this)">
+                    <span>💧 IVF</span>
+                    <span class="tab-tag" style="background:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.3);">Placeholder</span>
+                  </button>
                 </div>
 
-                <div class="table-card" style="padding:22px; background:var(--bg-card);">
-                  <div class="flex items-center justify-between" style="margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-                    <h3 style="font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-main);">FLOOR PLAN — PALLET LOCATIONS</h3>
-                    <div class="flex items-center gap-2">
-                      <span class="badge badge-accent text-xs" id="locator-loaded-count" style="transition:transform 0.25s ease;">0 items loaded</span>
-                      <button class="btn-export" id="btn-sync-locator" onclick="loadLocatorData(true)" title="Sync latest live changes from Google Sheet" style="padding:5px 12px; font-size:11px; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s ease;"><span class="sync-icon" style="display:inline-block;">🔄</span> Sync Live Data</button>
+                <!-- PANE 1: ENCLOSURE (PALLET MAP LOCATOR) -->
+                <div class="locator-tab-pane active" id="loc-pane-enclosure">
+                  <div class="section-header" style="margin-bottom:16px;">
+                    <div class="nav-section-label" style="padding:0; margin-bottom:6px; color:var(--text-muted);">SEARCH INVENTORY</div>
+                    <div class="locator-search-wrap">
+                      <span class="search-icon">🔍</span>
+                      <input type="text" id="locator-search-input" class="locator-search-input" placeholder="Type item name to locate its pallet... (e.g. Paracetamol)" oninput="filterLocator(this.value)" />
                     </div>
+                    <p class="text-xs text-muted" style="margin-top:8px;" id="locator-search-status">Ready — type an item name to locate it on the floor plan.</p>
                   </div>
 
-                  <div class="floor-plan-wrap">
-                    <!-- Top Row (L2, L4, L6, L8, L10, L12, L14) -->
-                    <div class="pallet-row" id="pallet-row-top"></div>
-
-                    <!-- Central Walkway -->
-                    <div class="aisle-walkway">
-                      <span>⇡ CENTRAL AISLE WALKWAY ⇣</span>
+                  <div class="table-card" style="padding:22px; background:var(--bg-card);">
+                    <div class="flex items-center justify-between" style="margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                      <h3 style="font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-main);">FLOOR PLAN — PALLET LOCATIONS</h3>
+                      <div class="flex items-center gap-2">
+                        <span class="badge badge-accent text-xs" id="locator-loaded-count" style="transition:transform 0.25s ease;">0 items loaded</span>
+                        <button class="btn-export" id="btn-sync-locator" onclick="loadLocatorData(true)" title="Sync latest live changes from Google Sheet" style="padding:5px 12px; font-size:11px; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s ease;"><span class="sync-icon" style="display:inline-block;">🔄</span> Sync Live Data</button>
+                      </div>
                     </div>
 
-                    <!-- Bottom Row (L1, L3, L5, L7, L9, L11, L13) -->
-                    <div class="pallet-row" id="pallet-row-bottom"></div>
+                    <div class="floor-plan-wrap">
+                      <!-- Top Row (L2, L4, L6, L8, L10, L12, L14) -->
+                      <div class="pallet-row" id="pallet-row-top"></div>
+
+                      <!-- Central Walkway -->
+                      <div class="aisle-walkway">
+                        <span>⇡ CENTRAL AISLE WALKWAY ⇣</span>
+                      </div>
+
+                      <!-- Bottom Row (L1, L3, L5, L7, L9, L11, L13) -->
+                      <div class="pallet-row" id="pallet-row-bottom"></div>
+                    </div>
+
+                    <!-- Legend Footer -->
+                    <div class="locator-footer">
+                      <div class="legend-items">
+                        <div class="legend-item"><span class="legend-box idle"></span><span class="text-xs text-muted">Available / Idle Pallet</span></div>
+                        <div class="legend-item"><span class="legend-box active"></span><span class="text-xs text-accent font-semibold">Search Match — Item Located</span></div>
+                      </div>
+                      <div class="match-count-badge" id="locator-match-count">⚡ 0 matches</div>
+                    </div>
                   </div>
+                </div>
 
-                  <!-- Legend Footer -->
-                  <div class="locator-footer">
-                    <div class="legend-items">
-                      <div class="legend-item"><span class="legend-box idle"></span><span class="text-xs text-muted">Available / Idle Pallet</span></div>
-                      <div class="legend-item"><span class="legend-box active"></span><span class="text-xs text-accent font-semibold">Search Match — Item Located</span></div>
-                    </div>
-                    <div class="match-count-badge" id="locator-match-count">⚡ 0 matches</div>
+                <!-- PANE 2: HALLWAY (PLACEHOLDER) -->
+                <div class="locator-tab-pane" id="loc-pane-hallway">
+                  <div class="placeholder-card">
+                    <div class="ph-icon">🌿</div>
+                    <h3>Hallway Inventory Locator</h3>
+                    <p>This is a placeholder view for mapping hallway inventory units and storage racks. Full interactive floor plan mapping will be enabled once layout configuration is finalized.</p>
+                  </div>
+                </div>
+
+                <!-- PANE 3: IVF (PLACEHOLDER) -->
+                <div class="locator-tab-pane" id="loc-pane-ivf">
+                  <div class="placeholder-card">
+                    <div class="ph-icon">💧</div>
+                    <h3>IVF Storage Locator</h3>
+                    <p>This is a placeholder view for Intravenous Fluids (IVF) dedicated storage tracking and aisle shelf allocation. Interactive layout mapping will be enabled here.</p>
                   </div>
                 </div>
               </div>
@@ -4336,13 +4467,28 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
+        function switchLocatorTab(tabName, btn) {
+          document.querySelectorAll('.folder-tab-bar .folder-tab').forEach(b => b.classList.remove('active'));
+          if (btn) btn.classList.add('active');
+
+          document.querySelectorAll('#sec-locator .locator-tab-pane').forEach(p => p.classList.remove('active'));
+          const target = document.getElementById('loc-pane-' + tabName);
+          if (target) target.classList.add('active');
+
+          const topbarTitle = document.getElementById('topbar-title');
+          if (topbarTitle) {
+            const labels = { enclosure: 'Locator — Enclosure', hallway: 'Locator — Hallway', ivf: 'Locator — IVF' };
+            topbarTitle.textContent = labels[tabName] || 'Locator';
+          }
+        }
+
         function showSection(id, el) {
           document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
           document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
           const targetSec = document.getElementById('sec-' + id);
           if (targetSec) targetSec.classList.add('active');
           if (el) el.classList.add('active');
-          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', locator: 'Pallet Map Locator', analytics: 'Analytics', setup: 'Setup & Config' };
+          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', locator: 'Locator — Enclosure', analytics: 'Analytics', setup: 'Setup & Config' };
           const titleEl = document.getElementById('topbar-title');
           if (titleEl) titleEl.textContent = titles[id] || id;
           const searchBox = document.getElementById('global-search-box');
