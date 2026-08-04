@@ -534,10 +534,14 @@
     /* ===== MAIN CONTENT ===== */
     .main-content {
       margin-left: var(--sidebar-w);
+      width: calc(100% - var(--sidebar-w));
+      max-width: calc(100vw - var(--sidebar-w));
       flex: 1;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .topbar {
@@ -633,6 +637,7 @@
       flex: 1;
       padding: 24px 32px;
       width: 100%;
+      max-width: 100%;
       box-sizing: border-box;
     }
 
@@ -904,6 +909,8 @@
       border-radius: var(--radius);
       overflow: hidden;
       width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     .table-toolbar {
@@ -961,6 +968,8 @@
       overflow-y: auto;
       position: relative;
       width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     .table-container::-webkit-scrollbar {
@@ -1506,6 +1515,8 @@
 
       .main-content {
         margin-left: 0;
+        width: 100%;
+        max-width: 100vw;
       }
 
       .menu-btn {
