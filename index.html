@@ -2337,10 +2337,13 @@
                     </div>
 
                     <div class="floor-plan-wrap">
-                      <!-- Top Row (REF1, REF2, REF3, REF4, REF5, REF6) -->
+                      <!-- Row 1: Top Row (REF1, REF2, REF3, REF4, REF5, REF6) -->
                       <div class="pallet-row" id="ref-pallet-row-top"></div>
 
-                      <!-- Bottom Row (REF7, REF8) -->
+                      <!-- Row 2: Middle Row (REF7 under REF1) -->
+                      <div class="pallet-row" id="ref-pallet-row-middle" style="margin-top:16px;"></div>
+
+                      <!-- Row 3: Bottom Row (REF8 under REF7) -->
                       <div class="pallet-row" id="ref-pallet-row-bottom" style="margin-top:16px;"></div>
                     </div>
 
@@ -3918,12 +3921,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         const TOP_PALLETS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
         const BOTTOM_PALLETS = ['L14', 'L13', 'L12', 'L11', 'L10', 'L9', 'L8'];
         const REF_TOP_PALLETS = ['REF1', 'REF2', 'REF3', 'REF4', 'REF5', 'REF6'];
-        const REF_BOTTOM_PALLETS = ['REF7', 'REF8'];
+        const REF_MIDDLE_PALLETS = ['REF7'];
+        const REF_BOTTOM_PALLETS = ['REF8'];
 
         function renderLocatorGrid() {
           const topRow = document.getElementById('pallet-row-top');
           const botRow = document.getElementById('pallet-row-bottom');
           const refTopRow = document.getElementById('ref-pallet-row-top');
+          const refMidRow = document.getElementById('ref-pallet-row-middle');
           const refBotRow = document.getElementById('ref-pallet-row-bottom');
 
           function createCardHtml(pId, subLabel) {
@@ -3940,8 +3945,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           if (topRow) topRow.innerHTML = TOP_PALLETS.map(p => createCardHtml(p, 'TOP ROW')).join('');
           if (botRow) botRow.innerHTML = BOTTOM_PALLETS.map(p => createCardHtml(p, 'BOTTOM ROW')).join('');
-          if (refTopRow) refTopRow.innerHTML = REF_TOP_PALLETS.map(p => createCardHtml(p, 'REF TOP ROW')).join('');
-          if (refBotRow) refBotRow.innerHTML = REF_BOTTOM_PALLETS.map(p => createCardHtml(p, 'REF BOTTOM ROW')).join('');
+          if (refTopRow) refTopRow.innerHTML = REF_TOP_PALLETS.map(p => createCardHtml(p, 'TOP ROW')).join('');
+          if (refMidRow) refMidRow.innerHTML = REF_MIDDLE_PALLETS.map(p => createCardHtml(p, 'MIDDLE ROW')).join('');
+          if (refBotRow) refBotRow.innerHTML = REF_BOTTOM_PALLETS.map(p => createCardHtml(p, 'BOTTOM ROW')).join('');
         }
 
         function loadLocatorDataFromGViz() {
@@ -4166,7 +4172,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const refStatusEl = document.getElementById('ref-locator-search-status');
           const refMatchBadge = document.getElementById('ref-locator-match-count');
 
-          const allPallets = [...TOP_PALLETS, ...BOTTOM_PALLETS, ...REF_TOP_PALLETS, ...REF_BOTTOM_PALLETS];
+          const allPallets = [...TOP_PALLETS, ...BOTTOM_PALLETS, ...REF_TOP_PALLETS, ...REF_MIDDLE_PALLETS, ...REF_BOTTOM_PALLETS];
 
           if (!q) {
             allPallets.forEach(pId => {
