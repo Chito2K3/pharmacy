@@ -2248,6 +2248,10 @@
                     <span>💧 IVF</span>
                     <span class="tab-tag" style="background:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.3);">Placeholder</span>
                   </button>
+                  <button class="folder-tab" data-tab="ref-items" onclick="switchLocatorTab('ref-items', this)">
+                    <span>❄️ Ref Items</span>
+                    <span class="tab-tag" style="background:rgba(59, 130, 246, 0.15); color:#3b82f6; border:1px solid rgba(59, 130, 246, 0.3);">Placeholder</span>
+                  </button>
                 </div>
 
                 <!-- PANE 1: ENCLOSURE (PALLET MAP LOCATOR) -->
@@ -2309,6 +2313,15 @@
                     <div class="ph-icon">💧</div>
                     <h3>IVF Storage Locator</h3>
                     <p>This is a placeholder view for Intravenous Fluids (IVF) dedicated storage tracking and aisle shelf allocation. Interactive layout mapping will be enabled here.</p>
+                  </div>
+                </div>
+
+                <!-- PANE 4: REF ITEMS (PLACEHOLDER) -->
+                <div class="locator-tab-pane" id="loc-pane-ref-items">
+                  <div class="placeholder-card">
+                    <div class="ph-icon">❄️</div>
+                    <h3>Refrigerated Items Locator</h3>
+                    <p>This is a placeholder view for cold storage, cold chain pharmaceuticals, and temperature-controlled shelf tracking. Interactive location mapping will be enabled here.</p>
                   </div>
                 </div>
               </div>
@@ -4477,7 +4490,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           const topbarTitle = document.getElementById('topbar-title');
           if (topbarTitle) {
-            const labels = { enclosure: 'Locator — Enclosure', hallway: 'Locator — Hallway', ivf: 'Locator — IVF' };
+            const labels = { enclosure: 'Locator — Enclosure', hallway: 'Locator — Hallway', ivf: 'Locator — IVF', 'ref-items': 'Locator — Ref Items' };
             topbarTitle.textContent = labels[tabName] || 'Locator';
           }
         }
