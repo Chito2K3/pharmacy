@@ -3985,13 +3985,22 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 const items = [];
                 for (let i = 1; i < rows.length; i++) {
                   const c = rows[i].c || [];
-                  const code = itemCodeIdx >= 0 && c[itemCodeIdx] && c[itemCodeIdx].v != null ? String(c[itemCodeIdx].v).trim() : '';
+                  const getCellVal = (idx) => {
+                    if (idx < 0 || !c[idx]) return '';
+                    const cell = c[idx];
+                    if (cell.f != null && String(cell.f).trim() !== '') return String(cell.f).trim();
+                    if (cell.v != null && String(cell.v).trim() !== '') return String(cell.v).trim();
+                    return '';
+                  };
+                  const code = getCellVal(itemCodeIdx);
                   if (code && code.toLowerCase() !== 'item code') {
+                    const rawLoc = getCellVal(locIdx);
                     items.push({
                       item_code: code,
-                      dci_code: dciIdx >= 0 && c[dciIdx] && c[dciIdx].v != null ? String(c[dciIdx].v).trim() : '',
-                      description: descIdx >= 0 && c[descIdx] && c[descIdx].v != null ? String(c[descIdx].v).trim() : '',
-                      location: locIdx >= 0 && c[locIdx] && c[locIdx].v != null ? String(c[locIdx].v).trim() : ''
+                      dci_code: getCellVal(dciIdx),
+                      description: getCellVal(descIdx),
+                      location: rawLoc,
+                      locations: parseLocations(rawLoc)
                     });
                   }
                 }
@@ -4101,7 +4110,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
           }
 
-          allLocatorItems = itemsLoaded;
+          allLocatorItems = (itemsLoaded || []).map(it => {
+            const rawLoc = (it.location || '').toString().trim();
+            return {
+              ...it,
+              location: rawLoc,
+              locations: parseLocations(rawLoc)
+            };
+          });
 
           // Clear cached map so masterlist badges update to new locations
           window.LOCATOR_MAP = null;
