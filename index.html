@@ -4350,10 +4350,40 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
           });
 
+          // Smart Auto-Tab Shifting Logic
+          const activePane = document.querySelector('#sec-locator .locator-tab-pane.active');
+          const currentTabId = activePane ? activePane.id.replace('loc-pane-', '') : 'enclosure';
+
+          if (q.length >= 2) {
+            if (currentTabId === 'enclosure' && enclosureMatchesCount === 0 && refMatchesCount > 0) {
+              const activeInput = document.activeElement;
+              const selStart = activeInput ? activeInput.selectionStart : null;
+              const selEnd = activeInput ? activeInput.selectionEnd : null;
+              switchLocatorTab('ref-items');
+              const targetInput = document.getElementById('ref-locator-search-input');
+              if (targetInput) {
+                targetInput.focus();
+                if (selStart !== null && selEnd !== null) targetInput.setSelectionRange(selStart, selEnd);
+              }
+            } else if (currentTabId === 'ref-items' && refMatchesCount === 0 && enclosureMatchesCount > 0) {
+              const activeInput = document.activeElement;
+              const selStart = activeInput ? activeInput.selectionStart : null;
+              const selEnd = activeInput ? activeInput.selectionEnd : null;
+              switchLocatorTab('enclosure');
+              const targetInput = document.getElementById('locator-search-input');
+              if (targetInput) {
+                targetInput.focus();
+                if (selStart !== null && selEnd !== null) targetInput.setSelectionRange(selStart, selEnd);
+              }
+            }
+          }
+
           if (statusEl) {
             statusEl.innerHTML = enclosureMatchesCount > 0
               ? '<span class="text-accent font-semibold">Found ' + enclosureMatchesCount + ' matching item(s) across ' + enclosureMatchedUnits + ' pallet location(s).</span>'
-              : '<span class="text-warning">No items found matching "' + q + '" in Enclosure pallets.</span>';
+              : (refMatchesCount > 0 
+                  ? '<span class="text-accent font-semibold">❄️ 0 in Enclosure, but found ' + refMatchesCount + ' in Cold Storage (Ref Items). <a href="javascript:void(0)" onclick="switchLocatorTab(\'ref-items\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Ref Items ➔</a></span>'
+                  : '<span class="text-warning">No items found matching "' + q + '" in Enclosure pallets.</span>');
           }
           if (matchBadge) {
             matchBadge.textContent = '⚡ ' + enclosureMatchesCount + ' match' + (enclosureMatchesCount === 1 ? '' : 'es');
@@ -4362,10 +4392,45 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           if (refStatusEl) {
             refStatusEl.innerHTML = refMatchesCount > 0
               ? '<span class="text-accent font-semibold">Found ' + refMatchesCount + ' matching item(s) across ' + refMatchedUnits + ' cold storage unit(s).</span>'
-              : '<span class="text-warning">No items found matching "' + q + '" in cold storage (REF1–REF8).</span>';
+              : (enclosureMatchesCount > 0
+                  ? '<span class="text-accent font-semibold">📦 0 in Cold Storage, but found ' + enclosureMatchesCount + ' in Enclosure. <a href="javascript:void(0)" onclick="switchLocatorTab(\'enclosure\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Enclosure ➔</a></span>'
+                  : '<span class="text-warning">No items found matching "' + q + '" in cold storage (REF1–REF8).</span>');
           }
           if (refMatchBadge) {
             refMatchBadge.textContent = '⚡ ' + refMatchesCount + ' match' + (refMatchBadge === 1 ? '' : 'es');
+          }
+
+          // Dynamic Tab Header Badges
+          const encTab = document.querySelector('.folder-tab[data-tab="enclosure"]');
+          if (encTab) {
+            let tagEl = encTab.querySelector('.tab-tag-match');
+            if (q && enclosureMatchesCount > 0) {
+              if (!tagEl) {
+                tagEl = document.createElement('span');
+                tagEl.className = 'tab-tag tab-tag-match';
+                encTab.appendChild(tagEl);
+              }
+              tagEl.style.cssText = 'background:var(--accent-glow); color:var(--accent); border:1px solid rgba(6,182,212,0.3); font-size:10px; margin-left:4px;';
+              tagEl.textContent = enclosureMatchesCount + ' ⚡';
+            } else if (tagEl) {
+              tagEl.remove();
+            }
+          }
+
+          const refTab = document.querySelector('.folder-tab[data-tab="ref-items"]');
+          if (refTab) {
+            let tagEl = refTab.querySelector('.tab-tag-match');
+            if (q && refMatchesCount > 0) {
+              if (!tagEl) {
+                tagEl = document.createElement('span');
+                tagEl.className = 'tab-tag tab-tag-match';
+                refTab.appendChild(tagEl);
+              }
+              tagEl.style.cssText = 'background:var(--accent-glow); color:var(--accent); border:1px solid rgba(6,182,212,0.3); font-size:10px; margin-left:4px;';
+              tagEl.textContent = refMatchesCount + ' ⚡';
+            } else if (tagEl) {
+              tagEl.remove();
+            }
           }
         }
 
@@ -4677,8 +4742,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         }
 
         function switchLocatorTab(tabName, btn) {
+          const targetBtn = btn || document.querySelector('.folder-tab-bar .folder-tab[data-tab="' + tabName + '"]');
           document.querySelectorAll('.folder-tab-bar .folder-tab').forEach(b => b.classList.remove('active'));
-          if (btn) btn.classList.add('active');
+          if (targetBtn) targetBtn.classList.add('active');
 
           document.querySelectorAll('#sec-locator .locator-tab-pane').forEach(p => p.classList.remove('active'));
           const target = document.getElementById('loc-pane-' + tabName);
