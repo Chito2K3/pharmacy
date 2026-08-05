@@ -4106,7 +4106,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           // Clear cached map so masterlist badges update to new locations
           window.LOCATOR_MAP = null;
 
-          const refItemCount = allLocatorItems.filter(it => (it.location || '').toUpperCase().trim().startsWith('REF')).length;
+          const refItemCount = allLocatorItems.filter(it => getLocationsForItem(it).some(l => l.startsWith('REF'))).length;
 
           ['locator-loaded-count', 'ref-locator-loaded-count'].forEach(id => {
             const badge = document.getElementById(id);
@@ -4144,6 +4144,35 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
+        function parseLocations(locStr) {
+          if (!locStr) return [];
+          if (Array.isArray(locStr)) {
+            const res = [];
+            locStr.forEach(s => {
+              parseLocations(s).forEach(l => { if (!res.includes(l)) res.push(l); });
+            });
+            return res;
+          }
+          const str = String(locStr).trim();
+          if (!str) return [];
+          const parts = str.split(/\s*[,/;/+&]\s*/);
+          const locs = [];
+          parts.forEach(p => {
+            const cleaned = p.trim().toUpperCase();
+            if (cleaned && !locs.includes(cleaned)) {
+              locs.push(cleaned);
+            }
+          });
+          return locs;
+        }
+
+        function getLocationsForItem(it) {
+          if (!it) return [];
+          if (Array.isArray(it.locations) && it.locations.length > 0) return it.locations;
+          if (it.location) return parseLocations(it.location);
+          return [];
+        }
+
         function parseCSVLocator(csvText) {
           const lines = csvText.split(/\r?\n/).filter(l => l.trim() !== '');
           if (lines.length < 2) return [];
@@ -4170,11 +4199,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const row = parseRow(lines[i]);
             const code = itemCodeIdx >= 0 ? (row[itemCodeIdx] || '').replace(/"/g, '') : '';
             if (code && code.toLowerCase() !== 'item code') {
+              const rawLoc = locIdx >= 0 ? (row[locIdx] || '').replace(/"/g, '') : '';
               items.push({
                 item_code: code,
                 dci_code: dciIdx >= 0 ? (row[dciIdx] || '').replace(/"/g, '') : '',
                 description: descIdx >= 0 ? (row[descIdx] || '').replace(/"/g, '') : '',
-                location: locIdx >= 0 ? (row[locIdx] || '').replace(/"/g, '') : ''
+                location: rawLoc,
+                locations: parseLocations(rawLoc)
               });
             }
           }
@@ -4225,14 +4256,18 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             return hay.includes(q) || (qNorm.length >= 3 && hayNorm.includes(qNorm));
           });
 
-          // Group by location (L1..L14)
+          // Group by location (L1..L14, REF1..REF8) supporting items in multiple locations
           const locMap = {};
           matches.forEach(it => {
-            const loc = (it.location || '').toUpperCase().trim();
-            if (loc) {
-              if (!locMap[loc]) locMap[loc] = [];
-              locMap[loc].push(it);
-            }
+            const locs = getLocationsForItem(it);
+            locs.forEach(loc => {
+              if (loc) {
+                if (!locMap[loc]) locMap[loc] = [];
+                if (!locMap[loc].some(existing => existing.item_code === it.item_code)) {
+                  locMap[loc].push(it);
+                }
+              }
+            });
           });
 
           allPallets.forEach(pId => {
@@ -4255,6 +4290,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                         : (it.warehouse_inventory_qty != null ? it.warehouse_inventory_qty : (master ? master.total_inventory_qty : (it.qty || 0)));
                       const qtyVal = parseFloat(rawQty) || 0;
                       const formattedQty = fmt(qtyVal);
+                      const allLocs = getLocationsForItem(it);
+                      const multiLocTag = allLocs.length > 1
+                        ? '<div style="font-size:10px; font-weight:700; color:var(--accent); margin-top:2px;">📍 Locations: ' + allLocs.join(', ') + '</div>'
+                        : '';
 
                       return '<div class="pallet-item-chip" title="' + (it.description || '').replace(/"/g, '&quot;') + '">' +
                         '<div class="flex items-center justify-between" style="gap:4px;">' +
@@ -4262,6 +4301,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                           '<div class="pallet-item-qty" title="Warehouse Inventory (Col BO)">Qty: ' + formattedQty + '</div>' +
                         '</div>' +
                         '<div class="pallet-item-desc">' + (it.description || '') + '</div>' +
+                        multiLocTag +
                       '</div>';
                     }).join('') +
                     (moreCount > 0 ? '<div style="font-size:10px; font-weight:700; color:var(--accent); text-align:center; margin-top:2px;">+' + moreCount + ' more</div>' : '') +
@@ -4309,27 +4349,40 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               : '<span class="text-warning">No items found matching "' + q + '" in cold storage (REF1–REF8).</span>';
           }
           if (refMatchBadge) {
-            refMatchBadge.textContent = '⚡ ' + refMatchesCount + ' match' + (refMatchesCount === 1 ? '' : 'es');
+            refMatchBadge.textContent = '⚡ ' + refMatchesCount + ' match' + (refMatchBadge === 1 ? '' : 'es');
           }
         }
 
         function locationBadge(itemCode) {
+          if (!itemCode) return '<span class="text-xs text-muted">—</span>';
+          const codeKey = String(itemCode).trim();
+
           if (!window.LOCATOR_MAP) {
             window.LOCATOR_MAP = {};
             (allLocatorItems || window.LOCATOR_DATA || []).forEach(it => {
-              if (it.item_code && it.location) {
-                window.LOCATOR_MAP[it.item_code.trim()] = it.location.trim();
+              if (it.item_code) {
+                const key = String(it.item_code).trim();
+                if (!window.LOCATOR_MAP[key]) window.LOCATOR_MAP[key] = [];
+                const locs = getLocationsForItem(it);
+                locs.forEach(loc => {
+                  if (!window.LOCATOR_MAP[key].includes(loc)) {
+                    window.LOCATOR_MAP[key].push(loc);
+                  }
+                });
               }
             });
           }
-          const loc = window.LOCATOR_MAP[String(itemCode).trim()];
-          if (loc) {
-            const isRef = loc.toUpperCase().startsWith('REF');
-            const targetTab = isRef ? 'ref-items' : 'enclosure';
-            const targetInput = isRef ? 'ref-locator-search-input' : 'locator-search-input';
-            const icon = isRef ? '❄️ ' : '📍 ';
-            const titlePrefix = isRef ? 'Cold Storage Unit ' : 'Pallet ';
-            return '<span class="badge badge-accent" style="cursor:pointer;" onclick="showSection(\'locator\'); switchLocatorTab(\'' + targetTab + '\', document.querySelector(\'.folder-tab[data-tab=\\\'' + targetTab + '\\\']\')); const inp=document.getElementById(\'' + targetInput + '\'); if(inp){ inp.value=\'' + itemCode + '\'; filterLocator(\'' + itemCode + '\'); }" title="Click to locate ' + itemCode + ' in ' + titlePrefix + loc + '">' + icon + loc + '</span>';
+
+          const locs = window.LOCATOR_MAP[codeKey] || [];
+          if (locs.length > 0) {
+            return locs.map(loc => {
+              const isRef = loc.startsWith('REF');
+              const targetTab = isRef ? 'ref-items' : 'enclosure';
+              const targetInput = isRef ? 'ref-locator-search-input' : 'locator-search-input';
+              const icon = isRef ? '❄️ ' : '📍 ';
+              const titlePrefix = isRef ? 'Cold Storage Unit ' : 'Pallet ';
+              return '<span class="badge badge-accent" style="cursor:pointer; margin:2px 2px; display:inline-block;" onclick="showSection(\'locator\'); switchLocatorTab(\'' + targetTab + '\', document.querySelector(\'.folder-tab[data-tab=\\\'' + targetTab + '\\\']\')); const inp=document.getElementById(\'' + targetInput + '\'); if(inp){ inp.value=\'' + codeKey + '\'; filterLocator(\'' + codeKey + '\'); }" title="Click to locate ' + codeKey + ' in ' + titlePrefix + loc + '">' + icon + loc + '</span>';
+            }).join('');
           }
           return '<span class="text-xs text-muted">—</span>';
         }
@@ -4342,7 +4395,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           currentPalletModalId = pId;
           const targetLoc = pId.toUpperCase().trim();
           const isRef = targetLoc.startsWith('REF');
-          currentPalletItems = (allLocatorItems || window.LOCATOR_DATA || []).filter(it => (it.location || '').toUpperCase().trim() === targetLoc);
+          currentPalletItems = (allLocatorItems || window.LOCATOR_DATA || []).filter(it => {
+            const locs = getLocationsForItem(it);
+            return locs.includes(targetLoc);
+          });
           filteredPalletItems = [...currentPalletItems];
 
           const titleEl = document.getElementById('pallet-modal-title');
@@ -4438,9 +4494,21 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               actualQty = fmt(parseFloat(it.warehouse_inventory_qty) || 0);
             }
 
+            const allLocs = getLocationsForItem(it);
+            const multiLocPill = allLocs.length > 1
+              ? '<div style="font-size:11px; font-weight:600; color:var(--accent); margin-top:4px;">📍 Also stored in: ' + allLocs.filter(l => l !== currentPalletModalId.toUpperCase().trim()).map(l => '<span class="badge badge-accent" style="font-size:10px; padding:1px 6px; margin-left:3px;">' + (l.startsWith('REF') ? '❄️ ' : '📍 ') + l + '</span>').join('') + '</div>'
+              : '';
+
             return '<tr>' +
                 '<td class="text-center text-muted" style="font-size:12px;">' + (idx + 1) + '</td>' +
                 '<td class="code" style="font-weight:700;">' + it.item_code + '</td>' +
+                '<td class="code text-muted">' + (it.dci_code || '—') + '</td>' +
+                '<td style="white-space:normal; font-weight:500; line-height:1.4;">' + (it.description || '—') + multiLocPill + '</td>' +
+                '<td class="num-cell" style="font-weight:700; color:var(--accent);">' + actualQty + '</td>' +
+                '<td class="text-center">' + statusBadge + '</td>' +
+              '</tr>';
+          }).join('');
+        }00;">' + it.item_code + '</td>' +
                 '<td class="code text-muted">' + (it.dci_code || '—') + '</td>' +
                 '<td style="white-space:normal; font-weight:500; line-height:1.4;">' + (it.description || '—') + '</td>' +
                 '<td class="num-cell" style="font-weight:700; color:var(--accent);">' + actualQty + '</td>' +

@@ -507,10 +507,10 @@ function getLocatorData() {
     const locIdx      = headers.indexOf('location');
 
     return csv.slice(1).map(row => ({
-      item_code:   itemCodeIdx >= 0 ? row[itemCodeIdx] : '',
-      dci_code:    dciIdx      >= 0 ? row[dciIdx]      : '',
-      description: descIdx     >= 0 ? row[descIdx]     : '',
-      location:    locIdx      >= 0 ? row[locIdx]      : ''
+      item_code:   itemCodeIdx >= 0 ? String(row[itemCodeIdx]).trim() : '',
+      dci_code:    dciIdx      >= 0 ? String(row[dciIdx]).trim()      : '',
+      description: descIdx     >= 0 ? String(row[descIdx]).trim()     : '',
+      location:    locIdx      >= 0 ? String(row[locIdx]).trim()      : ''
     })).filter(r => r.item_code);
   } catch (e) {
     Logger.log('Locator fetch error: ' + e.message);
