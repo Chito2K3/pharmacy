@@ -4155,7 +4155,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
           const str = String(locStr).trim();
           if (!str) return [];
-          const parts = str.split(/\s*[,/;/+&]\s*/);
+          const parts = str.split(/[\s,/;+&]+/);
           const locs = [];
           parts.forEach(p => {
             const cleaned = p.trim().toUpperCase();
