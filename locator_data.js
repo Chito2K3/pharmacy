@@ -93,25 +93,25 @@ window.LOCATOR_DATA = [
         "item_code":  "DMEP1040406000-0004",
         "dci_code":  "DMEP000005",
         "description":  "(EP) 10% DEXTROSE IN WATER 500ML BAG/BOTTLE (IV INFUSION) (D10W)",
-        "location":  null
+        "location":  "GT1"
     },
     {
         "item_code":  "DMR1040406000-0004",
         "dci_code":  "DMR000005",
         "description":  "10% DEXTROSE IN WATER 500ML BAG/BOTTLE (IV INFUSION) (D10W)",
-        "location":  null
+        "location":  "GT1"
     },
     {
         "item_code":  "DMDON1040406000-0314",
         "dci_code":  "DMDON000006",
         "description":  "(DON) HYPERTONIC LACTATE SOLUTION -TOTILAC",
-        "location":  null
+        "location":  "GT2"
     },
     {
         "item_code":  "DMEP-104060000-0769",
         "dci_code":  "DMEP001142",
         "description":  "(EP) HYPERTONIC LACTATE SOLUTION 250ML",
-        "location":  null
+        "location":  "GT2"
     },
     {
         "item_code":  "DMC1040406000-0509",
