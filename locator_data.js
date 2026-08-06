@@ -1,4 +1,4 @@
-﻿window.LOCATOR_DATA = [
+window.LOCATOR_DATA = [
     {
         "item_code":  "DMR1040406000-0003",
         "dci_code":  "DMR000001",
@@ -69,25 +69,25 @@
         "item_code":  "DMR1040406000-0592",
         "dci_code":  "DMR000004",
         "description":  "0.9% SODIUM CHLORIDE FOR IRRIGATION 1L BOTTLE",
-        "location":  null
+        "location":  "HW1"
     },
     {
         "item_code":  "DMDON1040406000-0158",
         "dci_code":  "DMDON000004",
         "description":  "(DON) 0.9% SODIUM CHLORIDE FOR IRRIGATION 1L BOTTLE",
-        "location":  null
+        "location":  "HW1"
     },
     {
         "item_code":  "DMR1040406000-0875",
         "dci_code":  "DMR001131",
         "description":  "10% DEXTROSE IN WATER 1L BAG/BOTTLE (IV INFUSION) (D10W)",
-        "location":  null
+        "location":  "HW2"
     },
     {
         "item_code":  "DMC1040406000-0004",
         "dci_code":  "DMC000005",
         "description":  "(C) 10% DEXTROSE IN WATER 500ML BAG/BOTTLE (IV INFUSION) (D10W)",
-        "location":  null
+        "location":  "HW2"
     },
     {
         "item_code":  "DMEP1040406000-0004",
