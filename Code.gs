@@ -447,7 +447,9 @@ function getItems() {
       ending_inventory_qty         : safeNum(row[lc.overall_ending_qty]),
       ending_inventory_level_days  : safeNum(row[lc.overall_ending_days]),
       epa_balance                  : safeNum(row[lc.overall_epa_balance]),
+      epa_cy2026_balance           : safeNum(row[lc.overall_epa_balance]),
       ending_with_epa_qty          : safeNum(row[lc.overall_ending_epa]),
+      ending_inv_with_epa_qty      : safeNum(row[lc.overall_ending_epa]),
 
       annual_qty_2025              : annualQty2025,
       annual_val_2025              : annualVal2025,

@@ -3199,6 +3199,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
         function formatExcelDate(val) {
           if (val === null || val === undefined || val === '') return '—';
+          if (typeof val === 'number') {
+            if (val > 30000 && val < 60000) {
+              const d = new Date((val - 25569) * 86400 * 1000);
+              return (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
+            }
+            return String(val);
+          }
           const str = String(val).trim();
           if (str.indexOf('#') === 0) return '—';
           const num = Number(str);
@@ -3207,6 +3214,22 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             return (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
           }
           return str;
+        }
+
+        function getItemEndingEpa(it) {
+          if (!it) return 0;
+          const val = (it.ending_inv_with_epa_qty !== undefined && it.ending_inv_with_epa_qty !== null && it.ending_inv_with_epa_qty !== '')
+            ? it.ending_inv_with_epa_qty
+            : it.ending_with_epa_qty;
+          return parseFloat(val) || 0;
+        }
+
+        function getItemEpaBalance(it) {
+          if (!it) return 0;
+          const val = (it.epa_cy2026_balance !== undefined && it.epa_cy2026_balance !== null && it.epa_cy2026_balance !== '')
+            ? it.epa_cy2026_balance
+            : it.epa_balance;
+          return parseFloat(val) || 0;
         }
 
         // ================================================================
@@ -3645,7 +3668,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const totalValue = allItems.reduce((s, it) => s + (parseFloat(it.inventory_value_php) || 0), 0);
           const avgMonthly = allItems.reduce((s, it) => s + (parseFloat(it.avg_monthly_consumption) || 0), 0);
           const endingStock = allItems.reduce((s, it) => s + (parseFloat(it.ending_inventory_qty) || 0), 0);
-          const endingEpa = allItems.reduce((s, it) => s + (parseFloat(it.ending_with_epa_qty) || 0), 0);
+          const endingEpa = allItems.reduce((s, it) => s + getItemEndingEpa(it), 0);
           const pendingItems = allItems.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0).length;
 
           const kpiEl = document.getElementById('analytics-kpis');
@@ -4954,7 +4977,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           setTxt('item-modal-impact-date', formatExcelDate(item.date_of_impact));
           setTxt('item-modal-pending-po', fmt(item.pending_po_co_qty));
-          setTxt('item-modal-ending-epa', fmt(item.ending_with_epa_qty));
+          setTxt('item-modal-ending-epa', fmt(getItemEndingEpa(item)));
 
           setHtml('item-modal-pallet-badge', locationBadge(item.item_code));
 
