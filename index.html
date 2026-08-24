@@ -1938,6 +1938,111 @@
       border: 1px solid var(--border-lit);
     }
 
+    /* ===== LOCATOR TOP CATEGORY TOGGLE ===== */
+    .locator-cat-toggle-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-card);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--border-lit);
+      margin-bottom: 20px;
+      width: fit-content;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-cat-toggle {
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 9px 22px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-cat-toggle:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-cat-toggle.active {
+      background: linear-gradient(135deg, var(--accent) 0%, #0891b2 100%);
+      color: #0b0f1a;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    /* ===== MAIN STORAGE CUSTOM FLOOR PLAN LAYOUT ===== */
+    .main-storage-layout-grid {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) 30px minmax(360px, 2.2fr) 30px minmax(180px, 1fr);
+      grid-template-rows: auto minmax(260px, 1fr) auto;
+      gap: 16px;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .ms-col-center-row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      height: 100%;
+    }
+
+    .ms-card-slot {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 130px;
+    }
+
+    .ms-card-slot.ms-slot-tall {
+      min-height: 260px;
+    }
+
+    .ms-card-slot .pallet-card {
+      height: 100%;
+      min-height: 100%;
+    }
+
+    .ms-aisle-v {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 1px dashed rgba(6, 182, 212, 0.3);
+      border-right: 1px dashed rgba(6, 182, 212, 0.3);
+      background: rgba(6, 182, 212, 0.02);
+      border-radius: 8px;
+      writing-mode: vertical-lr;
+      text-orientation: mixed;
+      letter-spacing: 0.25em;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--accent);
+      user-select: none;
+    }
+
+    @media (max-width: 900px) {
+      .main-storage-layout-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+      .ms-col-center-row2 {
+        grid-template-columns: 1fr;
+      }
+      .ms-aisle-v {
+        writing-mode: horizontal-tb;
+        padding: 8px;
+        height: 30px;
+      }
+    }
+
     /* ===== MULTI-FOLDER TAB SELECTOR ===== */
     .folder-tab-bar {
       display: flex;
@@ -2350,8 +2455,18 @@
 
               <!-- ===== MAP LOCATOR SECTION ===== -->
               <div class="section" id="sec-locator">
-                <!-- MULTI-FOLDER TAB SELECTOR -->
-                <div class="folder-tab-bar">
+                <!-- TOP-LEVEL CATEGORY TOGGLE BAR (WAREHOUSE VS STORAGE) -->
+                <div class="locator-cat-toggle-bar">
+                  <button class="btn-cat-toggle active" id="btn-cat-warehouse" onclick="switchLocatorCategory('warehouse')">
+                    <span>🏭 Warehouse</span>
+                  </button>
+                  <button class="btn-cat-toggle" id="btn-cat-storage" onclick="switchLocatorCategory('storage')">
+                    <span>📦 Storage</span>
+                  </button>
+                </div>
+
+                <!-- SUB-FOLDER TAB SELECTOR BAR: WAREHOUSE -->
+                <div class="folder-tab-bar" id="warehouse-folder-bar">
                   <button class="folder-tab active" data-tab="enclosure" onclick="switchLocatorTab('enclosure', this)">
                     <span>📁 Enclosure</span>
                   </button>
@@ -2363,6 +2478,19 @@
                   </button>
                   <button class="folder-tab" data-tab="ref-items" onclick="switchLocatorTab('ref-items', this)">
                     <span>❄️ Ref Items</span>
+                  </button>
+                </div>
+
+                <!-- SUB-FOLDER TAB SELECTOR BAR: STORAGE -->
+                <div class="folder-tab-bar" id="storage-folder-bar" style="display:none;">
+                  <button class="folder-tab active" data-tab="main-storage" onclick="switchLocatorTab('main-storage', this)">
+                    <span>🏢 Main Storage</span>
+                  </button>
+                  <button class="folder-tab" data-tab="2nd-floor" onclick="switchLocatorTab('2nd-floor', this)">
+                    <span>🏢 2nd Floor</span>
+                  </button>
+                  <button class="folder-tab" data-tab="7th-floor" onclick="switchLocatorTab('7th-floor', this)">
+                    <span>🏢 7th Floor</span>
                   </button>
                 </div>
 
@@ -2571,6 +2699,153 @@
                         <div class="legend-item"><span class="legend-box active"></span><span class="text-xs text-accent font-semibold">Search Match — Item Located</span></div>
                       </div>
                       <div class="match-count-badge" id="ref-locator-match-count">⚡ 0 matches</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STORAGE PANE 1: MAIN STORAGE (SREF 1, GD 1, SREF 2, CAB 1, CAB 2, GD 2) -->
+                <div class="locator-tab-pane" id="loc-pane-main-storage">
+                  <div class="section-header" style="margin-bottom:16px;">
+                    <div class="nav-section-label" style="padding:0; margin-bottom:6px; color:var(--text-muted);">SEARCH MAIN STORAGE INVENTORY</div>
+                    <div class="locator-search-wrap">
+                      <span class="search-icon">🔍</span>
+                      <input type="text" id="main-storage-locator-search-input" class="locator-search-input" placeholder="Type item name to locate in main storage... (e.g. SREF1, GD1, CAB1, Paracetamol)" oninput="filterLocator(this.value)" />
+                    </div>
+                    <p class="text-xs text-muted" style="margin-top:8px;" id="main-storage-locator-search-status">Ready — type an item name to locate it in Main Storage (SREF 1/2, GD 1/2, CAB 1/2).</p>
+                  </div>
+
+                  <div class="table-card" style="padding:22px; background:var(--bg-card);">
+                    <div class="flex items-center justify-between" style="margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                      <h3 style="font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-main);">FLOOR PLAN — MAIN STORAGE UNITS (SREF, GD, CAB)</h3>
+                      <div class="flex items-center gap-2">
+                        <span class="badge badge-accent text-xs" id="main-storage-locator-loaded-count" style="transition:transform 0.25s ease;">0 items loaded</span>
+                        <button class="btn-export" id="btn-sync-main-storage-locator" onclick="loadLocatorData(true)" title="Sync latest live changes from Google Sheet" style="padding:5px 12px; font-size:11px; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s ease;"><span class="sync-icon" style="display:inline-block;">🔄</span> Sync Live Data</button>
+                      </div>
+                    </div>
+
+                    <div class="floor-plan-wrap">
+                      <div class="main-storage-layout-grid">
+                        <!-- LEFT COLUMN: SREF 1 (Row 1), GD 1 (Row 2), SREF 2 (Row 3) -->
+                        <div class="ms-card-slot" style="grid-column: 1; grid-row: 1;" id="ms-slot-SREF1"></div>
+                        <div class="ms-card-slot ms-slot-tall" style="grid-column: 1; grid-row: 2;" id="ms-slot-GD1"></div>
+                        <div class="ms-card-slot" style="grid-column: 1; grid-row: 3;" id="ms-slot-SREF2"></div>
+
+                        <!-- AISLE 1 (Spans Rows 1 to 3) -->
+                        <div class="ms-aisle-v" style="grid-column: 2; grid-row: 1 / span 3;">
+                          <span>AISLE</span>
+                        </div>
+
+                        <!-- CENTER SECTION: CAB 1 & CAB 2 in Row 2 (Middle, same size as GD 1) -->
+                        <div class="ms-col-center-row2" style="grid-column: 3; grid-row: 2;">
+                          <div class="ms-card-slot ms-slot-tall" id="ms-slot-CAB1"></div>
+                          <div class="ms-card-slot ms-slot-tall" id="ms-slot-CAB2"></div>
+                        </div>
+
+                        <!-- AISLE 2 (Spans Rows 1 to 3) -->
+                        <div class="ms-aisle-v" style="grid-column: 4; grid-row: 1 / span 3;">
+                          <span>AISLE</span>
+                        </div>
+
+                        <!-- RIGHT SECTION: GD 2 in Row 2 (Middle, same size as GD 1) -->
+                        <div class="ms-card-slot ms-slot-tall" style="grid-column: 5; grid-row: 2;" id="ms-slot-GD2"></div>
+                      </div>
+
+                      <!-- Legend Footer -->
+                      <div class="locator-footer" style="margin-top:20px;">
+                        <div class="legend-items">
+                          <div class="legend-item"><span class="legend-box idle"></span><span class="text-xs text-muted">Available / Idle Storage Unit</span></div>
+                          <div class="legend-item"><span class="legend-box active"></span><span class="text-xs text-accent font-semibold">Search Match — Item Located</span></div>
+                        </div>
+                        <div class="match-count-badge" id="main-storage-match-count">⚡ 0 matches</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STORAGE PANE 2: 2ND FLOOR STORAGE (2F1–2F10) -->
+                <div class="locator-tab-pane" id="loc-pane-2nd-floor">
+                  <div class="section-header" style="margin-bottom:16px;">
+                    <div class="nav-section-label" style="padding:0; margin-bottom:6px; color:var(--text-muted);">SEARCH 2ND FLOOR INVENTORY</div>
+                    <div class="locator-search-wrap">
+                      <span class="search-icon">🔍</span>
+                      <input type="text" id="2nd-floor-locator-search-input" class="locator-search-input" placeholder="Type item name to locate on 2nd floor... (e.g. 2F1-2F10, Paracetamol)" oninput="filterLocator(this.value)" />
+                    </div>
+                    <p class="text-xs text-muted" style="margin-top:8px;" id="2nd-floor-locator-search-status">Ready — type an item name to locate it in 2nd Floor storage units (2F1–2F10).</p>
+                  </div>
+
+                  <div class="table-card" style="padding:22px; background:var(--bg-card);">
+                    <div class="flex items-center justify-between" style="margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                      <h3 style="font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-main);">FLOOR PLAN — 2ND FLOOR STORAGE UNITS (2F1–2F10)</h3>
+                      <div class="flex items-center gap-2">
+                        <span class="badge badge-accent text-xs" id="2nd-floor-locator-loaded-count" style="transition:transform 0.25s ease;">0 items loaded</span>
+                        <button class="btn-export" id="btn-sync-2nd-floor-locator" onclick="loadLocatorData(true)" title="Sync latest live changes from Google Sheet" style="padding:5px 12px; font-size:11px; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s ease;"><span class="sync-icon" style="display:inline-block;">🔄</span> Sync Live Data</button>
+                      </div>
+                    </div>
+
+                    <div class="floor-plan-wrap">
+                      <!-- Top Row (2F1, 2F2, 2F3, 2F4, 2F5) -->
+                      <div class="pallet-row" id="2nd-floor-pallet-row-top" style="grid-template-columns: repeat(5, 1fr);"></div>
+
+                      <!-- Central Walkway -->
+                      <div class="aisle-walkway">
+                        <span>⇡ 2ND FLOOR AISLE WALKWAY ⇣</span>
+                      </div>
+
+                      <!-- Bottom Row (2F10, 2F9, 2F8, 2F7, 2F6) -->
+                      <div class="pallet-row" id="2nd-floor-pallet-row-bottom" style="grid-template-columns: repeat(5, 1fr);"></div>
+                    </div>
+
+                    <!-- Legend Footer -->
+                    <div class="locator-footer">
+                      <div class="legend-items">
+                        <div class="legend-item"><span class="legend-box idle"></span><span class="text-xs text-muted">Available / Idle 2nd Floor Storage Unit</span></div>
+                        <div class="legend-item"><span class="legend-box active"></span><span class="text-xs text-accent font-semibold">Search Match — Item Located</span></div>
+                      </div>
+                      <div class="match-count-badge" id="2nd-floor-match-count">⚡ 0 matches</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STORAGE PANE 3: 7TH FLOOR STORAGE (7F1–7F10) -->
+                <div class="locator-tab-pane" id="loc-pane-7th-floor">
+                  <div class="section-header" style="margin-bottom:16px;">
+                    <div class="nav-section-label" style="padding:0; margin-bottom:6px; color:var(--text-muted);">SEARCH 7TH FLOOR INVENTORY</div>
+                    <div class="locator-search-wrap">
+                      <span class="search-icon">🔍</span>
+                      <input type="text" id="7th-floor-locator-search-input" class="locator-search-input" placeholder="Type item name to locate on 7th floor... (e.g. 7F1-7F10, Paracetamol)" oninput="filterLocator(this.value)" />
+                    </div>
+                    <p class="text-xs text-muted" style="margin-top:8px;" id="7th-floor-locator-search-status">Ready — type an item name to locate it in 7th Floor storage units (7F1–7F10).</p>
+                  </div>
+
+                  <div class="table-card" style="padding:22px; background:var(--bg-card);">
+                    <div class="flex items-center justify-between" style="margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                      <h3 style="font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-main);">FLOOR PLAN — 7TH FLOOR STORAGE UNITS (7F1–7F10)</h3>
+                      <div class="flex items-center gap-2">
+                        <span class="badge badge-accent text-xs" id="7th-floor-locator-loaded-count" style="transition:transform 0.25s ease;">0 items loaded</span>
+                        <button class="btn-export" id="btn-sync-7th-floor-locator" onclick="loadLocatorData(true)" title="Sync latest live changes from Google Sheet" style="padding:5px 12px; font-size:11px; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s ease;"><span class="sync-icon" style="display:inline-block;">🔄</span> Sync Live Data</button>
+                      </div>
+                    </div>
+
+                    <div class="floor-plan-wrap">
+                      <!-- Top Row (7F1, 7F2, 7F3, 7F4, 7F5) -->
+                      <div class="pallet-row" id="7th-floor-pallet-row-top" style="grid-template-columns: repeat(5, 1fr);"></div>
+
+                      <!-- Central Walkway -->
+                      <div class="aisle-walkway">
+                        <span>⇡ 7TH FLOOR AISLE WALKWAY ⇣</span>
+                      </div>
+
+                      <!-- Bottom Row (7F10, 7F9, 7F8, 7F7, 7F6) -->
+                      <div class="pallet-row" id="7th-floor-pallet-row-bottom" style="grid-template-columns: repeat(5, 1fr);"></div>
+                    </div>
+
+                    <!-- Legend Footer -->
+                    <div class="locator-footer">
+                      <div class="legend-items">
+                        <div class="legend-item"><span class="legend-box idle"></span><span class="text-xs text-muted">Available / Idle 7th Floor Storage Unit</span></div>
+                        <div class="legend-item"><span class="legend-box active"></span><span class="text-xs text-accent font-semibold">Search Match — Item Located</span></div>
+                      </div>
+                      <div class="match-count-badge" id="7th-floor-match-count">⚡ 0 matches</div>
                     </div>
                   </div>
                 </div>
@@ -4160,6 +4435,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         let allLocatorItems = [];
         const TOP_PALLETS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
         const BOTTOM_PALLETS = ['L14', 'L13', 'L12', 'L11', 'L10', 'L9', 'L8'];
+        const MAIN_STORAGE_PALLETS = ['SREF1', 'GD1', 'SREF2', 'CAB1', 'CAB2', 'GD2'];
+        const SECOND_FLOOR_TOP = ['2F1', '2F2', '2F3', '2F4', '2F5'];
+        const SECOND_FLOOR_BOT = ['2F10', '2F9', '2F8', '2F7', '2F6'];
+        const SEVENTH_FLOOR_TOP = ['7F1', '7F2', '7F3', '7F4', '7F5'];
+        const SEVENTH_FLOOR_BOT = ['7F10', '7F9', '7F8', '7F7', '7F6'];
         const REF_TOP_PALLETS = ['REF6', 'REF5', 'REF4', 'REF3', 'REF2', 'REF1'];
         const REF_MIDDLE_PALLETS = ['REF7'];
         const REF_BOTTOM_PALLETS = ['REF8'];
@@ -4169,14 +4449,19 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         function renderLocatorGrid() {
           const topRow = document.getElementById('pallet-row-top');
           const botRow = document.getElementById('pallet-row-bottom');
+          const f2TopRow = document.getElementById('2nd-floor-pallet-row-top');
+          const f2BotRow = document.getElementById('2nd-floor-pallet-row-bottom');
+          const f7TopRow = document.getElementById('7th-floor-pallet-row-top');
+          const f7BotRow = document.getElementById('7th-floor-pallet-row-bottom');
           const refTopRow = document.getElementById('ref-pallet-row-top');
           const refMidRow = document.getElementById('ref-pallet-row-middle');
           const refBotRow = document.getElementById('ref-pallet-row-bottom');
 
-          function createCardHtml(pId, subLabel) {
-            return '<div class="pallet-card" id="pallet-card-' + pId + '" onclick="openPalletModal(\'' + pId + '\')" style="cursor:pointer;" title="Click to view all items stored on ' + pId + '">' +
+          function createCardHtml(pId, displayTitle, subLabel) {
+            const title = displayTitle || pId;
+            return '<div class="pallet-card" id="pallet-card-' + pId + '" onclick="openPalletModal(\'' + pId + '\')" style="cursor:pointer;" title="Click to view all items stored on ' + title + '">' +
                 '<div class="pallet-card-header">' +
-                  '<div class="pallet-card-title">' + pId + '</div>' +
+                  '<div class="pallet-card-title">' + title + '</div>' +
                   '<div class="pallet-card-sub">' + subLabel + '</div>' +
                 '</div>' +
                 '<div class="pallet-card-body" id="pallet-body-' + pId + '">' +
@@ -4185,11 +4470,30 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               '</div>';
           }
 
-          if (topRow) topRow.innerHTML = TOP_PALLETS.map(p => createCardHtml(p, 'TOP ROW')).join('');
-          if (botRow) botRow.innerHTML = BOTTOM_PALLETS.map(p => createCardHtml(p, 'BOTTOM ROW')).join('');
-          if (refTopRow) refTopRow.innerHTML = REF_TOP_PALLETS.map(p => createCardHtml(p, 'TOP ROW')).join('');
-          if (refMidRow) refMidRow.innerHTML = REF_MIDDLE_PALLETS.map(p => createCardHtml(p, 'MIDDLE ROW')).join('');
-          if (refBotRow) refBotRow.innerHTML = REF_BOTTOM_PALLETS.map(p => createCardHtml(p, 'BOTTOM ROW')).join('');
+          if (topRow) topRow.innerHTML = TOP_PALLETS.map(p => createCardHtml(p, p, 'TOP ROW')).join('');
+          if (botRow) botRow.innerHTML = BOTTOM_PALLETS.map(p => createCardHtml(p, p, 'BOTTOM ROW')).join('');
+
+          // Main Storage slots (SREF 1, GD 1, SREF 2, CAB 1, CAB 2, GD 2)
+          const msSlots = {
+            SREF1: { title: 'SREF 1', sub: 'STORAGE REF (TOP LEFT)' },
+            GD1: { title: 'GD 1', sub: 'GLASS DOOR RACK (LEFT)' },
+            SREF2: { title: 'SREF 2', sub: 'STORAGE REF (BOTTOM LEFT)' },
+            CAB1: { title: 'CAB 1', sub: 'STORAGE CABINET 1' },
+            CAB2: { title: 'CAB 2', sub: 'STORAGE CABINET 2' },
+            GD2: { title: 'GD 2', sub: 'GLASS DOOR RACK (RIGHT)' }
+          };
+          Object.keys(msSlots).forEach(id => {
+            const slot = document.getElementById('ms-slot-' + id);
+            if (slot) slot.innerHTML = createCardHtml(id, msSlots[id].title, msSlots[id].sub);
+          });
+
+          if (f2TopRow) f2TopRow.innerHTML = SECOND_FLOOR_TOP.map(p => createCardHtml(p, p, 'TOP ROW')).join('');
+          if (f2BotRow) f2BotRow.innerHTML = SECOND_FLOOR_BOT.map(p => createCardHtml(p, p, 'BOTTOM ROW')).join('');
+          if (f7TopRow) f7TopRow.innerHTML = SEVENTH_FLOOR_TOP.map(p => createCardHtml(p, p, 'TOP ROW')).join('');
+          if (f7BotRow) f7BotRow.innerHTML = SEVENTH_FLOOR_BOT.map(p => createCardHtml(p, p, 'BOTTOM ROW')).join('');
+          if (refTopRow) refTopRow.innerHTML = REF_TOP_PALLETS.map(p => createCardHtml(p, p, 'TOP ROW')).join('');
+          if (refMidRow) refMidRow.innerHTML = REF_MIDDLE_PALLETS.map(p => createCardHtml(p, p, 'MIDDLE ROW')).join('');
+          if (refBotRow) refBotRow.innerHTML = REF_BOTTOM_PALLETS.map(p => createCardHtml(p, p, 'BOTTOM ROW')).join('');
         }
 
         function loadLocatorDataFromGViz() {
@@ -4254,7 +4558,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         }
 
         async function loadLocatorData(userClicked = false) {
-          const syncBtns = [document.getElementById('btn-sync-locator'), document.getElementById('btn-sync-ref-locator')].filter(Boolean);
+          const syncBtns = [document.getElementById('btn-sync-locator'), document.getElementById('btn-sync-main-storage-locator'), document.getElementById('btn-sync-2nd-floor-locator'), document.getElementById('btn-sync-7th-floor-locator'), document.getElementById('btn-sync-ref-locator'), document.getElementById('btn-sync-hw-locator'), document.getElementById('btn-sync-ivf-locator')].filter(Boolean);
 
           if (userClicked) {
             syncBtns.forEach(btn => {
@@ -4268,7 +4572,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           let itemsLoaded = [];
           let isLive = false;
 
-          // 1. Try Google Sheets GViz JSONP API (bypasses local file:// CORS restrictions completely)
+          // 1. Try Google Sheets GViz JSONP API
           try {
             const gvizItems = await loadLocatorDataFromGViz();
             if (Array.isArray(gvizItems) && gvizItems.length > 0) {
@@ -4311,7 +4615,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
           }
 
-          // 4. Try google.script.run (if running in Apps Script environment)
+          // 4. Try google.script.run
           if (!isLive && typeof google !== 'undefined' && google.script && google.script.run) {
             try {
               const res = await gscriptCall('getLocatorData');
@@ -4324,7 +4628,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
           }
 
-          // 5. Offline Fallback: window.LOCATOR_DATA (from locator_data.js)
+          // 5. Offline Fallback: window.LOCATOR_DATA
           if (itemsLoaded.length === 0 && typeof window !== 'undefined' && Array.isArray(window.LOCATOR_DATA) && window.LOCATOR_DATA.length > 0) {
             itemsLoaded = window.LOCATOR_DATA;
           }
@@ -4351,17 +4655,26 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             };
           });
 
-          // Clear cached map so masterlist badges update to new locations
+          // Clear cached map
           window.LOCATOR_MAP = null;
 
-          const refItemCount = allLocatorItems.filter(it => getLocationsForItem(it).some(l => l.startsWith('REF'))).length;
+          const mainStorageCount = allLocatorItems.filter(it => getLocationsForItem(it).some(l => l.startsWith('SREF') || l.startsWith('GD') || l.startsWith('CAB') || l.startsWith('MS') || l.startsWith('STOR'))).length;
+          const secondFloorCount = allLocatorItems.filter(it => getLocationsForItem(it).some(l => l.startsWith('2F'))).length;
+          const seventhFloorCount = allLocatorItems.filter(it => getLocationsForItem(it).some(l => l.startsWith('7F'))).length;
+          const refItemCount = allLocatorItems.filter(it => getLocationsForItem(it).some(l => l.startsWith('REF') && !l.startsWith('SREF'))).length;
           const hwItemCount = allLocatorItems.filter(it => getLocationsForItem(it).some(l => l.startsWith('HW'))).length;
           const ivfItemCount = allLocatorItems.filter(it => getLocationsForItem(it).some(l => l.startsWith('GT'))).length;
 
-          ['locator-loaded-count', 'ref-locator-loaded-count', 'hw-locator-loaded-count', 'ivf-locator-loaded-count'].forEach(id => {
+          ['locator-loaded-count', 'main-storage-locator-loaded-count', '2nd-floor-locator-loaded-count', '7th-floor-locator-loaded-count', 'ref-locator-loaded-count', 'hw-locator-loaded-count', 'ivf-locator-loaded-count'].forEach(id => {
             const badge = document.getElementById(id);
             if (badge) {
-              if (id === 'ref-locator-loaded-count') {
+              if (id === 'main-storage-locator-loaded-count') {
+                badge.textContent = mainStorageCount.toLocaleString() + ' items in SREF, GD, CAB & MS ' + (isLive ? '• Live Synced 🟢' : '• Offline Cache 📁');
+              } else if (id === '2nd-floor-locator-loaded-count') {
+                badge.textContent = secondFloorCount.toLocaleString() + ' items in 2F1–2F10 ' + (isLive ? '• Live Synced 🟢' : '• Offline Cache 📁');
+              } else if (id === '7th-floor-locator-loaded-count') {
+                badge.textContent = seventhFloorCount.toLocaleString() + ' items in 7F1–7F10 ' + (isLive ? '• Live Synced 🟢' : '• Offline Cache 📁');
+              } else if (id === 'ref-locator-loaded-count') {
                 badge.textContent = refItemCount.toLocaleString() + ' items in REF1–REF8 ' + (isLive ? '• Live Synced 🟢' : '• Offline Cache 📁');
               } else if (id === 'hw-locator-loaded-count') {
                 badge.textContent = hwItemCount.toLocaleString() + ' items in HW1 & HW2 ' + (isLive ? '• Live Synced 🟢' : '• Offline Cache 📁');
@@ -4375,7 +4688,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
           });
 
-          const searchInput = document.getElementById('locator-search-input') || document.getElementById('ref-locator-search-input');
+          const searchInput = document.getElementById('locator-search-input') || document.getElementById('main-storage-locator-search-input');
           filterLocator(searchInput ? searchInput.value : '');
 
           if (syncBtns.length > 0) {
@@ -4407,8 +4720,20 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             });
             return res;
           }
-          const str = String(locStr).trim();
+          let str = String(locStr).trim().toUpperCase();
           if (!str) return [];
+
+          // Normalize spaced prefixes (e.g. SREF 1 -> SREF1, GD 1 -> GD1, CAB 1 -> CAB1)
+          str = str.replace(/SREF\s*(\d+)/g, 'SREF$1')
+                   .replace(/GD\s*(\d+)/g, 'GD$1')
+                   .replace(/CAB\s*(\d+)/g, 'CAB$1')
+                   .replace(/2F\s*(\d+)/g, '2F$1')
+                   .replace(/7F\s*(\d+)/g, '7F$1')
+                   .replace(/MS\s*(\d+)/g, 'MS$1')
+                   .replace(/REF\s*(\d+)/g, 'REF$1')
+                   .replace(/HW\s*(\d+)/g, 'HW$1')
+                   .replace(/GT\s*(\d+)/g, 'GT$1');
+
           const parts = str.split(/[\s,/;+&]+/);
           const locs = [];
           parts.forEach(p => {
@@ -4470,18 +4795,20 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const q = (query || '').trim().toLowerCase();
           const qNorm = q.replace(/[\s\-_]/g, '');
 
-          // Keep main search input, ref search input, hallway search input, and ivf search input synced
-          const mainInput = document.getElementById('locator-search-input');
-          const refInput = document.getElementById('ref-locator-search-input');
-          const hwInput = document.getElementById('hw-locator-search-input');
-          const ivfInput = document.getElementById('ivf-locator-search-input');
-          if (mainInput && mainInput.value !== (query || '')) mainInput.value = query || '';
-          if (refInput && refInput.value !== (query || '')) refInput.value = query || '';
-          if (hwInput && hwInput.value !== (query || '')) hwInput.value = query || '';
-          if (ivfInput && ivfInput.value !== (query || '')) ivfInput.value = query || '';
+          // Keep all search inputs synced across tabs
+          ['locator-search-input', 'main-storage-locator-search-input', '2nd-floor-locator-search-input', '7th-floor-locator-search-input', 'ref-locator-search-input', 'hw-locator-search-input', 'ivf-locator-search-input'].forEach(id => {
+            const inp = document.getElementById(id);
+            if (inp && inp.value !== (query || '')) inp.value = query || '';
+          });
 
           const statusEl = document.getElementById('locator-search-status');
           const matchBadge = document.getElementById('locator-match-count');
+          const msStatusEl = document.getElementById('main-storage-locator-search-status');
+          const msMatchBadge = document.getElementById('main-storage-match-count');
+          const f2StatusEl = document.getElementById('2nd-floor-locator-search-status');
+          const f2MatchBadge = document.getElementById('2nd-floor-match-count');
+          const f7StatusEl = document.getElementById('7th-floor-locator-search-status');
+          const f7MatchBadge = document.getElementById('7th-floor-match-count');
           const refStatusEl = document.getElementById('ref-locator-search-status');
           const refMatchBadge = document.getElementById('ref-locator-match-count');
           const hwStatusEl = document.getElementById('hw-locator-search-status');
@@ -4489,7 +4816,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const ivfStatusEl = document.getElementById('ivf-locator-search-status');
           const ivfMatchBadge = document.getElementById('ivf-locator-match-count');
 
-          const allPallets = [...TOP_PALLETS, ...BOTTOM_PALLETS, ...REF_TOP_PALLETS, ...REF_MIDDLE_PALLETS, ...REF_BOTTOM_PALLETS, ...HALLWAY_PALLETS, ...IVF_PALLETS];
+          const allPallets = [
+            ...TOP_PALLETS, ...BOTTOM_PALLETS,
+            ...MAIN_STORAGE_PALLETS,
+            ...SECOND_FLOOR_TOP, ...SECOND_FLOOR_BOT,
+            ...SEVENTH_FLOOR_TOP, ...SEVENTH_FLOOR_BOT,
+            ...REF_TOP_PALLETS, ...REF_MIDDLE_PALLETS, ...REF_BOTTOM_PALLETS,
+            ...HALLWAY_PALLETS, ...IVF_PALLETS
+          ];
 
           if (!q) {
             allPallets.forEach(pId => {
@@ -4500,7 +4834,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             });
             if (statusEl) statusEl.textContent = 'Ready — type an item name to locate it on the floor plan.';
             if (matchBadge) matchBadge.textContent = '⚡ 0 matches';
-            if (refStatusEl) refStatusEl.textContent = 'Ready — type an item name to locate it in the cold storage units (REF1–REF8).';
+            if (msStatusEl) msStatusEl.textContent = 'Ready — type an item name to locate it in Main Storage (SREF 1/2, GD 1/2, CAB 1/2).';
+            if (msMatchBadge) msMatchBadge.textContent = '⚡ 0 matches';
+            if (f2StatusEl) f2StatusEl.textContent = 'Ready — type an item name to locate it in 2nd Floor storage units (2F1–2F10).';
+            if (f2MatchBadge) f2MatchBadge.textContent = '⚡ 0 matches';
+            if (f7StatusEl) f7StatusEl.textContent = 'Ready — type an item name to locate it in 7th Floor storage units (7F1–7F10).';
+            if (f7MatchBadge) f7MatchBadge.textContent = '⚡ 0 matches';
+            if (refStatusEl) refStatusEl.textContent = 'Ready — type an item name to locate it in cold storage units (REF1–REF8).';
             if (refMatchBadge) refMatchBadge.textContent = '⚡ 0 matches';
             if (hwStatusEl) hwStatusEl.textContent = 'Ready — type an item name to locate it in hallway storage units (HW1 & HW2).';
             if (hwMatchBadge) hwMatchBadge.textContent = '⚡ 0 matches';
@@ -4515,14 +4855,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             if (it.item_code) masterLookup[it.item_code.trim()] = it;
           });
 
-          // Search in item_code, dci_code, or description (with space/hyphen normalization)
+          // Search in item_code, dci_code, or description
           const matches = allLocatorItems.filter(it => {
             const hay = (it.item_code + ' ' + (it.dci_code || '') + ' ' + (it.description || '')).toLowerCase();
             const hayNorm = hay.replace(/[\s\-_]/g, '');
             return hay.includes(q) || (qNorm.length >= 3 && hayNorm.includes(qNorm));
           });
 
-          // Group by location (L1..L14, REF1..REF8, HW1..HW2, GT1..GT2) supporting items in multiple locations
+          // Group by location
           const locMap = {};
           matches.forEach(it => {
             const locs = getLocationsForItem(it);
@@ -4580,234 +4920,106 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           });
 
           const enclosurePallets = [...TOP_PALLETS, ...BOTTOM_PALLETS];
+          const mainStoragePallets = MAIN_STORAGE_PALLETS;
+          const secondFloorPallets = [...SECOND_FLOOR_TOP, ...SECOND_FLOOR_BOT];
+          const seventhFloorPallets = [...SEVENTH_FLOOR_TOP, ...SEVENTH_FLOOR_BOT];
           const refPallets = [...REF_TOP_PALLETS, ...REF_MIDDLE_PALLETS, ...REF_BOTTOM_PALLETS];
           const hallwayPallets = HALLWAY_PALLETS;
           const ivfPallets = IVF_PALLETS;
 
-          let enclosureMatchesCount = 0;
-          let enclosureMatchedUnits = 0;
-          enclosurePallets.forEach(p => {
-            if (locMap[p] && locMap[p].length > 0) {
-              enclosureMatchesCount += locMap[p].length;
-              enclosureMatchedUnits++;
-            }
-          });
-
-          let refMatchesCount = 0;
-          let refMatchedUnits = 0;
-          refPallets.forEach(p => {
-            if (locMap[p] && locMap[p].length > 0) {
-              refMatchesCount += locMap[p].length;
-              refMatchedUnits++;
-            }
-          });
-
-          let hwMatchesCount = 0;
-          let hwMatchedUnits = 0;
-          hallwayPallets.forEach(p => {
-            if (locMap[p] && locMap[p].length > 0) {
-              hwMatchesCount += locMap[p].length;
-              hwMatchedUnits++;
-            }
-          });
-
-          let ivfMatchesCount = 0;
-          let ivfMatchedUnits = 0;
-          ivfPallets.forEach(p => {
-            if (locMap[p] && locMap[p].length > 0) {
-              ivfMatchesCount += locMap[p].length;
-              ivfMatchedUnits++;
-            }
-          });
-
-          // Smart Auto-Tab Shifting Logic
-          const activePane = document.querySelector('#sec-locator .locator-tab-pane.active');
-          const currentTabId = activePane ? activePane.id.replace('loc-pane-', '') : 'enclosure';
-
-          if (q.length >= 2) {
-            if (currentTabId === 'enclosure' && enclosureMatchesCount === 0) {
-              if (refMatchesCount > 0) {
-                switchLocatorTab('ref-items');
-                const targetInput = document.getElementById('ref-locator-search-input');
-                if (targetInput) targetInput.focus();
-              } else if (hwMatchesCount > 0) {
-                switchLocatorTab('hallway');
-                const targetInput = document.getElementById('hw-locator-search-input');
-                if (targetInput) targetInput.focus();
-              } else if (ivfMatchesCount > 0) {
-                switchLocatorTab('ivf');
-                const targetInput = document.getElementById('ivf-locator-search-input');
-                if (targetInput) targetInput.focus();
+          const countMatches = (list) => {
+            let matchesCount = 0, matchedUnits = 0;
+            list.forEach(p => {
+              if (locMap[p] && locMap[p].length > 0) {
+                matchesCount += locMap[p].length;
+                matchedUnits++;
               }
-            } else if (currentTabId === 'ref-items' && refMatchesCount === 0) {
-              if (enclosureMatchesCount > 0) {
-                switchLocatorTab('enclosure');
-                const targetInput = document.getElementById('locator-search-input');
-                if (targetInput) targetInput.focus();
-              } else if (hwMatchesCount > 0) {
-                switchLocatorTab('hallway');
-                const targetInput = document.getElementById('hw-locator-search-input');
-                if (targetInput) targetInput.focus();
-              } else if (ivfMatchesCount > 0) {
-                switchLocatorTab('ivf');
-                const targetInput = document.getElementById('ivf-locator-search-input');
-                if (targetInput) targetInput.focus();
-              }
-            } else if (currentTabId === 'hallway' && hwMatchesCount === 0) {
-              if (enclosureMatchesCount > 0) {
-                switchLocatorTab('enclosure');
-                const targetInput = document.getElementById('locator-search-input');
-                if (targetInput) targetInput.focus();
-              } else if (refMatchesCount > 0) {
-                switchLocatorTab('ref-items');
-                const targetInput = document.getElementById('ref-locator-search-input');
-                if (targetInput) targetInput.focus();
-              } else if (ivfMatchesCount > 0) {
-                switchLocatorTab('ivf');
-                const targetInput = document.getElementById('ivf-locator-search-input');
-                if (targetInput) targetInput.focus();
-              }
-            } else if (currentTabId === 'ivf' && ivfMatchesCount === 0) {
-              if (enclosureMatchesCount > 0) {
-                switchLocatorTab('enclosure');
-                const targetInput = document.getElementById('locator-search-input');
-                if (targetInput) targetInput.focus();
-              } else if (refMatchesCount > 0) {
-                switchLocatorTab('ref-items');
-                const targetInput = document.getElementById('ref-locator-search-input');
-                if (targetInput) targetInput.focus();
-              } else if (hwMatchesCount > 0) {
-                switchLocatorTab('hallway');
-                const targetInput = document.getElementById('hw-locator-search-input');
-                if (targetInput) targetInput.focus();
-              }
-            }
-          }
+            });
+            return { matchesCount, matchedUnits };
+          };
+
+          const enc = countMatches(enclosurePallets);
+          const ms = countMatches(mainStoragePallets);
+          const f2 = countMatches(secondFloorPallets);
+          const f7 = countMatches(seventhFloorPallets);
+          const ref = countMatches(refPallets);
+          const hw = countMatches(hallwayPallets);
+          const ivf = countMatches(ivfPallets);
 
           if (statusEl) {
-            statusEl.innerHTML = enclosureMatchesCount > 0
-              ? '<span class="text-accent font-semibold">Found ' + enclosureMatchesCount + ' matching item(s) across ' + enclosureMatchedUnits + ' pallet location(s).</span>'
-              : (refMatchesCount > 0 
-                  ? '<span class="text-accent font-semibold">❄️ 0 in Enclosure, but found ' + refMatchesCount + ' in Cold Storage (Ref Items). <a href="javascript:void(0)" onclick="switchLocatorTab(\'ref-items\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Ref Items ➔</a></span>'
-                  : (hwMatchesCount > 0
-                      ? '<span class="text-accent font-semibold">🌿 0 in Enclosure, but found ' + hwMatchesCount + ' in Hallway Storage (HW1 & HW2). <a href="javascript:void(0)" onclick="switchLocatorTab(\'hallway\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Hallway ➔</a></span>'
-                      : (ivfMatchesCount > 0
-                          ? '<span class="text-accent font-semibold">💧 0 in Enclosure, but found ' + ivfMatchesCount + ' in IVF Storage (GT1 & GT2). <a href="javascript:void(0)" onclick="switchLocatorTab(\'ivf\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to IVF ➔</a></span>'
-                          : '<span class="text-warning">No items found matching "' + q + '" in Enclosure pallets.</span>')));
+            statusEl.innerHTML = enc.matchesCount > 0
+              ? '<span class="text-accent font-semibold">Found ' + enc.matchesCount + ' matching item(s) across ' + enc.matchedUnits + ' pallet location(s).</span>'
+              : '<span class="text-warning">No items found matching "' + q + '" in Enclosure pallets.</span>';
           }
-          if (matchBadge) {
-            matchBadge.textContent = '⚡ ' + enclosureMatchesCount + ' match' + (enclosureMatchesCount === 1 ? '' : 'es');
+          if (matchBadge) matchBadge.textContent = '⚡ ' + enc.matchesCount + ' match' + (enc.matchesCount === 1 ? '' : 'es');
+
+          if (msStatusEl) {
+            msStatusEl.innerHTML = ms.matchesCount > 0
+              ? '<span class="text-accent font-semibold">Found ' + ms.matchesCount + ' matching item(s) across ' + ms.matchedUnits + ' main storage unit(s).</span>'
+              : '<span class="text-warning">No items found matching "' + q + '" in Main Storage (SREF 1/2, GD 1/2, CAB 1/2).</span>';
           }
+          if (msMatchBadge) msMatchBadge.textContent = '⚡ ' + ms.matchesCount + ' match' + (ms.matchesCount === 1 ? '' : 'es');
+
+          if (f2StatusEl) {
+            f2StatusEl.innerHTML = f2.matchesCount > 0
+              ? '<span class="text-accent font-semibold">Found ' + f2.matchesCount + ' matching item(s) across ' + f2.matchedUnits + ' 2nd floor storage unit(s).</span>'
+              : '<span class="text-warning">No items found matching "' + q + '" in 2nd Floor storage (2F1–2F10).</span>';
+          }
+          if (f2MatchBadge) f2MatchBadge.textContent = '⚡ ' + f2.matchesCount + ' match' + (f2.matchesCount === 1 ? '' : 'es');
+
+          if (f7StatusEl) {
+            f7StatusEl.innerHTML = f7.matchesCount > 0
+              ? '<span class="text-accent font-semibold">Found ' + f7.matchesCount + ' matching item(s) across ' + f7.matchedUnits + ' 7th floor storage unit(s).</span>'
+              : '<span class="text-warning">No items found matching "' + q + '" in 7th Floor storage (7F1–7F10).</span>';
+          }
+          if (f7MatchBadge) f7MatchBadge.textContent = '⚡ ' + f7.matchesCount + ' match' + (f7.matchesCount === 1 ? '' : 'es');
 
           if (refStatusEl) {
-            refStatusEl.innerHTML = refMatchesCount > 0
-              ? '<span class="text-accent font-semibold">Found ' + refMatchesCount + ' matching item(s) across ' + refMatchedUnits + ' cold storage unit(s).</span>'
-              : (enclosureMatchesCount > 0
-                  ? '<span class="text-accent font-semibold">📦 0 in Cold Storage, but found ' + enclosureMatchesCount + ' in Enclosure. <a href="javascript:void(0)" onclick="switchLocatorTab(\'enclosure\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Enclosure ➔</a></span>'
-                  : (hwMatchesCount > 0
-                      ? '<span class="text-accent font-semibold">🌿 0 in Cold Storage, but found ' + hwMatchesCount + ' in Hallway Storage (HW1 & HW2). <a href="javascript:void(0)" onclick="switchLocatorTab(\'hallway\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Hallway ➔</a></span>'
-                      : (ivfMatchesCount > 0
-                          ? '<span class="text-accent font-semibold">💧 0 in Cold Storage, but found ' + ivfMatchesCount + ' in IVF Storage (GT1 & GT2). <a href="javascript:void(0)" onclick="switchLocatorTab(\'ivf\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to IVF ➔</a></span>'
-                          : '<span class="text-warning">No items found matching "' + q + '" in cold storage (REF1–REF8).</span>')));
+            refStatusEl.innerHTML = ref.matchesCount > 0
+              ? '<span class="text-accent font-semibold">Found ' + ref.matchesCount + ' matching item(s) across ' + ref.matchedUnits + ' cold storage unit(s).</span>'
+              : '<span class="text-warning">No items found matching "' + q + '" in cold storage (REF1–REF8).</span>';
           }
-          if (refMatchBadge) {
-            refMatchBadge.textContent = '⚡ ' + refMatchesCount + ' match' + (refMatchBadge === 1 ? '' : 'es');
-          }
+          if (refMatchBadge) refMatchBadge.textContent = '⚡ ' + ref.matchesCount + ' match' + (ref.matchesCount === 1 ? '' : 'es');
 
           if (hwStatusEl) {
-            hwStatusEl.innerHTML = hwMatchesCount > 0
-              ? '<span class="text-accent font-semibold">Found ' + hwMatchesCount + ' matching item(s) across ' + hwMatchedUnits + ' hallway storage unit(s).</span>'
-              : (enclosureMatchesCount > 0
-                  ? '<span class="text-accent font-semibold">📦 0 in Hallway, but found ' + enclosureMatchesCount + ' in Enclosure. <a href="javascript:void(0)" onclick="switchLocatorTab(\'enclosure\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Enclosure ➔</a></span>'
-                  : (refMatchesCount > 0
-                      ? '<span class="text-accent font-semibold">❄️ 0 in Hallway, but found ' + refMatchesCount + ' in Cold Storage (Ref Items). <a href="javascript:void(0)" onclick="switchLocatorTab(\'ref-items\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Ref Items ➔</a></span>'
-                      : (ivfMatchesCount > 0
-                          ? '<span class="text-accent font-semibold">💧 0 in Hallway, but found ' + ivfMatchesCount + ' in IVF Storage (GT1 & GT2). <a href="javascript:void(0)" onclick="switchLocatorTab(\'ivf\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to IVF ➔</a></span>'
-                          : '<span class="text-warning">No items found matching "' + q + '" in hallway storage (HW1 & HW2).</span>')));
+            hwStatusEl.innerHTML = hw.matchesCount > 0
+              ? '<span class="text-accent font-semibold">Found ' + hw.matchesCount + ' matching item(s) across ' + hw.matchedUnits + ' hallway storage unit(s).</span>'
+              : '<span class="text-warning">No items found matching "' + q + '" in hallway storage (HW1 & HW2).</span>';
           }
-          if (hwMatchBadge) {
-            hwMatchBadge.textContent = '⚡ ' + hwMatchesCount + ' match' + (hwMatchBadge === 1 ? '' : 'es');
-          }
+          if (hwMatchBadge) hwMatchBadge.textContent = '⚡ ' + hw.matchesCount + ' match' + (hw.matchesCount === 1 ? '' : 'es');
 
           if (ivfStatusEl) {
-            ivfStatusEl.innerHTML = ivfMatchesCount > 0
-              ? '<span class="text-accent font-semibold">Found ' + ivfMatchesCount + ' matching item(s) across ' + ivfMatchedUnits + ' IVF storage unit(s).</span>'
-              : (enclosureMatchesCount > 0
-                  ? '<span class="text-accent font-semibold">📦 0 in IVF, but found ' + enclosureMatchesCount + ' in Enclosure. <a href="javascript:void(0)" onclick="switchLocatorTab(\'enclosure\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Enclosure ➔</a></span>'
-                  : (refMatchesCount > 0
-                      ? '<span class="text-accent font-semibold">❄️ 0 in IVF, but found ' + refMatchesCount + ' in Cold Storage (Ref Items). <a href="javascript:void(0)" onclick="switchLocatorTab(\'ref-items\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Ref Items ➔</a></span>'
-                      : (hwMatchesCount > 0
-                          ? '<span class="text-accent font-semibold">🌿 0 in IVF, but found ' + hwMatchesCount + ' in Hallway Storage (HW1 & HW2). <a href="javascript:void(0)" onclick="switchLocatorTab(\'hallway\')" style="color:var(--accent); text-decoration:underline; font-weight:700;">Shift to Hallway ➔</a></span>'
-                          : '<span class="text-warning">No items found matching "' + q + '" in IVF storage (GT1 & GT2).</span>')));
+            ivfStatusEl.innerHTML = ivf.matchesCount > 0
+              ? '<span class="text-accent font-semibold">Found ' + ivf.matchesCount + ' matching item(s) across ' + ivf.matchedUnits + ' IVF storage unit(s).</span>'
+              : '<span class="text-warning">No items found matching "' + q + '" in IVF storage (GT1 & GT2).</span>';
           }
-          if (ivfMatchBadge) {
-            ivfMatchBadge.textContent = '⚡ ' + ivfMatchesCount + ' match' + (ivfMatchesCount === 1 ? '' : 'es');
-          }
+          if (ivfMatchBadge) ivfMatchBadge.textContent = '⚡ ' + ivf.matchesCount + ' match' + (ivf.matchesCount === 1 ? '' : 'es');
 
           // Dynamic Tab Header Badges
-          const encTab = document.querySelector('.folder-tab[data-tab="enclosure"]');
-          if (encTab) {
-            let tagEl = encTab.querySelector('.tab-tag-match');
-            if (q && enclosureMatchesCount > 0) {
+          const updateTabTag = (selector, count) => {
+            const tabEl = document.querySelector(selector);
+            if (!tabEl) return;
+            let tagEl = tabEl.querySelector('.tab-tag-match');
+            if (q && count > 0) {
               if (!tagEl) {
                 tagEl = document.createElement('span');
                 tagEl.className = 'tab-tag tab-tag-match';
-                encTab.appendChild(tagEl);
+                tabEl.appendChild(tagEl);
               }
               tagEl.style.cssText = 'background:var(--accent-glow); color:var(--accent); border:1px solid rgba(6,182,212,0.3); font-size:10px; margin-left:4px;';
-              tagEl.textContent = enclosureMatchesCount + ' ⚡';
+              tagEl.textContent = count + ' ⚡';
             } else if (tagEl) {
               tagEl.remove();
             }
-          }
+          };
 
-          const refTab = document.querySelector('.folder-tab[data-tab="ref-items"]');
-          if (refTab) {
-            let tagEl = refTab.querySelector('.tab-tag-match');
-            if (q && refMatchesCount > 0) {
-              if (!tagEl) {
-                tagEl = document.createElement('span');
-                tagEl.className = 'tab-tag tab-tag-match';
-                refTab.appendChild(tagEl);
-              }
-              tagEl.style.cssText = 'background:var(--accent-glow); color:var(--accent); border:1px solid rgba(6,182,212,0.3); font-size:10px; margin-left:4px;';
-              tagEl.textContent = refMatchesCount + ' ⚡';
-            } else if (tagEl) {
-              tagEl.remove();
-            }
-          }
-
-          const hwTab = document.querySelector('.folder-tab[data-tab="hallway"]');
-          if (hwTab) {
-            let tagEl = hwTab.querySelector('.tab-tag-match');
-            if (q && hwMatchesCount > 0) {
-              if (!tagEl) {
-                tagEl = document.createElement('span');
-                tagEl.className = 'tab-tag tab-tag-match';
-                hwTab.appendChild(tagEl);
-              }
-              tagEl.style.cssText = 'background:var(--accent-glow); color:var(--accent); border:1px solid rgba(6,182,212,0.3); font-size:10px; margin-left:4px;';
-              tagEl.textContent = hwMatchesCount + ' ⚡';
-            } else if (tagEl) {
-              tagEl.remove();
-            }
-          }
-
-          const ivfTab = document.querySelector('.folder-tab[data-tab="ivf"]');
-          if (ivfTab) {
-            let tagEl = ivfTab.querySelector('.tab-tag-match');
-            if (q && ivfMatchesCount > 0) {
-              if (!tagEl) {
-                tagEl = document.createElement('span');
-                tagEl.className = 'tab-tag tab-tag-match';
-                ivfTab.appendChild(tagEl);
-              }
-              tagEl.style.cssText = 'background:var(--accent-glow); color:var(--accent); border:1px solid rgba(6,182,212,0.3); font-size:10px; margin-left:4px;';
-              tagEl.textContent = ivfMatchesCount + ' ⚡';
-            } else if (tagEl) {
-              tagEl.remove();
-            }
-          }
+          updateTabTag('.folder-tab[data-tab="enclosure"]', enc.matchesCount);
+          updateTabTag('.folder-tab[data-tab="main-storage"]', ms.matchesCount);
+          updateTabTag('.folder-tab[data-tab="2nd-floor"]', f2.matchesCount);
+          updateTabTag('.folder-tab[data-tab="7th-floor"]', f7.matchesCount);
+          updateTabTag('.folder-tab[data-tab="ref-items"]', ref.matchesCount);
+          updateTabTag('.folder-tab[data-tab="hallway"]', hw.matchesCount);
+          updateTabTag('.folder-tab[data-tab="ivf"]', ivf.matchesCount);
         }
 
         function locationBadge(itemCode) {
@@ -4833,14 +5045,61 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const locs = window.LOCATOR_MAP[codeKey] || [];
           if (locs.length > 0) {
             return locs.map(loc => {
-              const isRef = loc.startsWith('REF');
+              const isSREF = loc.startsWith('SREF');
+              const isGD = loc.startsWith('GD');
+              const isCAB = loc.startsWith('CAB');
+              const isMS = isSREF || isGD || isCAB || loc.startsWith('MS') || loc.startsWith('STOR');
+              const is2F = loc.startsWith('2F');
+              const is7F = loc.startsWith('7F');
+              const isRef = loc.startsWith('REF') && !isSREF;
               const isHW = loc.startsWith('HW');
               const isIVF = loc.startsWith('GT');
-              const targetTab = isIVF ? 'ivf' : (isHW ? 'hallway' : (isRef ? 'ref-items' : 'enclosure'));
-              const targetInput = isIVF ? 'ivf-locator-search-input' : (isHW ? 'hw-locator-search-input' : (isRef ? 'ref-locator-search-input' : 'locator-search-input'));
-              const icon = isIVF ? '💧 ' : (isRef ? '❄️ ' : (isHW ? '🌿 ' : '📍 '));
-              const titlePrefix = isIVF ? 'IVF Unit ' : (isRef ? 'Cold Storage Unit ' : (isHW ? 'Hallway Unit ' : 'Pallet '));
-              return '<span class="badge badge-accent" style="cursor:pointer; margin:2px 2px; display:inline-block;" onclick="showSection(\'locator\'); switchLocatorTab(\'' + targetTab + '\', document.querySelector(\'.folder-tab[data-tab=\\\'' + targetTab + '\\\']\')); const inp=document.getElementById(\'' + targetInput + '\'); if(inp){ inp.value=\'' + codeKey + '\'; filterLocator(\'' + codeKey + '\'); }" title="Click to locate ' + codeKey + ' in ' + titlePrefix + loc + '">' + icon + loc + '</span>';
+
+              let targetCategory = 'warehouse';
+              let targetTab = 'enclosure';
+              let icon = '📍 ';
+              let titlePrefix = 'Warehouse Pallet ';
+              let inputId = 'locator-search-input';
+
+              if (isMS) {
+                targetCategory = 'storage';
+                targetTab = 'main-storage';
+                icon = isSREF ? '❄️ ' : (isGD ? '🚪 ' : (isCAB ? '🗄️ ' : '🏢 '));
+                titlePrefix = isSREF ? 'Storage Ref ' : (isGD ? 'Glass Door Rack ' : (isCAB ? 'Storage Cabinet ' : 'Main Storage Unit '));
+                inputId = 'main-storage-locator-search-input';
+              } else if (is2F) {
+                targetCategory = 'storage';
+                targetTab = '2nd-floor';
+                icon = '🏢 ';
+                titlePrefix = '2nd Floor Unit ';
+                inputId = '2nd-floor-locator-search-input';
+              } else if (is7F) {
+                targetCategory = 'storage';
+                targetTab = '7th-floor';
+                icon = '🏢 ';
+                titlePrefix = '7th Floor Unit ';
+                inputId = '7th-floor-locator-search-input';
+              } else if (isRef) {
+                targetCategory = 'warehouse';
+                targetTab = 'ref-items';
+                icon = '❄️ ';
+                titlePrefix = 'Cold Storage Unit ';
+                inputId = 'ref-locator-search-input';
+              } else if (isHW) {
+                targetCategory = 'warehouse';
+                targetTab = 'hallway';
+                icon = '🌿 ';
+                titlePrefix = 'Hallway Unit ';
+                inputId = 'hw-locator-search-input';
+              } else if (isIVF) {
+                targetCategory = 'warehouse';
+                targetTab = 'ivf';
+                icon = '💧 ';
+                titlePrefix = 'IVF Unit ';
+                inputId = 'ivf-locator-search-input';
+              }
+
+              return '<span class="badge badge-accent" style="cursor:pointer; margin:2px 2px; display:inline-block;" onclick="showSection(\'locator\'); switchLocatorCategory(\'' + targetCategory + '\'); switchLocatorTab(\'' + targetTab + '\'); const inp=document.getElementById(\'' + inputId + '\'); if(inp){ inp.value=\'' + codeKey + '\'; filterLocator(\'' + codeKey + '\'); }" title="Click to locate ' + codeKey + ' in ' + titlePrefix + loc + '">' + icon + loc + '</span>';
             }).join('');
           }
           return '<span class="text-xs text-muted">—</span>';
@@ -4853,9 +5112,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         function openPalletModal(pId) {
           currentPalletModalId = pId;
           const targetLoc = pId.toUpperCase().trim();
-          const isRef = targetLoc.startsWith('REF');
+          const isSREF = targetLoc.startsWith('SREF');
+          const isGD = targetLoc.startsWith('GD');
+          const isCAB = targetLoc.startsWith('CAB');
+          const isMS = isSREF || isGD || isCAB || targetLoc.startsWith('MS') || targetLoc.startsWith('STOR');
+          const is2F = targetLoc.startsWith('2F');
+          const is7F = targetLoc.startsWith('7F');
+          const isRef = targetLoc.startsWith('REF') && !isSREF;
           const isHW = targetLoc.startsWith('HW');
           const isIVF = targetLoc.startsWith('GT');
+
           currentPalletItems = (allLocatorItems || window.LOCATOR_DATA || []).filter(it => {
             const locs = getLocationsForItem(it);
             return locs.includes(targetLoc);
@@ -4864,19 +5130,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           const titleEl = document.getElementById('pallet-modal-title');
           if (titleEl) {
-            const prefix = isIVF ? 'IVF Storage Unit ' : (isHW ? 'Hallway Storage Unit ' : (isRef ? 'Cold Storage Unit ' : 'Pallet '));
+            const prefix = isSREF ? 'Storage Refrigerator ' : (isGD ? 'Glass Door Gondola Rack ' : (isCAB ? 'Main Storage Cabinet ' : (isMS ? 'Main Storage Unit ' : (is2F ? '2nd Floor Unit ' : (is7F ? '7th Floor Unit ' : (isIVF ? 'IVF Storage Unit ' : (isHW ? 'Hallway Storage Unit ' : (isRef ? 'Cold Storage Unit ' : 'Warehouse Pallet '))))))));
             titleEl.innerHTML = prefix + pId + ' <span class="badge badge-accent" style="font-size:11px; padding:3px 10px;">' + currentPalletItems.length.toLocaleString() + ' Items Stored</span>';
           }
 
           const subEl = document.getElementById('pallet-modal-sub');
           if (subEl) {
-            const desc = isIVF
-              ? 'All inventory items assigned to IVF Storage Unit ' + pId + ' on the floor plan.'
-              : (isHW
-                  ? 'All inventory items assigned to Hallway Storage Unit ' + pId + ' on the floor plan.'
-                  : (isRef 
-                      ? 'All refrigerated inventory items assigned to Cold Storage Unit ' + pId + ' on the floor plan.'
-                      : 'All inventory items assigned to Pallet ' + pId + ' on the warehouse floor plan.'));
+            const desc = isSREF ? 'All items assigned to Storage Refrigerator ' + pId + '.' : (isGD ? 'All items assigned to Glass Door Gondola Rack ' + pId + '.' : (isCAB ? 'All items assigned to Main Storage Cabinet ' + pId + '.' : (isMS ? 'All items assigned to Main Storage Unit ' + pId + '.' : (is2F ? 'All inventory items assigned to 2nd Floor Storage Unit ' + pId + '.' : (is7F ? 'All inventory items assigned to 7th Floor Storage Unit ' + pId + '.' : (isIVF ? 'All inventory items assigned to IVF Storage Unit ' + pId + '.' : (isHW ? 'All inventory items assigned to Hallway Storage Unit ' + pId + '.' : (isRef ? 'All refrigerated inventory items assigned to Cold Storage Unit ' + pId + '.' : 'All inventory items assigned to Warehouse Pallet ' + pId + '.'))))))));
             subEl.textContent = desc;
           }
 
@@ -5137,8 +5397,66 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
+        let currentLocatorCategory = 'warehouse';
+        let activeWarehouseTab = 'enclosure';
+        let activeStorageTab = 'main-storage';
+
+        function switchLocatorCategory(catName) {
+          currentLocatorCategory = catName;
+          const btnWh = document.getElementById('btn-cat-warehouse');
+          const btnSt = document.getElementById('btn-cat-storage');
+          const whBar = document.getElementById('warehouse-folder-bar');
+          const stBar = document.getElementById('storage-folder-bar');
+
+          if (catName === 'warehouse') {
+            if (btnWh) btnWh.classList.add('active');
+            if (btnSt) btnSt.classList.remove('active');
+            if (whBar) whBar.style.display = 'flex';
+            if (stBar) stBar.style.display = 'none';
+            switchLocatorTab(activeWarehouseTab);
+          } else {
+            if (btnSt) btnSt.classList.add('active');
+            if (btnWh) btnWh.classList.remove('active');
+            if (stBar) stBar.style.display = 'flex';
+            if (whBar) whBar.style.display = 'none';
+            switchLocatorTab(activeStorageTab);
+          }
+        }
+
         function switchLocatorTab(tabName, btn) {
-          const targetBtn = btn || document.querySelector('.folder-tab-bar .folder-tab[data-tab="' + tabName + '"]');
+          const isWarehouseTab = ['enclosure', 'hallway', 'ivf', 'ref-items'].includes(tabName);
+          const isStorageTab = ['main-storage', '2nd-floor', '7th-floor'].includes(tabName);
+
+          if (isWarehouseTab) {
+            activeWarehouseTab = tabName;
+            if (currentLocatorCategory !== 'warehouse') {
+              currentLocatorCategory = 'warehouse';
+              const btnWh = document.getElementById('btn-cat-warehouse');
+              const btnSt = document.getElementById('btn-cat-storage');
+              const whBar = document.getElementById('warehouse-folder-bar');
+              const stBar = document.getElementById('storage-folder-bar');
+              if (btnWh) btnWh.classList.add('active');
+              if (btnSt) btnSt.classList.remove('active');
+              if (whBar) whBar.style.display = 'flex';
+              if (stBar) stBar.style.display = 'none';
+            }
+          } else if (isStorageTab) {
+            activeStorageTab = tabName;
+            if (currentLocatorCategory !== 'storage') {
+              currentLocatorCategory = 'storage';
+              const btnWh = document.getElementById('btn-cat-warehouse');
+              const btnSt = document.getElementById('btn-cat-storage');
+              const whBar = document.getElementById('warehouse-folder-bar');
+              const stBar = document.getElementById('storage-folder-bar');
+              if (btnSt) btnSt.classList.add('active');
+              if (btnWh) btnWh.classList.remove('active');
+              if (stBar) stBar.style.display = 'flex';
+              if (whBar) whBar.style.display = 'none';
+            }
+          }
+
+          const targetBar = isWarehouseTab ? document.getElementById('warehouse-folder-bar') : document.getElementById('storage-folder-bar');
+          const targetBtn = btn || (targetBar ? targetBar.querySelector('.folder-tab[data-tab="' + tabName + '"]') : null);
           document.querySelectorAll('.folder-tab-bar .folder-tab').forEach(b => b.classList.remove('active'));
           if (targetBtn) targetBtn.classList.add('active');
 
@@ -5148,8 +5466,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           const topbarTitle = document.getElementById('topbar-title');
           if (topbarTitle) {
-            const labels = { enclosure: 'Locator — Enclosure', hallway: 'Locator — Hallway', ivf: 'Locator — IVF', 'ref-items': 'Locator — Ref Items' };
-            topbarTitle.textContent = labels[tabName] || 'Locator';
+            const labels = {
+              enclosure: 'Locator — Warehouse (Enclosure)',
+              hallway: 'Locator — Warehouse (Hallway)',
+              ivf: 'Locator — Warehouse (IVF)',
+              'ref-items': 'Locator — Warehouse (Ref Items)',
+              'main-storage': 'Locator — Storage (Main Storage)',
+              '2nd-floor': 'Locator — Storage (2nd Floor)',
+              '7th-floor': 'Locator — Storage (7th Floor)'
+            };
+            topbarTitle.textContent = labels[tabName] || (currentLocatorCategory === 'storage' ? 'Locator — Storage' : 'Locator — Warehouse');
           }
         }
 
@@ -5159,7 +5485,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const targetSec = document.getElementById('sec-' + id);
           if (targetSec) targetSec.classList.add('active');
           if (el) el.classList.add('active');
-          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', locator: 'Locator — Enclosure', analytics: 'Analytics', setup: 'Setup & Config' };
+          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', locator: (currentLocatorCategory === 'storage' ? 'Locator — Storage' : 'Locator — Warehouse'), analytics: 'Analytics', setup: 'Setup & Config' };
           const titleEl = document.getElementById('topbar-title');
           if (titleEl) titleEl.textContent = titles[id] || id;
           const searchBox = document.getElementById('global-search-box');
@@ -5168,7 +5494,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           if (id === 'reorder') filterReorder();
           if (id === 'locator') {
             if (allLocatorItems.length === 0) loadLocatorData();
-            const input = document.getElementById('locator-search-input');
+            const input = document.getElementById('locator-search-input') || document.getElementById('main-storage-locator-search-input');
             if (input) filterLocator(input.value);
           }
 
