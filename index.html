@@ -16,6 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="locator_data.js"></script>
   <style>
     /* ===== CSS RESET & TOKENS ===== */
     *,
@@ -2709,9 +2710,9 @@
                     <div class="nav-section-label" style="padding:0; margin-bottom:6px; color:var(--text-muted);">SEARCH MAIN STORAGE INVENTORY</div>
                     <div class="locator-search-wrap">
                       <span class="search-icon">🔍</span>
-                      <input type="text" id="main-storage-locator-search-input" class="locator-search-input" placeholder="Type item name to locate in main storage... (e.g. SREF1, GD1, CAB1, Paracetamol)" oninput="filterLocator(this.value)" />
+                      <input type="text" id="main-storage-locator-search-input" class="locator-search-input" placeholder="Type item name to locate in main storage... (e.g. SREF1, GD1, CAB1, CAB3, Paracetamol)" oninput="filterLocator(this.value)" />
                     </div>
-                    <p class="text-xs text-muted" style="margin-top:8px;" id="main-storage-locator-search-status">Ready — type an item name to locate it in Main Storage (SREF 1/2, GD 1/2, CAB 1/2).</p>
+                    <p class="text-xs text-muted" style="margin-top:8px;" id="main-storage-locator-search-status">Ready — type an item name to locate it in Main Storage (SREF 1/2, GD 1/2, CAB 1/2/3).</p>
                   </div>
 
                   <div class="table-card" style="padding:22px; background:var(--bg-card);">
@@ -2735,18 +2736,21 @@
                           <span>AISLE</span>
                         </div>
 
-                        <!-- CENTER SECTION: CAB 1 & CAB 2 in Row 2 (Middle, same size as GD 1) -->
+                        <!-- CENTER SECTION TOP: CAB 1 & CAB 2 in Row 2 (Middle) -->
                         <div class="ms-col-center-row2" style="grid-column: 3; grid-row: 2;">
                           <div class="ms-card-slot ms-slot-tall" id="ms-slot-CAB1"></div>
                           <div class="ms-card-slot ms-slot-tall" id="ms-slot-CAB2"></div>
                         </div>
+
+                        <!-- CENTER SECTION BOTTOM: CAB 3 in Row 3 (Under CAB 1 & CAB 2) -->
+                        <div class="ms-card-slot" style="grid-column: 3; grid-row: 3;" id="ms-slot-CAB3"></div>
 
                         <!-- AISLE 2 (Spans Rows 1 to 3) -->
                         <div class="ms-aisle-v" style="grid-column: 4; grid-row: 1 / span 3;">
                           <span>AISLE</span>
                         </div>
 
-                        <!-- RIGHT SECTION: GD 2 in Row 2 (Middle, same size as GD 1) -->
+                        <!-- RIGHT SECTION: GD 2 in Row 2 (Middle) -->
                         <div class="ms-card-slot ms-slot-tall" style="grid-column: 5; grid-row: 2;" id="ms-slot-GD2"></div>
                       </div>
 
@@ -3032,7 +3036,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   <th style="width:160px;">Item Code</th>
                   <th style="width:130px;">DCI Code</th>
                   <th>Description</th>
-                  <th style="width:160px;" class="num-cell">Actual Qty (Warehouse)</th>
+                  <th id="pallet-modal-th-qty" style="width:160px;" class="num-cell">Actual Qty</th>
                   <th style="width:120px;" class="text-center">Status</th>
                 </tr>
               </thead>
@@ -3489,16 +3493,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         function loadSampleData() {
           // ---- Embedded sample from actual extracted data ----
           allItems = [
-            { no: '1', item_code: 'DMR1040406000-0003', dci_code: 'DMR000001', description: '0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name: '0.9% Sodium Chloride 1L Bottle/Bag', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle/bag', unit_cost: '80', avg_monthly_consumption: '7377', avg_monthly_normalized_demand: '9426.33', total_inventory_qty: '22026', inventory_value_php: '609413', inventory_level_days: '70.0', date_of_impact: '9/18/2026', pending_po_co_qty: '30000', ending_inventory_qty: '52026', ending_inventory_level_days: '166.0', epa_cy2026_balance: '82000', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '57', storage_replenishment_30d: '0', dispensing_replenishment_7d: '2199.48', annual_qty_2025: '110000', annual_val_2025: '8800000', annual_qty_2026: '120000', annual_val_2026: '9600000' },
+            { no: '1', item_code: 'DMR1040406000-0003', dci_code: 'DMR000001', description: '0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name: '0.9% Sodium Chloride 1L Bottle/Bag', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle/bag', unit_cost: '80', avg_monthly_consumption: '7377', avg_monthly_normalized_demand: '9426.33', total_inventory_qty: '22026', inventory_value_php: '609413', inventory_level_days: '70.0', date_of_impact: '9/18/2026', pending_po_co_qty: '30000', ending_inventory_qty: '52026', ending_inventory_level_days: '166.0', epa_cy2026_balance: '82000', dispensing_inventory_qty: '154', storage_inventory_qty: '13775', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '57', storage_replenishment_30d: '0', dispensing_replenishment_7d: '2199.48', annual_qty_2025: '110000', annual_val_2025: '8800000', annual_qty_2026: '120000', annual_val_2026: '9600000' },
             { no: '2', item_code: 'DMC1040406000-0500', dci_code: 'DMC000001', description: '(C) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name: '(C) 0.9% Sodium Chloride 1L', pharmacy_category: 'Medicine Consigment', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle', unit_cost: '0', avg_monthly_consumption: '0', avg_monthly_normalized_demand: '9426', total_inventory_qty: '0', inventory_value_php: '0', inventory_level_days: '0', date_of_impact: '7/10/2026', pending_po_co_qty: '0', ending_inventory_qty: '0', ending_inventory_level_days: '0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '224', storage_replenishment_30d: '0', dispensing_replenishment_7d: '0', annual_qty_2025: '0', annual_val_2025: '0', annual_qty_2026: '0', annual_val_2026: '0' },
             { no: '3', item_code: 'DMEP1040406000-0003', dci_code: 'DMEP000001', description: '(EP) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name: '(EP) 0.9% Sodium Chloride 1L', pharmacy_category: 'Medicine Emergency Purchase', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle/bag', unit_cost: '0', avg_monthly_consumption: '0', avg_monthly_normalized_demand: '9426', total_inventory_qty: '0', inventory_value_php: '0', inventory_level_days: '0', date_of_impact: '7/10/2026', pending_po_co_qty: '0', ending_inventory_qty: '0', ending_inventory_level_days: '0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '342', storage_replenishment_30d: '0', dispensing_replenishment_7d: '0', annual_qty_2025: '0', annual_val_2025: '0', annual_qty_2026: '0', annual_val_2026: '0' },
-            { no: '4', item_code: 'DMDON1040406000-0154', dci_code: 'DMDON000001', description: '(DON) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name: '(DON) 0.9% Sodium Chloride 1L', pharmacy_category: 'Donation', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Capsule', unit_cost: '25', avg_monthly_consumption: '0', avg_monthly_normalized_demand: '9426', total_inventory_qty: '8', inventory_value_php: '258', inventory_level_days: '0', date_of_impact: '7/10/2026', pending_po_co_qty: '0', ending_inventory_qty: '8', ending_inventory_level_days: '0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '12', storage_replenishment_30d: '0', dispensing_replenishment_7d: '0', annual_qty_2025: '10', annual_val_2025: '250', annual_qty_2026: '12', annual_val_2026: '300' },
+            { no: '4', item_code: 'DMDON1040406000-0154', dci_code: 'DMDON000001', description: '(DON) 0.9% SODIUM CHLORIDE 1L BOTTLE/BAG (IV INFUSION) (PNSS 1L)', generic_name: '(DON) 0.9% Sodium Chloride 1L', pharmacy_category: 'Donation', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Capsule', unit_cost: '25', avg_monthly_consumption: '0', avg_monthly_normalized_demand: '9426', total_inventory_qty: '8', inventory_value_php: '258', inventory_level_days: '0', date_of_impact: '7/10/2026', pending_po_co_qty: '0', ending_inventory_qty: '8', ending_inventory_level_days: '0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '8', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '12', storage_replenishment_30d: '0', dispensing_replenishment_7d: '0', annual_qty_2025: '10', annual_val_2025: '250', annual_qty_2026: '12', annual_val_2026: '300' },
             { no: '5', item_code: 'DMEP1040406000-0645', dci_code: 'DMEP000002', description: '(EP) 0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name: '(EP) 0.9% Sodium Chloride 500ml', pharmacy_category: 'Medicine Emergency Purchase', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle', unit_cost: '0', avg_monthly_consumption: '0', avg_monthly_normalized_demand: '2233', total_inventory_qty: '0', inventory_value_php: '0', inventory_level_days: '0', date_of_impact: '7/10/2026', pending_po_co_qty: '0', ending_inventory_qty: '0', ending_inventory_level_days: '0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '45', storage_replenishment_30d: '0', dispensing_replenishment_7d: '0', annual_qty_2025: '0', annual_val_2025: '0', annual_qty_2026: '0', annual_val_2026: '0' },
-            { no: '6', item_code: 'DMR1040406000-0591', dci_code: 'DMR000002', description: '0.9% SODIUM CHLORIDE 500ML GLASS BOTTLE (IV INFUSION) (PNSS 500ML)', generic_name: '0.9% Sodium Chloride 500ml', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle', unit_cost: '50', avg_monthly_consumption: '1361', avg_monthly_normalized_demand: '2233', total_inventory_qty: '4592', inventory_value_php: '544152', inventory_level_days: '62.0', date_of_impact: '9/9/2026', pending_po_co_qty: '0', ending_inventory_qty: '4592', ending_inventory_level_days: '62.0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '3', storage_replenishment_30d: '0', dispensing_replenishment_7d: '520.96', annual_qty_2025: '25000', annual_val_2025: '1250000', annual_qty_2026: '26000', annual_val_2026: '1300000' },
-            { no: '7', item_code: 'DMR1040406000-0499', dci_code: 'DMR001155', description: '0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name: '0.9% Sodium Chloride 500ml', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle', unit_cost: '40', avg_monthly_consumption: '1314', avg_monthly_normalized_demand: '2233', total_inventory_qty: '1880', inventory_value_php: '46969', inventory_level_days: '25.0', date_of_impact: '8/4/2026', pending_po_co_qty: '5000', ending_inventory_qty: '6880', ending_inventory_level_days: '92.0', epa_cy2026_balance: '2600', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '8', storage_replenishment_30d: '0', dispensing_replenishment_7d: '490', annual_qty_2025: '22000', annual_val_2025: '880000', annual_qty_2026: '23000', annual_val_2026: '920000' },
+            { no: '6', item_code: 'DMR1040406000-0591', dci_code: 'DMR000002', description: '0.9% SODIUM CHLORIDE 500ML GLASS BOTTLE (IV INFUSION) (PNSS 500ML)', generic_name: '0.9% Sodium Chloride 500ml', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle', unit_cost: '50', avg_monthly_consumption: '1361', avg_monthly_normalized_demand: '2233', total_inventory_qty: '4592', inventory_value_php: '544152', inventory_level_days: '62.0', date_of_impact: '9/9/2026', pending_po_co_qty: '0', ending_inventory_qty: '4592', ending_inventory_level_days: '62.0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '1917', warehouse_inventory_qty: '2000', consignment_inventory_qty: '0', rank: '3', storage_replenishment_30d: '0', dispensing_replenishment_7d: '520.96', annual_qty_2025: '25000', annual_val_2025: '1250000', annual_qty_2026: '26000', annual_val_2026: '1300000' },
+            { no: '7', item_code: 'DMR1040406000-0499', dci_code: 'DMR001155', description: '0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name: '0.9% Sodium Chloride 500ml', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle', unit_cost: '40', avg_monthly_consumption: '1314', avg_monthly_normalized_demand: '2233', total_inventory_qty: '1880', inventory_value_php: '46969', inventory_level_days: '25.0', date_of_impact: '8/4/2026', pending_po_co_qty: '5000', ending_inventory_qty: '6880', ending_inventory_level_days: '92.0', epa_cy2026_balance: '2600', dispensing_inventory_qty: '77', storage_inventory_qty: '119', warehouse_inventory_qty: '2400', consignment_inventory_qty: '0', rank: '8', storage_replenishment_30d: '0', dispensing_replenishment_7d: '490', annual_qty_2025: '22000', annual_val_2025: '880000', annual_qty_2026: '23000', annual_val_2026: '920000' },
             { no: '8', item_code: 'DMDON10406000-0144', dci_code: 'DMDON000002', description: '(DON) 0.9% SODIUM CHLORIDE 500ML BOTTLE/BAG (IV INFUSION) (PNSS 500ML)', generic_name: '(DON) 0.9% Sodium Chloride 500ml', pharmacy_category: 'Donation', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Tablet', unit_cost: '0', avg_monthly_consumption: '0', avg_monthly_normalized_demand: '2233', total_inventory_qty: '0', inventory_value_php: '0', inventory_level_days: '0', date_of_impact: '7/10/2026', pending_po_co_qty: '0', ending_inventory_qty: '0', ending_inventory_level_days: '0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '18', storage_replenishment_30d: '0', dispensing_replenishment_7d: '0', annual_qty_2025: '0', annual_val_2025: '0', annual_qty_2026: '0', annual_val_2026: '0' },
             { no: '9', item_code: 'DMDON1040406000-407', dci_code: 'DMDON01137', description: '(DON) 0.9% SODIUM CHLORIDE 50ML BOTTLE/BAG (IV INFUSION) (PNSS 50ML)', generic_name: '(DON) 0.9% Sodium Chloride 50ml', pharmacy_category: 'Donation', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Tablet', unit_cost: '1', avg_monthly_consumption: '1', avg_monthly_normalized_demand: '2233', total_inventory_qty: '1', inventory_value_php: '0.01', inventory_level_days: '0', date_of_impact: '7/10/2026', pending_po_co_qty: '0', ending_inventory_qty: '1', ending_inventory_level_days: '0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '7', storage_replenishment_30d: '0', dispensing_replenishment_7d: '0', annual_qty_2025: '10', annual_val_2025: '10', annual_qty_2026: '12', annual_val_2026: '12' },
-            { no: '10', item_code: 'DMR1040406000-0527', dci_code: 'DMR000003', description: '0.9% SODIUM CHLORIDE 50ML BOTTLE/BAG (IV INFUSION) (PNSS 50ML)', generic_name: '0.9% Sodium Chloride 50ml', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle/bag', unit_cost: '30', avg_monthly_consumption: '11', avg_monthly_normalized_demand: '990', total_inventory_qty: '76', inventory_value_php: '3079.90', inventory_level_days: '2.0', date_of_impact: '7/12/2026', pending_po_co_qty: '0', ending_inventory_qty: '76', ending_inventory_level_days: '2.0', epa_cy2026_balance: '0', dispensing_inventory_qty: '0', storage_inventory_qty: '0', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '14', storage_replenishment_30d: '0', dispensing_replenishment_7d: '231.08', annual_qty_2025: '12000', annual_val_2025: '360000', annual_qty_2026: '14000', annual_val_2026: '420000' },
+            { no: '10', item_code: 'DMR1040406000-0527', dci_code: 'DMR000003', description: '0.9% SODIUM CHLORIDE 50ML BOTTLE/BAG (IV INFUSION) (PNSS 50ML)', generic_name: '0.9% Sodium Chloride 50ml', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'INTRAVENOUS & OTHER STERILE SOLUTIONS', unit_of_measure: 'Bottle/bag', unit_cost: '30', avg_monthly_consumption: '11', avg_monthly_normalized_demand: '990', total_inventory_qty: '76', inventory_value_php: '3079.90', inventory_level_days: '2.0', date_of_impact: '7/12/2026', pending_po_co_qty: '0', ending_inventory_qty: '76', ending_inventory_level_days: '2.0', epa_cy2026_balance: '0', dispensing_inventory_qty: '33', storage_inventory_qty: '37', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '14', storage_replenishment_30d: '0', dispensing_replenishment_7d: '231.08', annual_qty_2025: '12000', annual_val_2025: '360000', annual_qty_2026: '14000', annual_val_2026: '420000' },
             { no: '11', item_code: 'DMR2020304000-0011', dci_code: 'DMR000050', description: 'AMOXICILLIN 500MG CAPSULE', generic_name: 'Amoxicillin 500mg capsule', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'ANTI-INFECTIVES', unit_of_measure: 'Capsule', unit_cost: '3.50', avg_monthly_consumption: '4200', avg_monthly_normalized_demand: '4350', total_inventory_qty: '18000', inventory_value_php: '63000', inventory_level_days: '124.1', date_of_impact: '10/24/2026', pending_po_co_qty: '5000', ending_inventory_qty: '23000', ending_inventory_level_days: '158.6', epa_cy2026_balance: '0', dispensing_inventory_qty: '6000', storage_inventory_qty: '12000', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '12', storage_replenishment_30d: '4200', dispensing_replenishment_7d: '980', annual_qty_2025: '52000', annual_val_2025: '182000', annual_qty_2026: '54000', annual_val_2026: '189000' },
             { no: '12', item_code: 'DMR2020304000-0022', dci_code: 'DMR000051', description: 'AMOXICILLIN 250MG/5ML SYRUP 60ML', generic_name: 'Amoxicillin 250mg/5ml syrup', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'ANTI-INFECTIVES', unit_of_measure: 'Bottle', unit_cost: '28.50', avg_monthly_consumption: '850', avg_monthly_normalized_demand: '900', total_inventory_qty: '1200', inventory_value_php: '34200', inventory_level_days: '40.0', date_of_impact: '8/27/2026', pending_po_co_qty: '0', ending_inventory_qty: '1200', ending_inventory_level_days: '40.0', epa_cy2026_balance: '0', dispensing_inventory_qty: '400', storage_inventory_qty: '800', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '45', storage_replenishment_30d: '850', dispensing_replenishment_7d: '198', annual_qty_2025: '10800', annual_val_2025: '307800', annual_qty_2026: '11000', annual_val_2026: '313500' },
             { no: '13', item_code: 'DMR3030100000-0044', dci_code: 'DMR000120', description: 'PARACETAMOL 500MG TABLET', generic_name: 'Paracetamol 500mg tablet', pharmacy_category: 'Medicine Regular', pharmacologic_category: 'ANALGESICS & ANTIPYRETICS', unit_of_measure: 'Tablet', unit_cost: '1.20', avg_monthly_consumption: '15000', avg_monthly_normalized_demand: '15500', total_inventory_qty: '12000', inventory_value_php: '14400', inventory_level_days: '23.2', date_of_impact: '8/10/2026', pending_po_co_qty: '20000', ending_inventory_qty: '32000', ending_inventory_level_days: '61.9', epa_cy2026_balance: '0', dispensing_inventory_qty: '5000', storage_inventory_qty: '7000', warehouse_inventory_qty: '0', consignment_inventory_qty: '0', rank: '3', storage_replenishment_30d: '15000', dispensing_replenishment_7d: '3500', annual_qty_2025: '186000', annual_val_2025: '223200', annual_qty_2026: '190000', annual_val_2026: '228000' },
@@ -4435,7 +4439,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         let allLocatorItems = [];
         const TOP_PALLETS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
         const BOTTOM_PALLETS = ['L14', 'L13', 'L12', 'L11', 'L10', 'L9', 'L8'];
-        const MAIN_STORAGE_PALLETS = ['SREF1', 'GD1', 'SREF2', 'CAB1', 'CAB2', 'GD2'];
+        const MAIN_STORAGE_PALLETS = ['SREF1', 'GD1', 'SREF2', 'CAB1', 'CAB2', 'CAB3', 'GD2'];
         const SECOND_FLOOR_TOP = ['2F1', '2F2', '2F3', '2F4', '2F5'];
         const SECOND_FLOOR_BOT = ['2F10', '2F9', '2F8', '2F7', '2F6'];
         const SEVENTH_FLOOR_TOP = ['7F1', '7F2', '7F3', '7F4', '7F5'];
@@ -4473,13 +4477,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           if (topRow) topRow.innerHTML = TOP_PALLETS.map(p => createCardHtml(p, p, 'TOP ROW')).join('');
           if (botRow) botRow.innerHTML = BOTTOM_PALLETS.map(p => createCardHtml(p, p, 'BOTTOM ROW')).join('');
 
-          // Main Storage slots (SREF 1, GD 1, SREF 2, CAB 1, CAB 2, GD 2)
+          // Main Storage slots (SREF 1, GD 1, SREF 2, CAB 1, CAB 2, CAB 3, GD 2)
           const msSlots = {
             SREF1: { title: 'SREF 1', sub: 'STORAGE REF (TOP LEFT)' },
             GD1: { title: 'GD 1', sub: 'GLASS DOOR RACK (LEFT)' },
             SREF2: { title: 'SREF 2', sub: 'STORAGE REF (BOTTOM LEFT)' },
             CAB1: { title: 'CAB 1', sub: 'STORAGE CABINET 1' },
             CAB2: { title: 'CAB 2', sub: 'STORAGE CABINET 2' },
+            CAB3: { title: 'CAB 3', sub: 'STORAGE CABINET 3' },
             GD2: { title: 'GD 2', sub: 'GLASS DOOR RACK (RIGHT)' }
           };
           Object.keys(msSlots).forEach(id => {
@@ -4547,7 +4552,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             };
 
             const script = document.createElement('script');
-            script.src = 'https://docs.google.com/spreadsheets/d/1Nyzo7WCS90_t88Pz0wQ35sx4sBN-SSSVFSsLHc9d21w/gviz/tq?tqx=responseHandler=' + callbackName + '&_t=' + Date.now();
+            script.src = 'https://docs.google.com/spreadsheets/d/1Nyzo7WCS90_t88Pz0wQ35sx4sBN-SSSVFSsLHc9d21w/gviz/tq?gid=0&tqx=responseHandler=' + callbackName + '&_t=' + Date.now();
             script.onerror = () => {
               clearTimeout(timeout);
               delete window[callbackName];
@@ -4572,7 +4577,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           let itemsLoaded = [];
           let isLive = false;
 
-          // 1. Try Google Sheets GViz JSONP API
+          // 1. Try Google Sheets GViz JSONP API (Map Sheet: 1Nyzo7WCS90_t88Pz0wQ35sx4sBN-SSSVFSsLHc9d21w gid=0)
           try {
             const gvizItems = await loadLocatorDataFromGViz();
             if (Array.isArray(gvizItems) && gvizItems.length > 0) {
@@ -4880,6 +4885,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const card = document.getElementById('pallet-card-' + pId);
             const body = document.getElementById('pallet-body-' + pId);
             const palletMatches = locMap[pId] || [];
+            const pUpper = String(pId).toUpperCase().trim();
+            const isStoragePallet = pUpper.startsWith('SREF') || pUpper.startsWith('GD') || pUpper.startsWith('CAB') || pUpper.startsWith('MS') || pUpper.startsWith('STOR') || pUpper.startsWith('2F') || pUpper.startsWith('7F') || MAIN_STORAGE_PALLETS.includes(pId) || SECOND_FLOOR_TOP.includes(pId) || SECOND_FLOOR_BOT.includes(pId) || SEVENTH_FLOOR_TOP.includes(pId) || SEVENTH_FLOOR_BOT.includes(pId);
 
             if (palletMatches.length > 0) {
               if (card) card.classList.add('matched');
@@ -4891,9 +4898,19 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   '<div class="pallet-card-item-list">' +
                     displayList.map(function(it) {
                       const master = masterLookup[it.item_code ? it.item_code.trim() : ''];
-                      const rawQty = master && master.warehouse_inventory_qty != null
-                        ? master.warehouse_inventory_qty
-                        : (it.warehouse_inventory_qty != null ? it.warehouse_inventory_qty : (master ? master.total_inventory_qty : (it.qty || 0)));
+                      let rawQty = 0;
+                      let qtyTitle = 'Warehouse Inventory (Col BO)';
+                      if (isStoragePallet) {
+                        qtyTitle = 'Storage Inventory (Col BH)';
+                        rawQty = master && master.storage_inventory_qty != null
+                          ? master.storage_inventory_qty
+                          : (it.storage_inventory_qty != null ? it.storage_inventory_qty : (master ? (master.warehouse_inventory_qty || master.total_inventory_qty) : (it.qty || 0)));
+                      } else {
+                        qtyTitle = 'Warehouse Inventory (Col BO)';
+                        rawQty = master && master.warehouse_inventory_qty != null
+                          ? master.warehouse_inventory_qty
+                          : (it.warehouse_inventory_qty != null ? it.warehouse_inventory_qty : (master ? master.total_inventory_qty : (it.qty || 0)));
+                      }
                       const qtyVal = parseFloat(rawQty) || 0;
                       const formattedQty = fmt(qtyVal);
                       const allLocs = getLocationsForItem(it);
@@ -4904,7 +4921,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                       return '<div class="pallet-item-chip" title="' + (it.description || '').replace(/"/g, '&quot;') + '">' +
                         '<div class="flex items-center justify-between" style="gap:4px;">' +
                           '<div class="pallet-item-code">' + it.item_code + ' ' + (it.dci_code ? '(' + it.dci_code + ')' : '') + '</div>' +
-                          '<div class="pallet-item-qty" title="Warehouse Inventory (Col BO)">Qty: ' + formattedQty + '</div>' +
+                          '<div class="pallet-item-qty" title="' + qtyTitle + '">Qty: ' + formattedQty + '</div>' +
                         '</div>' +
                         '<div class="pallet-item-desc">' + (it.description || '') + '</div>' +
                         multiLocTag +
@@ -5179,10 +5196,27 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         function renderPalletModalTbody(items) {
           const tbody = document.getElementById('pallet-modal-tbody');
           const footerEl = document.getElementById('pallet-modal-footer-count');
-          const isIVF = currentPalletModalId.toUpperCase().trim().startsWith('GT');
-          const isHW = currentPalletModalId.toUpperCase().trim().startsWith('HW');
-          const isRef = currentPalletModalId.toUpperCase().trim().startsWith('REF');
-          const unitPrefix = isIVF ? 'IVF Storage Unit ' : (isHW ? 'Hallway Storage Unit ' : (isRef ? 'Cold Storage Unit ' : 'Pallet '));
+          const thQty = document.getElementById('pallet-modal-th-qty');
+          
+          const locUpper = (currentPalletModalId || '').toUpperCase().trim();
+          const isSREF = locUpper.startsWith('SREF');
+          const isGD = locUpper.startsWith('GD');
+          const isCAB = locUpper.startsWith('CAB');
+          const isMS = isSREF || isGD || isCAB || locUpper.startsWith('MS') || locUpper.startsWith('STOR');
+          const is2F = locUpper.startsWith('2F');
+          const is7F = locUpper.startsWith('7F');
+          const isIVF = locUpper.startsWith('GT');
+          const isHW = locUpper.startsWith('HW');
+          const isRef = locUpper.startsWith('REF') && !isSREF;
+
+          const isStorageUnit = isMS || is2F || is7F || (currentLocatorCategory === 'storage');
+
+          const unitPrefix = isSREF ? 'Storage Refrigerator ' : (isGD ? 'Glass Door Gondola Rack ' : (isCAB ? 'Main Storage Cabinet ' : (isMS ? 'Main Storage Unit ' : (is2F ? '2nd Floor Unit ' : (is7F ? '7th Floor Unit ' : (isIVF ? 'IVF Storage Unit ' : (isHW ? 'Hallway Storage Unit ' : (isRef ? 'Cold Storage Unit ' : 'Pallet '))))))));
+
+          if (thQty) {
+            thQty.textContent = isStorageUnit ? 'Actual Qty (Storage)' : 'Actual Qty (Warehouse)';
+            thQty.title = isStorageUnit ? 'Storage Inventory Volume from Column BH' : 'Warehouse Inventory Volume from Column BO';
+          }
 
           if (footerEl) {
             footerEl.textContent = 'Showing ' + items.length.toLocaleString() + ' of ' + currentPalletItems.length.toLocaleString() + ' items in ' + unitPrefix + currentPalletModalId;
@@ -5190,21 +5224,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           if (!tbody) return;
 
           if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state" style="padding:40px 20px;"><p style="font-size:14px; font-weight:600; color:var(--text-muted);">No items found in ' + unitPrefix + currentPalletModalId + ' matching filter query.</p></div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state" style="padding:40px 20px;"><p style="font-size:14px; font-weight:600; color:var(--text-muted);">No items found in ' + unitPrefix + currentPalletModalId + ' matching filter query.</p></div></td></tr>';
             return;
           }
 
-          if (footerEl) {
-            footerEl.textContent = 'Showing ' + items.length.toLocaleString() + ' of ' + currentPalletItems.length.toLocaleString() + ' items in ' + unitPrefix + currentPalletModalId;
-          }
-          if (!tbody) return;
-
-          if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state" style="padding:40px 20px;"><p style="font-size:14px; font-weight:600; color:var(--text-muted);">No items found in ' + unitPrefix + currentPalletModalId + ' matching filter query.</p></div></td></tr>';
-            return;
-          }
-
-          // Build item lookup for stock days status
+          // Build item lookup for stock days status & location inventory
           const masterLookup = {};
           (allItems || []).forEach(it => {
             if (it.item_code) masterLookup[it.item_code.trim()] = it;
@@ -5225,15 +5249,30 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 overstock: '<span class="badge badge-accent text-xs">Overstock</span>'
               };
               statusBadge = badges[st] || statusBadge;
-              const rawQty = parseFloat(master.warehouse_inventory_qty != null ? master.warehouse_inventory_qty : master.total_inventory_qty) || 0;
-              actualQty = fmt(rawQty);
-            } else if (it.warehouse_inventory_qty != null) {
+
+              // All units under Storage take Column BH (storage_inventory_qty); Warehouse units take Column BO (warehouse_inventory_qty)
+              let rawQty = 0;
+              if (isStorageUnit) {
+                rawQty = master.storage_inventory_qty != null
+                  ? master.storage_inventory_qty
+                  : (it.storage_inventory_qty != null ? it.storage_inventory_qty : (master.total_inventory_qty || 0));
+              } else {
+                rawQty = master.warehouse_inventory_qty != null
+                  ? master.warehouse_inventory_qty
+                  : (it.warehouse_inventory_qty != null ? it.warehouse_inventory_qty : (master.total_inventory_qty || 0));
+              }
+              actualQty = fmt(parseFloat(rawQty) || 0);
+            } else if (isStorageUnit && it.storage_inventory_qty != null) {
+              actualQty = fmt(parseFloat(it.storage_inventory_qty) || 0);
+            } else if (!isStorageUnit && it.warehouse_inventory_qty != null) {
               actualQty = fmt(parseFloat(it.warehouse_inventory_qty) || 0);
+            } else if (it.qty != null) {
+              actualQty = fmt(parseFloat(it.qty) || 0);
             }
 
             const allLocs = getLocationsForItem(it);
             const multiLocPill = allLocs.length > 1
-              ? '<div style="font-size:11px; font-weight:600; color:var(--accent); margin-top:4px;">📍 Also stored in: ' + allLocs.filter(l => l !== currentPalletModalId.toUpperCase().trim()).map(l => '<span class="badge badge-accent" style="font-size:10px; padding:1px 6px; margin-left:3px;">' + (l.startsWith('REF') ? '❄️ ' : '📍 ') + l + '</span>').join('') + '</div>'
+              ? '<div style="font-size:11px; font-weight:600; color:var(--accent); margin-top:4px;">📍 Also stored in: ' + allLocs.filter(l => l !== currentPalletModalId.toUpperCase().trim()).map(l => '<span class="badge badge-accent" style="font-size:10px; padding:1px 6px; margin-left:3px;">' + (l.startsWith('REF') || l.startsWith('SREF') ? '❄️ ' : (l.startsWith('GD') ? '🚪 ' : (l.startsWith('CAB') ? '🗄️ ' : '📍 '))) + l + '</span>').join('') + '</div>'
               : '';
 
             return '<tr>' +
@@ -5253,10 +5292,40 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             return;
           }
 
-          const cols = ['item_code', 'dci_code', 'description', 'location'];
-          const header = cols.join(',');
+          const locUpper = (currentPalletModalId || '').toUpperCase().trim();
+          const isStorageUnit = locUpper.startsWith('SREF') || locUpper.startsWith('GD') || locUpper.startsWith('CAB') || locUpper.startsWith('MS') || locUpper.startsWith('STOR') || locUpper.startsWith('2F') || locUpper.startsWith('7F') || (currentLocatorCategory === 'storage');
+
+          const masterLookup = {};
+          (allItems || []).forEach(it => {
+            if (it.item_code) masterLookup[it.item_code.trim()] = it;
+          });
+
+          const qtyHeader = isStorageUnit ? 'Actual Qty (Storage - Col BH)' : 'Actual Qty (Warehouse - Col BO)';
+          const cols = ['item_code', 'dci_code', 'description', 'location', 'actual_qty'];
+          const header = ['Item Code', 'DCI Code', 'Description', 'Location', qtyHeader].join(',');
+
           const rows = filteredPalletItems.map(it => {
-            return cols.map(c => '"' + String(it[c] || '').replace(/"/g, '""') + '"').join(',');
+            const master = masterLookup[it.item_code ? it.item_code.trim() : ''];
+            let rawQty = 0;
+            if (master) {
+              rawQty = isStorageUnit
+                ? (master.storage_inventory_qty != null ? master.storage_inventory_qty : (it.storage_inventory_qty || master.total_inventory_qty || 0))
+                : (master.warehouse_inventory_qty != null ? master.warehouse_inventory_qty : (it.warehouse_inventory_qty || master.total_inventory_qty || 0));
+            } else {
+              rawQty = isStorageUnit
+                ? (it.storage_inventory_qty != null ? it.storage_inventory_qty : (it.warehouse_inventory_qty || it.qty || 0))
+                : (it.warehouse_inventory_qty != null ? it.warehouse_inventory_qty : (it.storage_inventory_qty || it.qty || 0));
+            }
+
+            const rowData = {
+              item_code: it.item_code || '',
+              dci_code: it.dci_code || '',
+              description: it.description || '',
+              location: it.location || currentPalletModalId,
+              actual_qty: rawQty
+            };
+
+            return cols.map(c => '"' + String(rowData[c] != null ? rowData[c] : '').replace(/"/g, '""') + '"').join(',');
           });
 
           const csvContent = [header, ...rows].join('\n');
@@ -5264,7 +5333,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.download = 'Pallet_' + currentPalletModalId + '_Items.csv';
+          link.download = (isStorageUnit ? 'Storage_Unit_' : 'Pallet_') + currentPalletModalId + '_Items.csv';
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
