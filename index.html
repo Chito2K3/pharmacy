@@ -1212,10 +1212,44 @@
     }
 
     .data-table tbody td.code {
-      font-family: 'Courier New', monospace;
-      font-size: 10.5px;
+      font-family: 'Consolas', 'Segoe UI Mono', 'Roboto Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
       color: var(--accent);
       white-space: nowrap;
+    }
+
+    [data-theme="light"] .data-table tbody td.code {
+      color: #0369a1;
+    }
+
+    .dci-badge {
+      display: inline-block;
+      font-family: 'Consolas', 'Segoe UI Mono', 'Roboto Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 2.5px 8px;
+      border-radius: 6px;
+      background: rgba(6, 182, 212, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(6, 182, 212, 0.28);
+      white-space: nowrap;
+      line-height: 1.35;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+      transition: all 0.15s ease;
+    }
+
+    [data-theme="light"] .dci-badge {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+      box-shadow: 0 1px 2px rgba(2, 132, 199, 0.08);
+    }
+
+    .data-table tbody tr:hover .dci-badge {
+      border-color: var(--accent);
     }
 
     .item-desc {
@@ -1874,9 +1908,14 @@
     }
 
     .pallet-item-code {
-      font-family: 'Courier New', monospace;
-      font-size: 10px;
+      font-family: 'Consolas', 'Segoe UI Mono', 'Roboto Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
       color: var(--accent);
+    }
+    [data-theme="light"] .pallet-item-code {
+      color: #0369a1;
     }
 
     .pallet-item-qty {
@@ -3217,7 +3256,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               <div style="width:44px; height:44px; border-radius:12px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.3); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">💊</div>
               <div style="flex:1;">
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
-                  <span id="item-modal-code" class="code" style="font-weight:800; font-size:14px; color:var(--accent);">—</span>
+                  <span id="item-modal-code" class="dci-badge" style="font-weight:800; font-size:13px;">—</span>
                   <span id="item-modal-category" class="badge badge-muted text-xs">—</span>
                   <span id="item-modal-status" class="text-center">—</span>
                 </div>
@@ -3997,7 +4036,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               const stock = parseFloat(it.total_inventory_qty || 0);
               const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
               return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + it.item_code + '">' +
-        '<td class="code">' + (it.dci_code || '—') + '</td>' +
+        '<td class="code">' + (it.dci_code ? '<span class="dci-badge">' + it.dci_code + '</span>' : '—') + '</td>' +
         '<td>' + renderItemNameCell(it) + '</td>' +
         '<td><div class="cat-truncate text-xs text-muted" title="' + (it.pharmacologic_category || '') + '">' + (it.pharmacologic_category || '—') + '</div></td>' +
         '<td class="num-cell"><strong>' + fmtD(days) + '</strong></td>' +
@@ -4196,7 +4235,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const days = parseFloat(it.inventory_level_days) || 0;
             return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + it.item_code + '">' +
       '<td class="text-muted">' + (start + i + 1) + '</td>' +
-      '<td class="code">' + (it.dci_code || '—') + '</td>' +
+      '<td class="code">' + (it.dci_code ? '<span class="dci-badge">' + it.dci_code + '</span>' : '—') + '</td>' +
       '<td class="text-center" onclick="event.stopPropagation();">' + locationBadge(it.item_code) + '</td>' +
       '<td>' + renderItemNameCell(it) + '</td>' +
       '<td><span class="badge ' + getTypeBadgeClass(it.pharmacy_category) + ' text-xs">' + formatType(it.pharmacy_category) + '</span></td>' +
@@ -4270,7 +4309,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const label = s === 'critical' ? 'Critical' : s === 'warning' ? 'Low' : s === 'ok' ? 'Normal' : 'Over Stock';
             return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + r.item_code + '\')" title="Click to view location stock breakdown for ' + r.item_code + '">' +
       '<td><div class="reorder-priority"><div class="priority-dot ' + dotCls + '"></div><span class="text-sm">' + label + '</span></div></td>' +
-      '<td class="code">' + (r.dci_code || '—') + '</td>' +
+      '<td class="code">' + (r.dci_code ? '<span class="dci-badge">' + r.dci_code + '</span>' : '—') + '</td>' +
       '<td>' + renderItemNameCell(r) + '</td>' +
       '<td><div class="cat-truncate text-xs text-muted" title="' + (r.pharmacologic_category || '') + '">' + (r.pharmacologic_category || '—') + '</div></td>' +
       '<td class="num-cell">' + fmtD(days) + ' days</td>' +
@@ -5535,7 +5574,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const dciCode = (it.dci_code && String(it.dci_code).trim()) ? String(it.dci_code).trim() : (it.item_code || '—');
             return '<tr>' +
                 '<td class="text-center text-muted" style="font-size:12px;">' + (idx + 1) + '</td>' +
-                '<td class="code" style="font-weight:700; color:var(--accent); cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Bizbox Code: ' + it.item_code + ' (Click to view details)">' + dciCode + '</td>' +
+                '<td class="code" style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Bizbox Code: ' + it.item_code + ' (Click to view details)"><span class="dci-badge">' + dciCode + '</span></td>' +
                 '<td style="white-space:normal; font-weight:500; line-height:1.4;">' + (it.description || '—') + multiLocPill + '</td>' +
                 '<td class="num-cell" style="font-weight:700; color:var(--accent);">' + actualQty + '</td>' +
                 '<td class="text-center">' + statusBadge + '</td>' +
