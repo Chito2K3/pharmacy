@@ -2506,19 +2506,17 @@
                 <div class="table-card">
                   <div class="table-toolbar">
                     <div class="toolbar-title">All Items</div>
-                    <select class="filter-select" id="filter-category" onchange="filterInventory()">
-                      <option value="">All Categories</option>
-                    </select>
                     <select class="filter-select" id="filter-pharmacy-cat" onchange="filterInventory()">
                       <option value="">All Types</option>
-                      <option value="Medicine Regular">Medicine Regular</option>
-                      <option value="Medicine Consigment">Consignment</option>
-                      <option value="Medicine Emergency Purchase">Emergency Purchase</option>
+                      <option value="Regular">Regular</option>
+                      <option value="Consignment">Consignment</option>
+                      <option value="Emergency Purchase">Emergency Purchase</option>
                       <option value="Donation">Donation</option>
-                      <option value="Inactive Medicines">Inactive</option>
+                      <option value="Inactive">Inactive</option>
                     </select>
                     <select class="filter-select" id="filter-status" onchange="filterInventory()">
                       <option value="">All Stock Status</option>
+                      <option value="outofstock">Out of Stock</option>
                       <option value="critical">Critical (< 30d)</option>
                       <option value="warning">Low (30-59d)</option>
                       <option value="ok">Normal (60-119d)</option>
@@ -2534,7 +2532,6 @@
                           <th class="sortable" onclick="sortTable('dci_code')">DCI Code ↕</th>
                           <th class="text-center">Pallet</th>
                           <th class="sortable" onclick="sortTable('generic_name')">Generic Name / PNF Name ↕</th>
-                          <th class="sortable" onclick="sortTable('pharmacologic_category')">Category ↕</th>
                           <th>Type</th>
                           <th>UoM</th>
                           <th class="num-cell sortable" onclick="sortTable('avg_monthly_consumption')">Avg Monthly ↕
@@ -3759,7 +3756,29 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         // ================================================================
         //  STOCK STATUS HELPER
         // ================================================================
-        function stockStatus(days) {
+        function formatType(cat) {
+          if (!cat) return '—';
+          const c = String(cat).trim();
+          if (/regular/i.test(c)) return 'Regular';
+          if (/consig/i.test(c)) return 'Consignment';
+          if (/emergency/i.test(c)) return 'Emergency Purchase';
+          if (/donation/i.test(c)) return 'Donation';
+          if (/inactive/i.test(c)) return 'Inactive';
+          return c;
+        }
+
+        function getTypeBadgeClass(cat) {
+          const t = formatType(cat);
+          if (t === 'Regular') return 'badge-info';
+          if (t === 'Consignment') return 'badge-accent';
+          if (t === 'Emergency Purchase') return 'badge-warning';
+          if (t === 'Donation') return 'badge-success';
+          if (t === 'Inactive') return 'badge-muted';
+          return 'badge-muted';
+        }
+
+        function stockStatus(days, totalQty) {
+          if (totalQty != null && parseFloat(totalQty) <= 0) return 'outofstock';
           const d = parseFloat(days) || 0;
           if (d < 30) return 'critical';
           if (d < 60) return 'warning';
@@ -3767,8 +3786,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           return 'overstock';
         }
 
-        function statusBadge(days) {
-          const s = stockStatus(days);
+        function statusBadge(days, totalQty) {
+          const s = stockStatus(days, totalQty);
+          if (s === 'outofstock') return '<span class="badge badge-danger" style="background:rgba(239,68,68,0.18); color:#ef4444; border:1px solid rgba(239,68,68,0.3); font-weight:700;">⚫ Out of Stock</span>';
           if (s === 'critical') return '<span class="badge badge-danger">🔴 Critical</span>';
           if (s === 'warning') return '<span class="badge badge-warning">🟡 Low</span>';
           if (s === 'ok') return '<span class="badge badge-success">🟢 Normal</span>';
@@ -4123,23 +4143,28 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         // ================================================================
         function buildCategoryFilter() {
           const sel = document.getElementById('filter-category');
+          if (!sel) return;
           const cats = [...new Set(allItems.map(it => it.pharmacologic_category).filter(Boolean))].sort();
           sel.innerHTML = '<option value="">All Categories</option>' +
             cats.map(c => '<option value="' + c + '">' + c + '</option>').join('');
         }
 
         function filterInventory() {
-          const catVal = document.getElementById('filter-category')?.value || '';
-          const pharmVal = document.getElementById('filter-pharmacy-cat')?.value || '';
+          const pharmVal = (document.getElementById('filter-pharmacy-cat')?.value || '').toLowerCase();
           const statVal = document.getElementById('filter-status')?.value || '';
           const searchVal = (document.getElementById('global-search')?.value || '').toLowerCase().trim();
 
           invFiltered = allItems.filter(it => {
-            if (catVal && it.pharmacologic_category !== catVal) return false;
-            if (pharmVal && it.pharmacy_category !== pharmVal) return false;
-            if (statVal && stockStatus(it.inventory_level_days) !== statVal) return false;
+            if (pharmVal) {
+              const t = formatType(it.pharmacy_category).toLowerCase();
+              if (t !== pharmVal) return false;
+            }
+            if (statVal) {
+              const itemStatus = stockStatus(it.inventory_level_days, it.total_inventory_qty);
+              if (itemStatus !== statVal) return false;
+            }
             if (searchVal) {
-              const hay = (it.item_code + ' ' + (it.description || '') + ' ' + (it.generic_name || '') + ' ' + (it.pharmacologic_category || '') + ' ' + (it.date_of_impact || '')).toLowerCase();
+              const hay = (it.item_code + ' ' + (it.dci_code || '') + ' ' + (it.description || '') + ' ' + (it.generic_name || '') + ' ' + (it.pharmacologic_category || '') + ' ' + (it.date_of_impact || '')).toLowerCase();
               if (!hay.includes(searchVal)) return false;
             }
             return true;
@@ -4174,8 +4199,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
       '<td class="code">' + (it.dci_code || '—') + '</td>' +
       '<td class="text-center" onclick="event.stopPropagation();">' + locationBadge(it.item_code) + '</td>' +
       '<td>' + renderItemNameCell(it) + '</td>' +
-      '<td><div class="cat-truncate text-xs text-muted" title="' + (it.pharmacologic_category || '') + '">' + (it.pharmacologic_category || '—') + '</div></td>' +
-      '<td><span class="badge badge-muted text-xs">' + (it.pharmacy_category || '—') + '</span></td>' +
+      '<td><span class="badge ' + getTypeBadgeClass(it.pharmacy_category) + ' text-xs">' + formatType(it.pharmacy_category) + '</span></td>' +
       '<td class="text-muted text-sm">' + (it.unit_of_measure || '—') + '</td>' +
       '<td class="num-cell">' + fmt(it.avg_monthly_consumption) + '</td>' +
       '<td class="num-cell"><strong>' + fmt(it.total_inventory_qty) + '</strong></td>' +
@@ -4187,9 +4211,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
       '</td>' +
       '<td class="num-cell text-muted">' + formatExcelDate(it.date_of_impact) + '</td>' +
       '<td class="num-cell">' + fmt(it.pending_po_co_qty) + '</td>' +
-      '<td class="text-center">' + statusBadge(days) + '</td>' +
+      '<td class="text-center">' + statusBadge(days, it.total_inventory_qty) + '</td>' +
     '</tr>';
-          }).join('') || '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🔍</div><p>No items match your filters.</p></div></td></tr>';
+          }).join('') || '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🔍</div><p>No items match your filters.</p></div></td></tr>';
 
           renderPagination('inv', invFiltered.length, invPage, INV_PAGE_SIZE);
         }
@@ -5594,7 +5618,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             codeEl.title = 'Item Code: ' + (item.item_code || displayCode);
           }
           setTxt('item-modal-category', item.pharmacy_category || '—');
-          setHtml('item-modal-status', statusBadge(item.inventory_level_days));
+          setHtml('item-modal-status', statusBadge(item.inventory_level_days, item.total_inventory_qty));
           setTxt('item-modal-title', item.description || item.generic_name || '—');
           setTxt('item-modal-pharm', item.pharmacologic_category || '—');
 
