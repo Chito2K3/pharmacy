@@ -3192,8 +3192,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               <thead style="position:sticky; top:0; z-index:10; background:var(--bg-card2);">
                 <tr>
                   <th style="width:50px;" class="text-center">#</th>
-                  <th style="width:160px;">Item Code</th>
-                  <th style="width:130px;">DCI Code</th>
+                  <th style="width:140px;">DCI Code</th>
                   <th>Description</th>
                   <th id="pallet-modal-th-qty" style="width:160px;" class="num-cell">Actual Qty</th>
                   <th style="width:120px;" class="text-center">Status</th>
@@ -3341,6 +3340,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         // ================================================================
         //  THEME ENGINE (Dark / Light Theme)
         // ================================================================
+        function getChartThemeColors() {
+          const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+          return {
+            labelColor: isLight ? '#0f172a' : '#e2e8f0',
+            tickColor:  isLight ? '#334155' : '#94a3b8',
+            gridColor:  isLight ? 'rgba(15, 23, 42, 0.09)' : 'rgba(255, 255, 255, 0.05)',
+            isLight:    isLight
+          };
+        }
+
         function applyTheme(theme) {
           const isLight = (theme === 'light');
           document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
@@ -3361,13 +3370,19 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           // Update Chart.js themes
           if (typeof Chart !== 'undefined') {
-            Chart.defaults.color = isLight ? '#475569' : '#a0aec0';
-            Chart.defaults.borderColor = isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.08)';
+            Chart.defaults.color = isLight ? '#0f172a' : '#cbd5e1';
+            Chart.defaults.borderColor = isLight ? 'rgba(15, 23, 42, 0.09)' : 'rgba(255, 255, 255, 0.08)';
             if (window.statusChart && typeof window.statusChart.update === 'function') {
               try { window.statusChart.update(); } catch(e) {}
             }
             if (window.trendChart && typeof window.trendChart.update === 'function') {
               try { window.trendChart.update(); } catch(e) {}
+            }
+            if (typeof buildConsolidatedCharts === 'function' && document.getElementById('chart-consolidated-qty')) {
+              try { buildConsolidatedCharts(); } catch(e) {}
+            }
+            if (typeof updateAnalyticsCharts === 'function') {
+              try { updateAnalyticsCharts(); } catch(e) {}
             }
           }
         }
@@ -4382,12 +4397,12 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 },
                 layout: { padding: { left: 10, right: 10 } },
                 scales: {
-                  x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#7a8599', font: { size: 10 } } },
+                  x: { grid: { color: getChartThemeColors().gridColor }, ticks: { color: getChartThemeColors().tickColor, font: { size: 10 } } },
                   y: {
                     grid: { display: false },
                     ticks: {
-                      color: '#cbd5e1',
-                      font: { size: 10.5 },
+                      color: getChartThemeColors().labelColor,
+                      font: { size: 11, weight: '600' },
                       padding: 6
                     }
                   },
@@ -4438,9 +4453,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 layout: { padding: { left: 10, right: 10 } },
                 scales: {
                   x: {
-                    grid: { color: 'rgba(255,255,255,.05)' },
+                    grid: { color: getChartThemeColors().gridColor },
                     ticks: {
-                      color: '#7a8599',
+                      color: getChartThemeColors().tickColor,
                       font: { size: 10 },
                       callback: function (value) { return '₱' + value.toLocaleString(); }
                     }
@@ -4448,8 +4463,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   y: {
                     grid: { display: false },
                     ticks: {
-                      color: '#cbd5e1',
-                      font: { size: 10.5 },
+                      color: getChartThemeColors().labelColor,
+                      font: { size: 11, weight: '600' },
                       padding: 6
                     }
                   },
@@ -4537,8 +4552,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 },
                 layout: { padding: { left: 10, right: 10 } },
                 scales: {
-                  x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#7a8599', font: { size: 10 } } },
-                  y: { grid: { display: false }, ticks: { color: '#cbd5e1', font: { size: 10.5 }, padding: 6 } },
+                  x: { grid: { color: getChartThemeColors().gridColor }, ticks: { color: getChartThemeColors().tickColor, font: { size: 10 } } },
+                  y: { grid: { display: false }, ticks: { color: getChartThemeColors().labelColor, font: { size: 11, weight: '600' }, padding: 6 } },
                 }
               }
             });
@@ -4586,14 +4601,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 layout: { padding: { left: 10, right: 10 } },
                 scales: {
                   x: {
-                    grid: { color: 'rgba(255,255,255,.05)' },
+                    grid: { color: getChartThemeColors().gridColor },
                     ticks: {
-                      color: '#7a8599',
+                      color: getChartThemeColors().tickColor,
                       font: { size: 10 },
                       callback: function (value) { return '₱' + value.toLocaleString(); }
                     }
                   },
-                  y: { grid: { display: false }, ticks: { color: '#cbd5e1', font: { size: 10.5 }, padding: 6 } },
+                  y: { grid: { display: false }, ticks: { color: getChartThemeColors().labelColor, font: { size: 11, weight: '600' }, padding: 6 } },
                 }
               }
             });
@@ -5442,7 +5457,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           if (!tbody) return;
 
           if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state" style="padding:40px 20px;"><p style="font-size:14px; font-weight:600; color:var(--text-muted);">No items found in ' + unitPrefix + currentPalletModalId + ' matching filter query.</p></div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state" style="padding:40px 20px;"><p style="font-size:14px; font-weight:600; color:var(--text-muted);">No items found in ' + unitPrefix + currentPalletModalId + ' matching filter query.</p></div></td></tr>';
             return;
           }
 
@@ -5493,10 +5508,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               ? '<div style="font-size:11px; font-weight:600; color:var(--accent); margin-top:4px;">📍 Also stored in: ' + allLocs.filter(l => l !== currentPalletModalId.toUpperCase().trim()).map(l => '<span class="badge badge-accent" style="font-size:10px; padding:1px 6px; margin-left:3px;">' + (l.startsWith('REF') || l.startsWith('SREF') ? '❄️ ' : (l.startsWith('GD') ? '🚪 ' : (l.startsWith('CAB') ? '🗄️ ' : '📍 '))) + l + '</span>').join('') + '</div>'
               : '';
 
+            const dciCode = (it.dci_code && String(it.dci_code).trim()) ? String(it.dci_code).trim() : (it.item_code || '—');
             return '<tr>' +
                 '<td class="text-center text-muted" style="font-size:12px;">' + (idx + 1) + '</td>' +
-                '<td class="code" style="font-weight:700;">' + it.item_code + '</td>' +
-                '<td class="code text-muted">' + (it.dci_code || '—') + '</td>' +
+                '<td class="code" style="font-weight:700; color:var(--accent); cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Bizbox Code: ' + it.item_code + ' (Click to view details)">' + dciCode + '</td>' +
                 '<td style="white-space:normal; font-weight:500; line-height:1.4;">' + (it.description || '—') + multiLocPill + '</td>' +
                 '<td class="num-cell" style="font-weight:700; color:var(--accent);">' + actualQty + '</td>' +
                 '<td class="text-center">' + statusBadge + '</td>' +
