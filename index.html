@@ -3222,7 +3222,6 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               <div style="flex:1;">
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px;">
                   <span id="item-modal-code" class="code" style="font-weight:800; font-size:14px; color:var(--accent);">—</span>
-                  <span id="item-modal-dci" class="code text-muted" style="font-size:12px;">—</span>
                   <span id="item-modal-category" class="badge badge-muted text-xs">—</span>
                   <span id="item-modal-status" class="text-center">—</span>
                 </div>
@@ -5573,8 +5572,12 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
           const setHtml = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
 
-          setTxt('item-modal-code', item.item_code);
-          setTxt('item-modal-dci', item.dci_code ? '(' + item.dci_code + ')' : '');
+          const displayCode = (item.dci_code && String(item.dci_code).trim()) ? String(item.dci_code).trim() : (item.item_code || '—');
+          const codeEl = document.getElementById('item-modal-code');
+          if (codeEl) {
+            codeEl.textContent = displayCode;
+            codeEl.title = 'Item Code: ' + (item.item_code || displayCode);
+          }
           setTxt('item-modal-category', item.pharmacy_category || '—');
           setHtml('item-modal-status', statusBadge(item.inventory_level_days));
           setTxt('item-modal-title', item.description || item.generic_name || '—');
