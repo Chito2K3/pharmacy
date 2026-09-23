@@ -437,6 +437,8 @@ function getItems() {
       pharmacologic_category       : String(row[6] || '').trim(),
       unit_of_measure              : String(row[7] || '').trim(),
       unit_cost                    : safeNum(row[8]),
+      acquisition_price            : safeNum(row[8]),
+      selling_price                : safeNum(row[9]),
       avg_monthly_consumption      : safeNum(row[lc.overall_avg_monthly]),
       avg_monthly_normalized_demand: safeNum(row[lc.overall_normalized]),
       total_inventory_qty          : totalStock,
