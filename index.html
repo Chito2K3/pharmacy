@@ -2233,9 +2233,10 @@
       transition: all 0.2s ease;
     }
 
-    .btn-cat-toggle:hover {
-      color: var(--text-main);
-      background: rgba(255, 255, 255, 0.05);
+    .btn-cat-toggle:hover:not(.active) {
+      color: var(--accent);
+      background: var(--accent-glow);
+      transform: translateY(-1px);
     }
 
     .btn-cat-toggle.active {
@@ -2336,13 +2337,21 @@
       gap: 8px;
       position: relative;
       bottom: -2px;
-      transition: all 0.2s ease;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
     }
 
-    .folder-tab:hover {
-      background: #1e293b;
-      color: var(--text-main);
+    .folder-tab:hover:not(.active) {
+      background: var(--accent-glow);
+      color: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 -3px 12px var(--accent-glow);
+    }
+
+    .folder-tab:hover:not(.active) .tab-tag {
+      background: var(--accent);
+      color: #ffffff;
     }
 
     .folder-tab.active {
@@ -2351,6 +2360,7 @@
       border-color: var(--accent);
       border-bottom: 2px solid var(--bg-card);
       box-shadow: 0 -4px 14px var(--accent-glow);
+      transform: none;
     }
 
     .folder-tab .tab-tag {
