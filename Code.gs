@@ -23,10 +23,12 @@ function doGet(e) {
     try {
       return HtmlService.createHtmlOutputFromFile('index')
         .setTitle('PharmaDash — Pharmacy Inventory Dashboard')
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1')
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
     } catch (e) {
       return HtmlService.createHtmlOutputFromFile('dashboard')
         .setTitle('PharmaDash — Pharmacy Inventory Dashboard')
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1')
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
     }
   }
