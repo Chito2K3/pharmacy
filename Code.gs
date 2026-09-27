@@ -144,19 +144,19 @@ function parseHeaderDate(val) {
 // =============================================================
 
 /**
- * Scans the first 6 rows of the Inventory Utilization Report sheet to find
- * the 0-based column index for each section's "INVENTORY Volume (qty)" column.
- * Works by locating the merged section header cells:
- *   "DISPENSING AREA", "PHARMACY STORAGE", "WAREHOUSE", "CONSIGNMENT"
- *
- * In Google Sheets, a merged cell's value appears only in the top-left cell
- * of the merge, so the column index of the header = the column index of the
- * first (inventory volume) column of that section.
+ * Dynamically scans the header rows (Rows 4 & 5) of the Inventory Utilization Report sheet
+ * to identify the exact 0-based column indices for all sections and inventory metrics.
+ * 
+ * Works 100% dynamically via header text matching, making the app immune to column shifts
+ * when monthly consumption columns are added, removed, or rolled over.
  */
 function detectInventoryColumns(sheet) {
   const lastCol   = sheet.getLastColumn();
   const scanRows  = Math.min(6, sheet.getLastRow());
   const hData     = sheet.getRange(1, 1, scanRows, lastCol).getValues();
+  const hRow4     = hData.length >= 4 ? hData[3] : [];
+  const hRow5     = hData.length >= 5 ? hData[4] : [];
+  const maxCols   = Math.max(hRow4.length, hRow5.length);
 
   const cols = { 
     dispensing_qty: -1, storage_qty: -1, warehouse_qty: -1, consignment_qty: -1,
@@ -166,126 +166,147 @@ function detectInventoryColumns(sheet) {
     overall_avg_monthly: -1,
     overall_normalized: -1,
     overall_level_days: -1,
+    overall_impact_date: -1,
     overall_pending_po: -1,
     overall_ending_qty: -1,
     overall_ending_days: -1,
+    overall_ending_impact_date: -1,
     overall_epa_balance: -1,
     overall_ending_epa: -1,
-    overall_impact_date: -1
+    overall_ending_epa_days: -1,
+    overall_ending_epa_impact_date: -1
   };
 
-  // 1. Detect main sections & find average monthly consumption column to get overall_start (Rows 4 & 5, indices 3 & 4)
-  for (let r = 3; r <= 4; r++) {
-    if (r >= hData.length) continue;
-    const row = hData[r];
-    for (let c = 0; c < row.length; c++) {
-      const cell = String(row[c] || '').trim().toUpperCase();
-      if (cell === '') continue;
+  // PASS 1: Identify Section Markers in Row 4 & Row 5
+  for (let c = 0; c < maxCols; c++) {
+    const cell4 = String(hRow4[c] || '').trim().toUpperCase();
+    const cell5 = String(hRow5[c] || '').trim().toUpperCase();
+    const combined = (cell4 + ' ' + cell5).trim();
 
-      if (cols.dispensing_qty === -1) {
-        if (cell === 'DISPENSING AREA' || (cell.includes('DISPENSING INVENTORY') && cell.includes('(QTY)')) || (cell.includes('DISPENSING') && cell.includes('VOLUME'))) {
-          cols.dispensing_qty = c;
-        }
+    // Section 1: Dispensing Area
+    if (cols.dispensing_qty === -1) {
+      if (cell4 === 'DISPENSING AREA' || (combined.includes('DISPENSING INVENTORY') && combined.includes('(QTY)')) || (combined.includes('DISPENSING') && combined.includes('VOLUME'))) {
+        cols.dispensing_qty = c;
       }
-      if (cols.storage_qty === -1) {
-        if (cell === 'PHARMACY STORAGE' || (cell.includes('STORAGE INVENTORY') && cell.includes('(QTY)')) || (cell.includes('STORAGE') && cell.includes('VOLUME'))) {
-          cols.storage_qty = c;
-        }
+    }
+    // Section 2: Pharmacy Storage
+    if (cols.storage_qty === -1) {
+      if (cell4 === 'PHARMACY STORAGE' || (combined.includes('STORAGE INVENTORY') && combined.includes('(QTY)')) || (combined.includes('STORAGE') && combined.includes('VOLUME'))) {
+        cols.storage_qty = c;
       }
-      if (cols.warehouse_qty === -1) {
-        if (cell === 'WAREHOUSE' || (cell.includes('WAREHOUSE INVENTORY') && cell.includes('(QTY)')) || (cell.includes('WAREHOUSE') && cell.includes('VOLUME'))) {
-          cols.warehouse_qty = c;
-        }
+    }
+    // Section 3: Warehouse
+    if (cols.warehouse_qty === -1) {
+      if (cell4 === 'WAREHOUSE' || (combined.includes('WAREHOUSE INVENTORY') && combined.includes('(QTY)')) || (combined.includes('WAREHOUSE') && combined.includes('VOLUME'))) {
+        cols.warehouse_qty = c;
       }
-      if (cols.consignment_qty === -1) {
-        if (cell === 'CONSIGNMENT' || (cell.includes('CONSIGNMENT INVENTORY') && cell.includes('(QTY)')) || (cell.includes('CONSIGNMENT') && cell.includes('VOLUME'))) {
-          cols.consignment_qty = c;
-        }
+    }
+    // Section 4: Consignment
+    if (cols.consignment_qty === -1) {
+      if (cell4 === 'CONSIGNMENT' || (combined.includes('CONSIGNMENT INVENTORY') && combined.includes('(QTY)')) || (combined.includes('CONSIGNMENT') && combined.includes('VOLUME'))) {
+        cols.consignment_qty = c;
       }
-      if (cols.overall_start === -1) {
-        if (cell.includes('AVERAGE MONTHLY CONSUMPTION') && !cell.includes('DISPENSING') && !cell.includes('STORAGE') && !cell.includes('WAREHOUSE') && !cell.includes('CONSIGNMENT')) {
-          cols.overall_start = c;
-        }
+    }
+
+    // Section 0: Overall Start (Inventory Impact)
+    if (cols.overall_start === -1) {
+      if (cell4.includes('INVENTORY IMPACT') || (cell5.includes('AVERAGE MONTHLY CONSUMPTION') && (cols.dispensing_qty === -1 || c < cols.dispensing_qty))) {
+        cols.overall_start = c;
       }
     }
   }
 
-  // Apply layout-specific defaults based on overall_start
+  // PASS 2: Scan columns inside the Overall / Impact / Pending / EPA section
+  const scanStart = cols.overall_start !== -1 ? cols.overall_start : 10;
+  const scanEnd   = cols.dispensing_qty !== -1 ? cols.dispensing_qty : maxCols;
+
+  for (let c = scanStart; c < scanEnd; c++) {
+    const cell4 = String(hRow4[c] || '').trim().toUpperCase();
+    const cell5 = String(hRow5[c] || '').trim().toUpperCase();
+
+    // 1. Average Monthly Consumption
+    if (cols.overall_avg_monthly === -1 && cell5.includes('AVERAGE MONTHLY CONSUMPTION') && !cell5.includes('NORMALIZED')) {
+      cols.overall_avg_monthly = c;
+    }
+    // 2. Average Monthly Normalized Demand
+    else if (cols.overall_normalized === -1 && (cell5.includes('NORMALIZED DEMAND') || cell5.includes('AVERAGE MONTHLY NORMALIZED'))) {
+      cols.overall_normalized = c;
+    }
+    // 3. Total Inventory Volume Qty
+    else if (cols.overall_total_qty === -1 && (cell5.includes('TOTAL INVENTORY VOLUME') || cell5.includes('TOTAL INVENTORY(QTY)') || cell5.includes('TOTAL INVENTORY VOLUME (QTY)')) && !cell5.includes('ENDING')) {
+      cols.overall_total_qty = c;
+    }
+    // 4. Inventory Value
+    else if (cols.overall_value === -1 && (cell5.includes('INVENTORY') && cell5.includes('VALUE')) && !cell5.includes('ENDING') && !cell5.includes('HOLDING') && !cell4.includes('HOLDING')) {
+      cols.overall_value = c;
+    }
+    // 5. Inventory Level Days
+    else if (cols.overall_level_days === -1 && cell5.includes('INVENTORY LEVEL DAYS') && !cell5.includes('ENDING')) {
+      cols.overall_level_days = c;
+    }
+    // 6. Date of Impact
+    else if (cols.overall_impact_date === -1 && (cell5.includes('DATE OF IMPACT') || cell5.includes('IMPACT DATE')) && !cell5.includes('ENDING')) {
+      cols.overall_impact_date = c;
+    }
+    // 7. Pending PO / CO Qty
+    else if (cols.overall_pending_po === -1 && (cell5.includes('PENDING PO') || cell5.includes('PO / CO') || cell5.includes('PO/CO') || cell5.includes('QTY OF PENDING'))) {
+      cols.overall_pending_po = c;
+    }
+    // 8. Ending Inventory Qty (Quantity on Hand + Qty of pending CO/PO)
+    else if (cols.overall_ending_qty === -1 && cell5.includes('ENDING INVENTORY') && !cell5.includes('DAYS') && !cell5.includes('EPA') && !cell5.includes('IMPACT')) {
+      cols.overall_ending_qty = c;
+    }
+    // 9. Ending Inventory Level Days (Without EPA)
+    else if (cols.overall_ending_days === -1 && cell5.includes('ENDING INVENTORY LEVEL DAYS') && !cell5.includes('EPA')) {
+      cols.overall_ending_days = c;
+    }
+    // 10. Ending Impact Date (Without EPA)
+    else if (cols.overall_ending_impact_date === -1 && cell5.includes('ENDING IMPACT DATE') && !cell5.includes('EPA')) {
+      cols.overall_ending_impact_date = c;
+    }
+    // 11. EPA Balance for Call-Off
+    else if (cols.overall_epa_balance === -1 && cell5.includes('EPA') && (cell5.includes('CALL-OFF') || cell5.includes('BALANCE')) && !cell5.includes('ENDING INVENTORY') && !cell5.includes('DAYS') && !cell5.includes('IMPACT')) {
+      cols.overall_epa_balance = c;
+    }
+    // 12. Ending Inventory with EPA
+    else if (cols.overall_ending_epa === -1 && cell5.includes('ENDING INVENTORY') && cell5.includes('EPA') && !cell5.includes('DAYS') && !cell5.includes('IMPACT')) {
+      cols.overall_ending_epa = c;
+    }
+    // 13. Ending Inventory Level Days with EPA
+    else if (cols.overall_ending_epa_days === -1 && cell5.includes('ENDING INVENTORY LEVEL DAYS') && cell5.includes('EPA')) {
+      cols.overall_ending_epa_days = c;
+    }
+    // 14. Ending Impact Date with EPA
+    else if (cols.overall_ending_epa_impact_date === -1 && cell5.includes('ENDING IMPACT DATE') && cell5.includes('EPA')) {
+      cols.overall_ending_epa_impact_date = c;
+    }
+  }
+
+  // PASS 3: Safe relative fallback offsets anchored to overall_start
+  // If any individual sub-header was missing or blank, use relative offsets from overall_start
   if (cols.overall_start !== -1) {
-    const start = cols.overall_start;
-    if (start === 59) {
-      // Sheet 3 (Excel) layout
-      cols.overall_avg_monthly = start;
-      cols.overall_normalized  = start + 1;
-      cols.overall_total_qty   = start + 2;
-      cols.overall_value       = start + 3;
-      cols.overall_level_days  = start + 4;
-      cols.overall_impact_date = start + 5; // Col BM
-      cols.overall_pending_po  = start + 6;
-      cols.overall_ending_qty  = start + 7;
-      cols.overall_ending_days = start + 8;
-      cols.overall_epa_balance = start + 9;
-      cols.overall_ending_epa  = start + 11;
-    } else {
-      // Live Google Sheet / Sheet 2 layout (Start at Col AJ = 35)
-      cols.overall_avg_monthly = start;        // Col AJ (35)
-      cols.overall_normalized  = start + 2;    // Col AL (37) - Average Monthly Normalized Demand
-      cols.overall_total_qty   = start + 3;    // Col AM (38)
-      cols.overall_value       = start + 4;    // Col AN (39)
-      cols.overall_level_days  = start + 5;    // Col AO (40)
-      cols.overall_impact_date = start + 6;    // Col AP (41)
-      cols.overall_pending_po  = 43;           // Col AR (43) - Pending PO / CO Qty
-      cols.overall_ending_qty  = 44;           // Col AS (44)
-      cols.overall_ending_days = 45;           // Col AT (45)
-      cols.overall_epa_balance = 46;           // Col AU (46)
-      cols.overall_ending_epa  = 47;           // Col AV (47) - Ending Inventory (w/ EPA)
-    }
-  } else {
-    // Ultimate fallback (Col AJ=35, Col AL=37, Col AR=43, Col AV=47)
-    cols.overall_avg_monthly = 35; // Col AJ
-    cols.overall_normalized  = 37; // Col AL (Average Monthly Normalized Demand)
-    cols.overall_total_qty   = 38; // Col AM
-    cols.overall_value       = 39; // Col AN
-    cols.overall_level_days  = 40; // Col AO
-    cols.overall_impact_date = 41; // Col AP
-    cols.overall_pending_po  = 43; // Col AR (Pending PO / CO Qty)
-    cols.overall_ending_qty  = 44; // Col AS
-    cols.overall_ending_days = 45; // Col AT
-    cols.overall_epa_balance = 46; // Col AU
-    cols.overall_ending_epa  = 47; // Col AV (Ending Inventory w/ EPA)
+    const s = cols.overall_start;
+    if (cols.overall_avg_monthly === -1) cols.overall_avg_monthly = s;
+    if (cols.overall_normalized  === -1) cols.overall_normalized  = s + 1;
+    if (cols.overall_total_qty   === -1) cols.overall_total_qty   = s + 2;
+    if (cols.overall_value       === -1) cols.overall_value       = s + 3;
+    if (cols.overall_level_days  === -1) cols.overall_level_days  = s + 4;
+    if (cols.overall_impact_date === -1) cols.overall_impact_date = s + 5;
+    if (cols.overall_pending_po  === -1) cols.overall_pending_po  = s + 7;
+    if (cols.overall_ending_qty  === -1) cols.overall_ending_qty  = s + 8;
+    if (cols.overall_ending_days === -1) cols.overall_ending_days = s + 9;
+    if (cols.overall_ending_impact_date === -1) cols.overall_ending_impact_date = s + 10;
+    if (cols.overall_epa_balance === -1) cols.overall_epa_balance = s + 11;
+    if (cols.overall_ending_epa  === -1) cols.overall_ending_epa  = s + 12;
   }
 
-  if (cols.dispensing_qty  === -1) cols.dispensing_qty  = 52; // Column BA
-  if (cols.storage_qty     === -1) cols.storage_qty     = 59; // Column BH
-  if (cols.warehouse_qty   === -1) cols.warehouse_qty   = 66; // Column BO
-  if (cols.consignment_qty === -1) cols.consignment_qty = 73; // Column BV
+  // Fallbacks for breakdown sections if headers are unmerged/unnamed
+  if (cols.dispensing_qty  === -1) cols.dispensing_qty  = (cols.overall_start !== -1 ? cols.overall_start + 16 : 52);
+  if (cols.storage_qty     === -1) cols.storage_qty     = cols.dispensing_qty + 7;
+  if (cols.warehouse_qty   === -1) cols.warehouse_qty   = cols.storage_qty + 7;
+  if (cols.consignment_qty === -1) cols.consignment_qty = cols.warehouse_qty + 7;
 
-  // Refine using scanning if OVERALL start is found
-  if (cols.overall_start !== -1) {
-    const limitCol = cols.dispensing_qty !== -1 ? cols.dispensing_qty : hData[0].length;
-    for (let r = 3; r <= 4; r++) {
-      if (r >= hData.length) continue;
-      const row = hData[r];
-      const endScan = Math.min(limitCol, row.length);
-      for (let c = cols.overall_start; c < endScan; c++) {
-        const cell = String(row[c] || '').trim().toUpperCase();
-        if (!cell) continue;
-
-        if (cell.includes('AVERAGE MONTHLY CONSUMPTION') && !cell.includes('NORMALIZED')) cols.overall_avg_monthly = c;
-        else if ((cell.includes('NORMALIZED DEMAND') || cell.includes('NORMALIZED')) && !cell.includes('LEVEL DAYS') && !cell.includes('INVENTORY LEVEL')) cols.overall_normalized = c;
-        else if ((cell.includes('TOTAL INVENTORY VOLUME') || cell.includes('TOTAL INVENTORY(QTY)') || cell.includes('TOTAL INVENTORY VOLUME (QTY)')) && !cell.includes('ENDING')) cols.overall_total_qty = c;
-        else if ((cell.includes('INVENTORY (VALUE)') || (cell.includes('INVENTORY') && cell.includes('VALUE'))) && !cell.includes('ENDING') && !cell.includes('HOLDING')) cols.overall_value = c;
-        else if (cell.includes('LEVEL DAYS') && !cell.includes('ENDING')) cols.overall_level_days = c;
-        else if ((cell.includes('DATE OF IMPACT') || cell.includes('IMPACT DATE')) && !cell.includes('ENDING')) cols.overall_impact_date = c;
-        else if ((cell.includes('PENDING PO') || cell.includes('PO/CO') || cell.includes('QTY OF PENDING')) && !cell.includes('ENDING') && !cell.includes('HAND')) cols.overall_pending_po = c;
-        else if (cell.includes('ENDING INVENTORY') && !cell.includes('DAYS') && !cell.includes('EPA') && !cell.includes('BALANCES') && !cell.includes('IMPACT')) cols.overall_ending_qty = c;
-        else if (cell.includes('ENDING INVENTORY LEVEL DAYS')) cols.overall_ending_days = c;
-        else if ((cell.includes('EPA') && cell.includes('CALL-OFF')) || (cell.includes('EPA') && cell.includes('BALANCE'))) cols.overall_ending_epa = c;
-      }
-    }
-  }
-
-  Logger.log('[PharmaDash] Inventory column map: ' + JSON.stringify(cols));
+  Logger.log('[PharmaDash] Dynamic inventory column map: ' + JSON.stringify(cols));
   return cols;
 }
 
@@ -376,11 +397,10 @@ function getItems() {
   // ---- AUTO-DETECT location columns from sheet headers ----
   const lc = detectInventoryColumns(sheet);
 
-  // Group columns for 2025 and 2026 consumption
+  // Group all consumption columns dynamically by year
   const hRow4 = sheet.getRange(4, 1, 1, lastCol).getValues()[0];
   const hRow5 = sheet.getRange(5, 1, 1, lastCol).getValues()[0];
-  const cols2025 = [];
-  const cols2026 = [];
+  const colsByYear = {};
   
   for (let c = 10; c < lc.overall_start; c++) {
     const val4 = hRow4[c];
@@ -388,36 +408,30 @@ function getItems() {
     const date = parseHeaderDate(val4) || parseHeaderDate(val5);
     if (date) {
       const yr = date.getFullYear();
-      if (yr === 2025) {
-        cols2025.push(c);
-      } else if (yr === 2026) {
-        cols2026.push(c);
-      }
+      if (!colsByYear[yr]) colsByYear[yr] = [];
+      colsByYear[yr].push(c);
     }
   }
-  const count2026 = cols2026.length;
 
   const values = sheet.getRange(5, 1, lastRow - 4, lastCol).getValues();
 
   return values.map((row, idx) => {
     const itemCode = String(row[1] || '').trim();
 
-    // Calculate 2025 and 2026 annualized qty
-    let sum2025 = 0;
-    for (let i = 0; i < cols2025.length; i++) {
-      sum2025 += safeNum(row[cols2025[i]]);
+    // Calculate annualized metrics dynamically for all detected years (2024, 2025, 2026, 2027, etc.)
+    const annualMetrics = {};
+    for (const yr in colsByYear) {
+      const colList = colsByYear[yr];
+      let yrSum = 0;
+      for (let i = 0; i < colList.length; i++) {
+        yrSum += safeNum(row[colList[i]]);
+      }
+      const count = colList.length;
+      const annualQty = count === 12 ? yrSum : (count > 0 ? (yrSum / count) * 12 : 0);
+      const annualVal = annualQty * safeNum(row[8]);
+      annualMetrics['annual_qty_' + yr] = annualQty;
+      annualMetrics['annual_val_' + yr] = annualVal;
     }
-    
-    let sum2026 = 0;
-    for (let i = 0; i < cols2026.length; i++) {
-      sum2026 += safeNum(row[cols2026[i]]);
-    }
-    
-    const annualQty2025 = sum2025;
-    const annualVal2025 = annualQty2025 * safeNum(row[8]);
-    
-    const annualQty2026 = count2026 > 0 ? (sum2026 / count2026) * 12 : 0;
-    const annualVal2026 = annualQty2026 * safeNum(row[8]);
 
     // Location inventory
     const dispensingStock  = lc.dispensing_qty  >= 0 ? safeNum(row[lc.dispensing_qty])  : 0;
@@ -450,15 +464,18 @@ function getItems() {
       pending_po_co_qty            : safeNum(row[lc.overall_pending_po]),
       ending_inventory_qty         : safeNum(row[lc.overall_ending_qty]),
       ending_inventory_level_days  : safeNum(row[lc.overall_ending_days]),
+      ending_impact_date           : lc.overall_ending_impact_date >= 0 ? formatDate(row[lc.overall_ending_impact_date]) : '',
       epa_balance                  : safeNum(row[lc.overall_epa_balance]),
       epa_cy2026_balance           : safeNum(row[lc.overall_epa_balance]),
       ending_with_epa_qty          : safeNum(row[lc.overall_ending_epa]),
       ending_inv_with_epa_qty      : safeNum(row[lc.overall_ending_epa]),
 
-      annual_qty_2025              : annualQty2025,
-      annual_val_2025              : annualVal2025,
-      annual_qty_2026              : annualQty2026,
-      annual_val_2026              : annualVal2026,
+      // Preserve standard fields and spread dynamic annual metrics
+      ...annualMetrics,
+      annual_qty_2025              : annualMetrics['annual_qty_2025'] || 0,
+      annual_val_2025              : annualMetrics['annual_val_2025'] || 0,
+      annual_qty_2026              : annualMetrics['annual_qty_2026'] || 0,
+      annual_val_2026              : annualMetrics['annual_val_2026'] || 0,
  
       dispensing_inventory_qty     : dispensingStock,
       storage_inventory_qty        : storageStock,
