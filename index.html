@@ -3943,16 +3943,24 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           if (typeof Chart !== 'undefined') {
             Chart.defaults.color = isLight ? '#0f172a' : '#cbd5e1';
             Chart.defaults.borderColor = isLight ? 'rgba(15, 23, 42, 0.09)' : 'rgba(255, 255, 255, 0.08)';
-            if (window.statusChart && typeof window.statusChart.update === 'function') {
+            if (typeof lastStatusCounts !== 'undefined' && lastStatusCounts && typeof buildStatusChart === 'function') {
               try {
-                if (statusChart.data && statusChart.data.datasets && statusChart.data.datasets[0]) {
-                  statusChart.data.datasets[0].borderColor = isLight ? '#ffffff' : '#111827';
-                }
-                if (statusChart.options && statusChart.options.plugins && statusChart.options.plugins.legend) {
-                  statusChart.options.plugins.legend.labels.color = isLight ? '#334155' : '#e2e8f0';
-                }
-                window.statusChart.update();
-              } catch (e) { }
+                buildStatusChart(lastStatusCounts.outofstock, lastStatusCounts.critical, lastStatusCounts.warning, lastStatusCounts.ok, lastStatusCounts.overstock);
+              } catch (e) { console.error('Error rebuilding status chart:', e); }
+            } else {
+              const targetChart = (typeof statusChart !== 'undefined' && statusChart) || window.statusChart;
+              if (targetChart && typeof targetChart.update === 'function') {
+                try {
+                  if (targetChart.data && targetChart.data.datasets && targetChart.data.datasets[0]) {
+                    targetChart.data.datasets[0].borderColor = isLight ? '#ffffff' : '#111827';
+                  }
+                  if (targetChart.options && targetChart.options.plugins && targetChart.options.plugins.legend) {
+                    if (!targetChart.options.plugins.legend.labels) targetChart.options.plugins.legend.labels = {};
+                    targetChart.options.plugins.legend.labels.color = isLight ? '#0f172a' : '#f8fafc';
+                  }
+                  targetChart.update();
+                } catch (e) { }
+              }
             }
             if (window.trendChart && typeof window.trendChart.update === 'function') {
               try { window.trendChart.update(); } catch (e) { }
@@ -3996,6 +4004,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         let allReorders = [];
 
         let statusChart = null;
+        let lastStatusCounts = null;
         let categoryChart = null;
         let consQtyChart = null;
         let consValChart = null;
@@ -4651,6 +4660,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         }
 
         function buildStatusChart(outofstock, critical, warning, ok, overstock) {
+          lastStatusCounts = { outofstock, critical, warning, ok, overstock };
           const scopeBadge = document.getElementById('chart-status-scope');
           const scopeDesc = document.getElementById('chart-status-desc');
           if (scopeBadge && scopeDesc) {
@@ -4675,7 +4685,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           const isLight = document.documentElement.getAttribute('data-theme') === 'light';
           const borderColor = isLight ? '#ffffff' : '#111827';
-          const legendColor = isLight ? '#334155' : '#e2e8f0';
+          const legendColor = isLight ? '#0f172a' : '#f8fafc';
 
           statusChart = new Chart(ctx, {
             type: 'doughnut',
@@ -4711,7 +4721,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   position: 'bottom',
                   labels: {
                     color: legendColor,
-                    font: { size: 12, weight: '600' },
+                    font: { size: 12, weight: '700' },
                     padding: 14,
                     boxWidth: 12,
                     boxHeight: 12,
@@ -4733,6 +4743,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               cutout: '62%',
             }
           });
+          window.statusChart = statusChart;
         }
 
         function buildCategorySummary() {
