@@ -3949,7 +3949,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   statusChart.data.datasets[0].borderColor = isLight ? '#ffffff' : '#111827';
                 }
                 if (statusChart.options && statusChart.options.plugins && statusChart.options.plugins.legend) {
-                  statusChart.options.plugins.legend.labels.color = isLight ? '#475569' : '#7a8599';
+                  statusChart.options.plugins.legend.labels.color = isLight ? '#334155' : '#e2e8f0';
                 }
                 window.statusChart.update();
               } catch (e) { }
@@ -4675,7 +4675,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           const isLight = document.documentElement.getAttribute('data-theme') === 'light';
           const borderColor = isLight ? '#ffffff' : '#111827';
-          const legendColor = isLight ? '#475569' : '#7a8599';
+          const legendColor = isLight ? '#334155' : '#e2e8f0';
 
           statusChart = new Chart(ctx, {
             type: 'doughnut',
@@ -4711,8 +4711,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   position: 'bottom',
                   labels: {
                     color: legendColor,
-                    font: { size: 11 },
-                    padding: 12,
+                    font: { size: 12, weight: '600' },
+                    padding: 14,
                     boxWidth: 12,
                     boxHeight: 12,
                     usePointStyle: true,
