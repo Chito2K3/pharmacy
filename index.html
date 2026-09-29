@@ -5027,13 +5027,17 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             statsEl.innerHTML =
               '<div class="stat-block">' +
               '<h4>Inventory Summary (Overall)</h4>' +
-              '<div class="stat-row"><span class="label">Total Masterlist Items</span><span class="val">' + totalItems.toLocaleString() + '</span></div>' +
-              '<div class="stat-row"><span class="label">Total Physical Stock Units</span><span class="val text-accent">' + totalStock.toLocaleString() + '</span></div>' +
-              '<div class="stat-row"><span class="label">Total Inventory Value</span><span class="val text-success">₱' + totalValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</span></div>' +
-              '<div class="stat-row"><span class="label">Total Avg. Monthly Consumption (Units)</span><span class="val">' + Math.round(avgMonthly).toLocaleString() + '</span></div>' +
-              '<div class="stat-row"><span class="label">Items with Pending PO/CO</span><span class="val text-warning">' + pendingItems.toLocaleString() + '</span></div>' +
-              '<div class="stat-row"><span class="label">Ending Inv. (On Hand + PO)</span><span class="val">' + endingStock.toLocaleString() + '</span></div>' +
-              '<div class="stat-row"><span class="label">Ending Inv. (with EPA)</span><span class="val">' + endingEpa.toLocaleString() + '</span></div>' +
+              '<div class="stat-row"><span class="label">Total Masterlist Items</span><span class="val">' + totalItems.toLocaleString() + ' items</span></div>' +
+              '<div class="stat-row"><span class="label">Physical Stock on Hand</span><span class="val text-accent">' + totalStock.toLocaleString() + ' units</span></div>' +
+              '<div class="stat-row"><span class="label">Total Inventory Valuation</span><span class="val text-success">₱' + totalValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</span></div>' +
+              '<div class="stat-row"><span class="label">Monthly Consumption Rate</span><span class="val">' + Math.round(avgMonthly).toLocaleString() + ' units/mo</span></div>' +
+              '<div style="margin-top:14px; margin-bottom:6px; padding-top:10px; border-top:1px dashed var(--border-lit); display:flex; align-items:center; justify-content:space-between;">' +
+              '<span style="font-size:11px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.05em;">Supply Pipeline & Projections</span>' +
+              '<span class="badge badge-muted text-xs" style="font-size:10px;">Future Pipeline</span>' +
+              '</div>' +
+              '<div class="stat-row" title="Distinct medicine items with approved Purchase Orders (PO) or Call-Off Orders (CO) issued to suppliers awaiting delivery"><span class="label">Items Awaiting Delivery (Pending PO/CO) <span style="cursor:help; opacity:0.75;" title="Purchase Orders (PO) and Call-Off (CO) awaiting supplier delivery">ℹ️</span></span><span class="val text-warning">' + pendingItems.toLocaleString() + ' items</span></div>' +
+              '<div class="stat-row" title="Projected total inventory on hand once all active Purchase Orders (PO) and Call-Offs (CO) are delivered by suppliers"><span class="label">Projected Stock (On-Hand + Incoming PO) <span style="cursor:help; opacity:0.75;" title="Physical Stock on Hand + Pending PO/CO delivery units">ℹ️</span></span><span class="val">' + endingStock.toLocaleString() + ' units</span></div>' +
+              '<div class="stat-row" title="Maximum guaranteed supply horizon: On-Hand stock + Incoming POs + Remaining allocation under annual Early Procurement Activity (EPA) contracts"><span class="label">Total Committed Supply (incl. EPA) <span style="cursor:help; opacity:0.75;" title="On Hand + Pending Deliveries + Remaining Early Procurement Activity (EPA) annual contract volume">ℹ️</span></span><span class="val text-accent">' + endingEpa.toLocaleString() + ' units</span></div>' +
               '</div>' +
               '<div class="stat-block">' +
               '<h4>Stock Distribution by Location</h4>' +
