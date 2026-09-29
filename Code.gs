@@ -583,13 +583,17 @@ function getStats() {
 
   const total    = items.length;
   
-  // Gated to 'Medicine Regular' for stock status alerts/KPIs
-  const regularItems = items.filter(it => it.pharmacy_category === 'Medicine Regular');
+  // Gated to monitored categories (Medicine Regular + Consignment)
+  const monitored = items.filter(it => {
+    const cat = String(it.pharmacy_category || '').toLowerCase();
+    return cat === 'medicine regular' || cat.includes('consig');
+  });
   
-  const critical  = regularItems.filter(it => stockDays(it) < 30).length;
-  const low       = regularItems.filter(it => { const d = stockDays(it); return d >= 30 && d < 60; }).length;
-  const normal    = regularItems.filter(it => { const d = stockDays(it); return d >= 60 && d < 120; }).length;
-  const overstock = regularItems.filter(it => stockDays(it) >= 120).length;
+  const outofstock = monitored.filter(it => parseFloat(it.total_inventory_qty || 0) <= 0).length;
+  const critical   = monitored.filter(it => { const q = parseFloat(it.total_inventory_qty || 0); const d = stockDays(it); return q > 0 && d < 30; }).length;
+  const low        = monitored.filter(it => { const q = parseFloat(it.total_inventory_qty || 0); const d = stockDays(it); return q > 0 && d >= 30 && d < 60; }).length;
+  const normal     = monitored.filter(it => { const q = parseFloat(it.total_inventory_qty || 0); const d = stockDays(it); return q > 0 && d >= 60 && d < 120; }).length;
+  const overstock  = monitored.filter(it => { const q = parseFloat(it.total_inventory_qty || 0); const d = stockDays(it); return q > 0 && d >= 120; }).length;
   
   const pending   = items.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0).length;
 
@@ -601,7 +605,7 @@ function getStats() {
   });
 
   return {
-    total, critical, low, normal, overstock, pending,
+    total, outofstock, critical, low, normal, overstock, pending,
     categories: catMap,
     reorderCount: reorders.length,
     lastUpdated: new Date().toISOString(),
@@ -854,7 +858,7 @@ function recalculateReorders() {
     const rop6  = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
     const rop1  = Math.max(0, Math.round(avg * 3 + avg * 1 - stock));
     const days  = avg > 0 ? Math.round((stock / avg) * 30) : 0;
-    const status= days < 30 ? 'Critical' : days < 60 ? 'Low' : days < 120 ? 'Normal' : 'Over Stock';
+    const status= stock <= 0 ? 'Out of Stock' : (days < 30 ? 'Critical' : (days < 60 ? 'Low' : (days < 120 ? 'Normal' : 'Over Stock')));
 
     return {
       item_code:                     it.item_code || '',

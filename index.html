@@ -1480,6 +1480,11 @@
       flex-shrink: 0;
     }
 
+    .priority-dot.outofstock {
+      background: #dc2626;
+      box-shadow: 0 0 6px rgba(220, 38, 38, 0.8);
+    }
+
     .priority-dot.critical {
       background: var(--danger);
       box-shadow: 0 0 6px var(--danger);
@@ -2823,12 +2828,18 @@
                 <div class="kpi-value" id="kpi-total-items">—</div>
                 <div class="kpi-label">Total Active Items</div>
               </div>
-              <div class="kpi-card active" data-kpi="critical" style="--kpi-color:var(--danger)"
+              <div class="kpi-card" data-kpi="outofstock" style="--kpi-color:#dc2626"
+                onclick="filterDashboardTable('outofstock', this)">
+                <div class="kpi-icon">🚫</div>
+                <div class="kpi-value" id="kpi-outofstock">—</div>
+                <div class="kpi-label">Out of Stock (0 qty)</div>
+              </div>
+              <div class="kpi-card active" data-kpi="critical" style="--kpi-color:#f43f5e"
                 onclick="filterDashboardTable('critical', this)">
                 <div class="kpi-icon">🚨</div>
                 <div class="kpi-value" id="kpi-critical">—</div>
                 <div class="kpi-label">Critical Stock (< 30 days)</div>
-                </div>
+              </div>
                 <div class="kpi-card" data-kpi="warning" style="--kpi-color:var(--warning)"
                   onclick="filterDashboardTable('warning', this)">
                   <div class="kpi-icon">⚠️</div>
@@ -2980,6 +2991,7 @@
                     </select>
                     <select class="filter-select" id="reorder-filter-status" onchange="filterReorder()">
                       <option value="">All Priority</option>
+                      <option value="outofstock">Out of Stock (0 Qty)</option>
                       <option value="critical">Critical (< 30d)</option>
                       <option value="warning">Low Stock (30-59d)</option>
                       <option value="ok">Normal (60-119d)</option>
@@ -3931,7 +3943,15 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             Chart.defaults.color = isLight ? '#0f172a' : '#cbd5e1';
             Chart.defaults.borderColor = isLight ? 'rgba(15, 23, 42, 0.09)' : 'rgba(255, 255, 255, 0.08)';
             if (window.statusChart && typeof window.statusChart.update === 'function') {
-              try { window.statusChart.update(); } catch (e) { }
+              try {
+                if (statusChart.data && statusChart.data.datasets && statusChart.data.datasets[0]) {
+                  statusChart.data.datasets[0].borderColor = isLight ? '#ffffff' : '#111827';
+                }
+                if (statusChart.options && statusChart.options.plugins && statusChart.options.plugins.legend) {
+                  statusChart.options.plugins.legend.labels.color = isLight ? '#475569' : '#7a8599';
+                }
+                window.statusChart.update();
+              } catch (e) { }
             }
             if (window.trendChart && typeof window.trendChart.update === 'function') {
               try { window.trendChart.update(); } catch (e) { }
@@ -4362,8 +4382,28 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           return 'badge-muted';
         }
 
+        function getItemStockQty(it) {
+          if (!it) return 0;
+          const tot = parseFloat(it.total_inventory_qty);
+          if (!isNaN(tot) && tot > 0) return tot;
+          const end = parseFloat(it.ending_inventory_qty);
+          if (!isNaN(end) && end > 0) return end;
+          const locSum = (parseFloat(it.dispensing_inventory_qty) || 0) +
+                         (parseFloat(it.storage_inventory_qty) || 0) +
+                         (parseFloat(it.warehouse_inventory_qty) || 0) +
+                         (parseFloat(it.consignment_inventory_qty) || 0);
+          if (locSum > 0) return locSum;
+          return (isNaN(tot) ? 0 : tot);
+        }
+
         function stockStatus(days, totalQty) {
-          if (totalQty != null && parseFloat(totalQty) <= 0) return 'outofstock';
+          if (typeof days === 'object' && days !== null) {
+            const it = days;
+            return stockStatus(it.inventory_level_days, getItemStockQty(it));
+          }
+          if (totalQty !== undefined && totalQty !== null && totalQty !== '') {
+            if (parseFloat(totalQty) <= 0) return 'outofstock';
+          }
           const d = parseFloat(days) || 0;
           if (d < 30) return 'critical';
           if (d < 60) return 'warning';
@@ -4372,19 +4412,25 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         }
 
         function statusBadge(days, totalQty) {
+          if (typeof days === 'object' && days !== null) {
+            return statusBadge(days.inventory_level_days, getItemStockQty(days));
+          }
           const s = stockStatus(days, totalQty);
-          if (s === 'outofstock') return '<span class="badge badge-danger" style="background:rgba(239,68,68,0.18); color:#ef4444; border:1px solid rgba(239,68,68,0.3); font-weight:700;">⚫ Out of Stock</span>';
-          if (s === 'critical') return '<span class="badge badge-danger">🔴 Critical</span>';
+          if (s === 'outofstock') return '<span class="badge" style="background:rgba(220,38,38,0.16); color:#dc2626; border:1px solid rgba(220,38,38,0.35); font-weight:700;">🚫 Out of Stock</span>';
+          if (s === 'critical') return '<span class="badge badge-danger" style="background:rgba(244,63,94,0.15); color:#f43f5e; border:1px solid rgba(244,63,94,0.3);">🔴 Critical</span>';
           if (s === 'warning') return '<span class="badge badge-warning">🟡 Low</span>';
           if (s === 'ok') return '<span class="badge badge-success">🟢 Normal</span>';
           if (s === 'overstock') return '<span class="badge badge-info">🔵 Over Stock</span>';
           return '<span class="badge badge-muted">Unknown</span>';
         }
 
-        function stockBar(days) {
+        function stockBar(days, totalQty) {
+          const s = stockStatus(days, totalQty);
+          if (s === 'outofstock') {
+            return '<div class="progress-bar-wrap"><div class="progress-bar" style="width:0%; background:#dc2626;"></div></div>';
+          }
           const d = parseFloat(days) || 0;
           const pct = Math.min(100, (d / 120) * 100);
-          const s = stockStatus(days);
           let cls = 'normal';
           if (s === 'critical') cls = 'crit';
           else if (s === 'warning') cls = 'warn';
@@ -4493,15 +4539,17 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           // Monitored items based on selected scope (Medicine Regular + Consignment by default)
           const monitoredItems = getMonitoredItems();
 
-          const critical = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'critical').length;
-          const warning = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'warning').length;
-          const ok = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'ok').length;
-          const overstock = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'overstock').length;
+          const outofstock = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'outofstock').length;
+          const critical = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'critical').length;
+          const warning = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'warning').length;
+          const ok = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'ok').length;
+          const overstock = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'overstock').length;
 
           const pending = allItems.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0).length;
 
           const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
           setTxt('kpi-total-items', total.toLocaleString());
+          setTxt('kpi-outofstock', outofstock.toLocaleString());
           setTxt('kpi-critical', critical.toLocaleString());
           setTxt('kpi-warning', warning.toLocaleString());
           setTxt('kpi-ok', ok.toLocaleString());
@@ -4509,13 +4557,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           setTxt('kpi-pending', pending.toLocaleString());
 
           // Reorder badge
-          setTxt('reorder-badge', (critical + warning).toString());
+          setTxt('reorder-badge', (outofstock + critical + warning).toString());
 
           // Filter & populate summary table according to active KPI card selection
           filterDashboardTable(activeKpiFilter);
 
           // Charts
-          buildStatusChart(critical, warning, ok, overstock);
+          buildStatusChart(outofstock, critical, warning, ok, overstock);
           buildCategorySummary();
         }
 
@@ -4540,20 +4588,24 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const scopeLabel = dashCategoryScope === 'regular' ? 'Medicine Regular' : dashCategoryScope === 'consignment' ? 'Consignment' : 'Regular & Consignment';
 
           switch (activeKpiFilter) {
+            case 'outofstock':
+              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'outofstock');
+              title = '🚫 Out of Stock Items (0 Qty) [' + scopeLabel + '] — ' + filtered.length + ' Items';
+              break;
             case 'critical':
-              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'critical');
+              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'critical');
               title = '🚨 Critical Stock Items (< 30 Days) [' + scopeLabel + '] — ' + filtered.length + ' Items';
               break;
             case 'warning':
-              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'warning');
+              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'warning');
               title = '⚠️ Low Stock Items (30–59 Days) [' + scopeLabel + '] — ' + filtered.length + ' Items';
               break;
             case 'ok':
-              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'ok');
+              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'ok');
               title = '✅ Normal Stock Items (60–119 Days) [' + scopeLabel + '] — ' + filtered.length + ' Items';
               break;
             case 'overstock':
-              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days) === 'overstock');
+              filtered = monitoredItems.filter(it => stockStatus(it.inventory_level_days, getItemStockQty(it)) === 'overstock');
               title = '📈 Over Stock Items (≥ 120 Days) [' + scopeLabel + '] — ' + filtered.length + ' Items';
               break;
             case 'pending':
@@ -4579,21 +4631,21 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             tbody.innerHTML = displayList.map(it => {
               const days = parseFloat(it.inventory_level_days) || 0;
               const avg = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0);
-              const stock = parseFloat(it.total_inventory_qty || 0);
+              const stock = getItemStockQty(it);
               const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
               return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + (it.dci_code || it.item_code) + '">' +
                 '<td class="code">' + (it.dci_code ? '<span class="dci-badge">' + it.dci_code + '</span>' : '—') + '</td>' +
                 '<td>' + renderItemNameCell(it) + '</td>' +
                 '<td><div class="cat-truncate text-xs text-muted" title="' + (it.pharmacologic_category || '') + '">' + (it.pharmacologic_category || '—') + '</div></td>' +
                 '<td class="num-cell"><strong>' + fmtD(days) + '</strong></td>' +
-                '<td class="text-center">' + statusBadge(days) + '</td>' +
+                '<td class="text-center">' + statusBadge(days, stock) + '</td>' +
                 '<td class="num-cell">' + fmt(reorderQty) + '</td>' +
                 '</tr>';
             }).join('') || '<tr><td colspan="6" class="empty-state"><div class="empty-icon">✅</div><p>No items found for this selection.</p></td></tr>';
           }
         }
 
-        function buildStatusChart(critical, warning, ok, overstock) {
+        function buildStatusChart(outofstock, critical, warning, ok, overstock) {
           const scopeBadge = document.getElementById('chart-status-scope');
           const scopeDesc = document.getElementById('chart-status-desc');
           if (scopeBadge && scopeDesc) {
@@ -4612,22 +4664,63 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const ctx = document.getElementById('chart-status');
           if (!ctx) return;
           if (statusChart) { statusChart.destroy(); }
+
+          const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+          const borderColor = isLight ? '#ffffff' : '#111827';
+          const legendColor = isLight ? '#475569' : '#7a8599';
+
           statusChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-              labels: ['Critical (< 30d)', 'Low (30-59d)', 'Normal (60-119d)', 'Over Stock (≥ 120d)'],
+              labels: ['Out of Stock (0 qty)', 'Critical (< 30d)', 'Low (30-59d)', 'Normal (60-119d)', 'Over Stock (≥ 120d)'],
               datasets: [{
-                data: [critical, warning, ok, overstock],
-                backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'],
-                borderColor: '#111827', borderWidth: 3,
+                data: [outofstock, critical, warning, ok, overstock],
+                backgroundColor: ['#dc2626', '#f43f5e', '#f59e0b', '#10b981', '#3b82f6'],
+                borderColor: borderColor,
+                borderWidth: 3,
                 hoverOffset: 8,
               }]
             },
             options: {
-              responsive: true, maintainAspectRatio: false,
+              responsive: true,
+              maintainAspectRatio: false,
+              onClick: (event, elements) => {
+                if (elements && elements.length > 0) {
+                  const index = elements[0].index;
+                  const kpiMap = ['outofstock', 'critical', 'warning', 'ok', 'overstock'];
+                  if (kpiMap[index]) {
+                    filterDashboardTable(kpiMap[index]);
+                    const targetCard = document.querySelector('#kpi-grid .kpi-card[data-kpi="' + kpiMap[index] + '"]');
+                    if (targetCard) {
+                      document.querySelectorAll('#kpi-grid .kpi-card').forEach(c => c.classList.remove('active'));
+                      targetCard.classList.add('active');
+                    }
+                  }
+                }
+              },
               plugins: {
-                legend: { position: 'bottom', labels: { color: '#7a8599', font: { size: 11 }, padding: 14 } },
-                tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw + ' items' } }
+                legend: {
+                  position: 'bottom',
+                  labels: {
+                    color: legendColor,
+                    font: { size: 11 },
+                    padding: 12,
+                    boxWidth: 12,
+                    boxHeight: 12,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                  }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => {
+                      const total = (outofstock + critical + warning + ok + overstock) || 1;
+                      const val = ctx.raw || 0;
+                      const pct = ((val / total) * 100).toFixed(1);
+                      return ' ' + ctx.label + ': ' + val.toLocaleString() + ' items (' + pct + '%)';
+                    }
+                  }
+                }
               },
               cutout: '62%',
             }
@@ -4745,7 +4838,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               if (t !== pharmVal) return false;
             }
             if (statVal) {
-              const itemStatus = stockStatus(it.inventory_level_days, it.total_inventory_qty);
+              const itemStatus = stockStatus(it.inventory_level_days, getItemStockQty(it));
               if (itemStatus !== statVal) return false;
             }
             if (searchVal) {
@@ -4779,6 +4872,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           tbody.innerHTML = page.map((it, i) => {
             const days = parseFloat(it.inventory_level_days) || 0;
+            const stock = getItemStockQty(it);
             return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + (it.dci_code || it.item_code) + '">' +
               '<td class="text-muted">' + (start + i + 1) + '</td>' +
               '<td class="code">' + (it.dci_code ? '<span class="dci-badge">' + it.dci_code + '</span>' : '—') + '</td>' +
@@ -4787,16 +4881,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               '<td><span class="badge ' + getTypeBadgeClass(it.pharmacy_category) + ' text-xs">' + formatType(it.pharmacy_category) + '</span></td>' +
               '<td class="text-muted text-sm">' + (it.unit_of_measure || '—') + '</td>' +
               '<td class="num-cell">' + fmt(it.avg_monthly_consumption) + '</td>' +
-              '<td class="num-cell"><strong>' + fmt(it.total_inventory_qty) + '</strong></td>' +
+              '<td class="num-cell"><strong>' + fmt(stock) + '</strong></td>' +
               '<td class="num-cell">' +
               '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">' +
               '<span>' + fmtD(days) + ' days</span>' +
-              stockBar(days) +
+              stockBar(days, stock) +
               '</div>' +
               '</td>' +
               '<td class="num-cell text-muted">' + formatExcelDate(it.date_of_impact) + '</td>' +
               '<td class="num-cell">' + fmt(it.pending_po_co_qty) + '</td>' +
-              '<td class="text-center">' + statusBadge(days, it.total_inventory_qty) + '</td>' +
+              '<td class="text-center">' + statusBadge(days, stock) + '</td>' +
               '</tr>';
           }).join('') || '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🔍</div><p>No items match your filters.</p></div></td></tr>';
 
@@ -4834,7 +4928,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
 
             // Priority Status filtering
-            if (statusVal && stockStatus(r.inventory_level_days) !== statusVal) return false;
+            if (statusVal && stockStatus(r.inventory_level_days, getItemStockQty(r)) !== statusVal) return false;
             return true;
           });
 
@@ -4850,9 +4944,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           tbody.innerHTML = page.map(r => {
             const days = parseFloat(r.inventory_level_days) || 0;
-            const s = stockStatus(days);
-            const dotCls = s === 'critical' ? 'critical' : s === 'warning' ? 'warning' : s === 'ok' ? 'ok' : 'overstock';
-            const label = s === 'critical' ? 'Critical' : s === 'warning' ? 'Low' : s === 'ok' ? 'Normal' : 'Over Stock';
+            const stock = getItemStockQty(r);
+            const s = stockStatus(days, stock);
+            const dotCls = s === 'outofstock' ? 'outofstock' : s === 'critical' ? 'critical' : s === 'warning' ? 'warning' : s === 'ok' ? 'ok' : 'overstock';
+            const label = s === 'outofstock' ? 'Out of Stock' : s === 'critical' ? 'Critical' : s === 'warning' ? 'Low' : s === 'ok' ? 'Normal' : 'Over Stock';
             return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + r.item_code + '\')" title="Click to view location stock breakdown for ' + (r.dci_code || r.item_code) + '">' +
               '<td><div class="reorder-priority"><div class="priority-dot ' + dotCls + '"></div><span class="text-sm">' + label + '</span></div></td>' +
               '<td class="code">' + (r.dci_code ? '<span class="dci-badge">' + r.dci_code + '</span>' : '—') + '</td>' +
@@ -6083,8 +6178,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
             if (master) {
               const days = parseFloat(master.inventory_level_days) || 0;
-              const st = stockStatus(days);
+              const stock = getItemStockQty(master);
+              const st = stockStatus(days, stock);
               const badges = {
+                outofstock: '<span class="badge badge-danger text-xs" style="background:rgba(220,38,38,0.18); color:#dc2626; border:1px solid rgba(220,38,38,0.3);">Out of Stock</span>',
                 critical: '<span class="badge badge-critical text-xs">Critical</span>',
                 warning: '<span class="badge badge-warning text-xs">Low Stock</span>',
                 ok: '<span class="badge badge-ok text-xs">Normal</span>',
@@ -6203,7 +6300,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             codeEl.title = 'DCI Code: ' + displayCode;
           }
           setTxt('item-modal-category', item.pharmacy_category || '—');
-          setHtml('item-modal-status', statusBadge(item.inventory_level_days, item.total_inventory_qty));
+          setHtml('item-modal-status', statusBadge(item.inventory_level_days, getItemStockQty(item)));
           setTxt('item-modal-title', item.description || item.generic_name || '—');
           setTxt('item-modal-pharm', item.pharmacologic_category || '—');
 
