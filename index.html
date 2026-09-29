@@ -5030,7 +5030,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               '<div class="stat-row"><span class="label">Total Masterlist Items</span><span class="val">' + totalItems.toLocaleString() + '</span></div>' +
               '<div class="stat-row"><span class="label">Total Physical Stock Units</span><span class="val text-accent">' + totalStock.toLocaleString() + '</span></div>' +
               '<div class="stat-row"><span class="label">Total Inventory Value</span><span class="val text-success">₱' + totalValue.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</span></div>' +
-              '<div class="stat-row"><span class="label">Total Avg Monthly Cons.</span><span class="val">' + avgMonthly.toLocaleString(undefined, { maximumFractionDigits: 1 }) + '</span></div>' +
+              '<div class="stat-row"><span class="label">Total Avg. Monthly Consumption (Units)</span><span class="val">' + Math.round(avgMonthly).toLocaleString() + '</span></div>' +
               '<div class="stat-row"><span class="label">Items with Pending PO/CO</span><span class="val text-warning">' + pendingItems.toLocaleString() + '</span></div>' +
               '<div class="stat-row"><span class="label">Ending Inv. (On Hand + PO)</span><span class="val">' + endingStock.toLocaleString() + '</span></div>' +
               '<div class="stat-row"><span class="label">Ending Inv. (with EPA)</span><span class="val">' + endingEpa.toLocaleString() + '</span></div>' +
