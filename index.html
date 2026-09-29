@@ -1481,8 +1481,8 @@
     }
 
     .priority-dot.outofstock {
-      background: #dc2626;
-      box-shadow: 0 0 6px rgba(220, 38, 38, 0.8);
+      background: #64748b;
+      box-shadow: 0 0 6px rgba(100, 116, 139, 0.6);
     }
 
     .priority-dot.critical {
@@ -2817,6 +2817,7 @@
                   <option value="combined" selected>All Monitored (Regular + Consignment)</option>
                   <option value="regular">Medicine Regular Only</option>
                   <option value="consignment">Consignment Only</option>
+                  <option value="all">All Categories (incl. Donation & EP)</option>
                 </select>
               </div>
             </div>
@@ -2828,13 +2829,13 @@
                 <div class="kpi-value" id="kpi-total-items">—</div>
                 <div class="kpi-label">Total Active Items</div>
               </div>
-              <div class="kpi-card" data-kpi="outofstock" style="--kpi-color:#dc2626"
+              <div class="kpi-card" data-kpi="outofstock" style="--kpi-color:#64748b"
                 onclick="filterDashboardTable('outofstock', this)">
-                <div class="kpi-icon">🚫</div>
+                <div class="kpi-icon">⚫</div>
                 <div class="kpi-value" id="kpi-outofstock">—</div>
                 <div class="kpi-label">Out of Stock (0 qty)</div>
               </div>
-              <div class="kpi-card active" data-kpi="critical" style="--kpi-color:#f43f5e"
+              <div class="kpi-card active" data-kpi="critical" style="--kpi-color:var(--danger)"
                 onclick="filterDashboardTable('critical', this)">
                 <div class="kpi-icon">🚨</div>
                 <div class="kpi-value" id="kpi-critical">—</div>
@@ -4416,8 +4417,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             return statusBadge(days.inventory_level_days, getItemStockQty(days));
           }
           const s = stockStatus(days, totalQty);
-          if (s === 'outofstock') return '<span class="badge" style="background:rgba(220,38,38,0.16); color:#dc2626; border:1px solid rgba(220,38,38,0.35); font-weight:700;">🚫 Out of Stock</span>';
-          if (s === 'critical') return '<span class="badge badge-danger" style="background:rgba(244,63,94,0.15); color:#f43f5e; border:1px solid rgba(244,63,94,0.3);">🔴 Critical</span>';
+          if (s === 'outofstock') return '<span class="badge" style="background:rgba(100,116,139,0.18); color:#64748b; border:1px solid rgba(100,116,139,0.35); font-weight:700;">⚫ Out of Stock</span>';
+          if (s === 'critical') return '<span class="badge badge-danger">🔴 Critical</span>';
           if (s === 'warning') return '<span class="badge badge-warning">🟡 Low</span>';
           if (s === 'ok') return '<span class="badge badge-success">🟢 Normal</span>';
           if (s === 'overstock') return '<span class="badge badge-info">🔵 Over Stock</span>';
@@ -4427,7 +4428,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         function stockBar(days, totalQty) {
           const s = stockStatus(days, totalQty);
           if (s === 'outofstock') {
-            return '<div class="progress-bar-wrap"><div class="progress-bar" style="width:0%; background:#dc2626;"></div></div>';
+            return '<div class="progress-bar-wrap"><div class="progress-bar" style="width:0%; background:#64748b;"></div></div>';
           }
           const d = parseFloat(days) || 0;
           const pct = Math.min(100, (d / 120) * 100);
@@ -4500,6 +4501,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             return allItems.filter(it => it.pharmacy_category === 'Medicine Regular');
           } else if (dashCategoryScope === 'consignment') {
             return allItems.filter(it => String(it.pharmacy_category || '').toLowerCase().includes('consig'));
+          } else if (dashCategoryScope === 'all') {
+            return allItems;
           } else {
             // Combined (Default): Medicine Regular + Consignment
             return allItems.filter(it => {
@@ -4585,7 +4588,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           let filtered = [];
           let title = '';
 
-          const scopeLabel = dashCategoryScope === 'regular' ? 'Medicine Regular' : dashCategoryScope === 'consignment' ? 'Consignment' : 'Regular & Consignment';
+          const scopeLabel = dashCategoryScope === 'regular' ? 'Medicine Regular' :
+                             dashCategoryScope === 'consignment' ? 'Consignment' :
+                             dashCategoryScope === 'all' ? 'All Categories' : 'Regular & Consignment';
 
           switch (activeKpiFilter) {
             case 'outofstock':
@@ -4655,6 +4660,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             } else if (dashCategoryScope === 'consignment') {
               scopeBadge.textContent = 'Consignment Only';
               scopeDesc.textContent = 'Includes Consignment items only';
+            } else if (dashCategoryScope === 'all') {
+              scopeBadge.textContent = 'All Categories';
+              scopeDesc.textContent = 'Includes Regular, Consignment, Donation & EP items';
             } else {
               scopeBadge.textContent = 'Regular & Consignment';
               scopeDesc.textContent = 'Includes Medicine Regular & Consignment items';
@@ -4675,7 +4683,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               labels: ['Out of Stock (0 qty)', 'Critical (< 30d)', 'Low (30-59d)', 'Normal (60-119d)', 'Over Stock (≥ 120d)'],
               datasets: [{
                 data: [outofstock, critical, warning, ok, overstock],
-                backgroundColor: ['#dc2626', '#f43f5e', '#f59e0b', '#10b981', '#3b82f6'],
+                backgroundColor: ['#64748b', '#ef4444', '#f59e0b', '#10b981', '#3b82f6'],
                 borderColor: borderColor,
                 borderWidth: 3,
                 hoverOffset: 8,
@@ -6181,7 +6189,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               const stock = getItemStockQty(master);
               const st = stockStatus(days, stock);
               const badges = {
-                outofstock: '<span class="badge badge-danger text-xs" style="background:rgba(220,38,38,0.18); color:#dc2626; border:1px solid rgba(220,38,38,0.3);">Out of Stock</span>',
+                outofstock: '<span class="badge text-xs" style="background:rgba(100,116,139,0.18); color:#64748b; border:1px solid rgba(100,116,139,0.3); font-weight:700;">Out of Stock</span>',
                 critical: '<span class="badge badge-critical text-xs">Critical</span>',
                 warning: '<span class="badge badge-warning text-xs">Low Stock</span>',
                 ok: '<span class="badge badge-ok text-xs">Normal</span>',
