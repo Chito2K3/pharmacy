@@ -1220,24 +1220,26 @@
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-lit) transparent;
     }
 
     .table-container::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
     }
 
     .table-container::-webkit-scrollbar-track {
-      background: var(--bg-card);
+      background: transparent;
     }
 
     .table-container::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 3px;
+      background: var(--border-lit);
+      border-radius: 4px;
     }
 
     .table-container::-webkit-scrollbar-thumb:hover {
-      background: var(--accent);
+      background: var(--text-muted);
     }
 
     .data-table {
@@ -1250,7 +1252,7 @@
       top: 0;
       z-index: 10;
       background: var(--bg-card2);
-      padding: 9px 10px;
+      padding: 8px 8px;
       text-align: left;
       font-size: 10.5px;
       font-weight: 700;
@@ -1262,11 +1264,11 @@
     }
 
     .data-table thead th:first-child {
-      padding-left: 16px;
+      padding-left: 12px;
     }
 
     .data-table thead th:last-child {
-      padding-right: 18px;
+      padding-right: 14px;
     }
 
     .data-table thead th.text-center {
@@ -1296,18 +1298,18 @@
     }
 
     .data-table tbody td {
-      padding: 8px 10px;
+      padding: 7px 8px;
       font-size: 12px;
       vertical-align: middle;
       white-space: nowrap;
     }
 
     .data-table tbody td:first-child {
-      padding-left: 16px;
+      padding-left: 12px;
     }
 
     .data-table tbody td:last-child {
-      padding-right: 18px;
+      padding-right: 14px;
     }
 
     .data-table tbody td.text-center {
@@ -1330,16 +1332,16 @@
     .dci-badge {
       display: inline-block;
       font-family: 'Consolas', 'Segoe UI Mono', 'Roboto Mono', monospace;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.5px;
-      padding: 2.5px 8px;
+      letter-spacing: 0.4px;
+      padding: 2px 7px;
       border-radius: 6px;
       background: rgba(6, 182, 212, 0.12);
       color: #38bdf8;
       border: 1px solid rgba(6, 182, 212, 0.28);
       white-space: nowrap;
-      line-height: 1.35;
+      line-height: 1.3;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
       transition: all 0.15s ease;
     }
@@ -1356,32 +1358,36 @@
     }
 
     .item-desc {
-      min-width: 420px;
-      max-width: 750px;
+      min-width: 220px;
+      max-width: 380px;
       white-space: normal;
       word-break: break-word;
-      line-height: 1.4;
+      line-height: 1.35;
       font-weight: 600;
+      font-size: 12px;
       color: var(--text-main);
     }
 
     .cons-item-desc {
-      min-width: 420px;
-      max-width: 750px;
+      min-width: 220px;
+      max-width: 380px;
       white-space: normal;
       word-break: break-word;
-      line-height: 1.4;
+      line-height: 1.35;
       font-weight: 600;
+      font-size: 12px;
       color: var(--text-main);
     }
 
     .item-sub-desc {
-      min-width: 420px;
-      max-width: 750px;
+      min-width: 220px;
+      max-width: 380px;
       white-space: normal;
       word-break: break-word;
-      line-height: 1.35;
+      line-height: 1.3;
       font-weight: 400;
+      font-size: 11px;
+      color: var(--text-muted);
       display: block;
     }
 
@@ -2051,7 +2057,7 @@
         padding: 12px 14px !important;
       }
 
-      #item-detail-modal .table-card > div:nth-child(2) {
+      #item-detail-modal .table-card>div:nth-child(2) {
         padding: 14px !important;
         gap: 14px !important;
       }
@@ -2747,7 +2753,8 @@
               <span>Hospital IMS</span>
             </div>
           </div>
-          <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Close navigation menu" type="button">✕</button>
+          <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Close navigation menu"
+            type="button">✕</button>
         </div>
         <nav class="sidebar-nav">
           <div class="nav-section-label">Main</div>
@@ -2840,7 +2847,7 @@
                 <div class="kpi-icon">🚨</div>
                 <div class="kpi-value" id="kpi-critical">—</div>
                 <div class="kpi-label">Critical Stock (< 30 days)</div>
-              </div>
+                </div>
                 <div class="kpi-card" data-kpi="warning" style="--kpi-color:var(--warning)"
                   onclick="filterDashboardTable('warning', this)">
                   <div class="kpi-icon">⚠️</div>
@@ -2898,12 +2905,12 @@
                     <table class="data-table" id="urgent-table">
                       <thead>
                         <tr>
-                          <th>DCI Code</th>
-                          <th>Generic Name / PNF Name</th>
-                          <th>Category</th>
-                          <th class="num-cell">Stock Days</th>
-                          <th>Status</th>
-                          <th class="num-cell">Reorder Qty</th>
+                          <th style="width:96px;" title="Hospital DCI reference code">DCI Code</th>
+                          <th title="Generic medicine name, strength, and dosage form">Medicine Name</th>
+                          <th style="width:110px;" title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
+                          <th class="num-cell" style="width:95px;" title="Estimated days current stock will last">Days Left</th>
+                          <th class="text-center" style="width:95px;" title="Stock status indicator">Status</th>
+                          <th class="num-cell" style="width:105px;" title="Replenishment quantity needed">Qty to Order</th>
                         </tr>
                       </thead>
                       <tbody id="urgent-tbody"></tbody>
@@ -2943,19 +2950,18 @@
                     <table class="data-table" id="inv-table">
                       <thead>
                         <tr>
-                          <th>#</th>
-                          <th class="sortable" onclick="sortTable('dci_code')">DCI Code ↕</th>
-                          <th class="text-center">Pallet</th>
-                          <th class="sortable" onclick="sortTable('generic_name')">Generic Name / PNF Name ↕</th>
-                          <th>Type</th>
-                          <th>UoM</th>
-                          <th class="num-cell sortable" onclick="sortTable('avg_monthly_consumption')">Avg Monthly ↕
-                          </th>
-                          <th class="num-cell sortable" onclick="sortTable('total_inventory_qty')">Total Stock ↕</th>
-                          <th class="num-cell sortable" onclick="sortTable('inventory_level_days')">Stock Days ↕</th>
-                          <th class="num-cell">Date of Impact</th>
-                          <th class="num-cell">Pending PO</th>
-                          <th>Status</th>
+                          <th style="width:36px;">#</th>
+                          <th class="sortable" onclick="sortTable('dci_code')" style="width:96px;" title="Hospital DCI reference code">DCI Code ↕</th>
+                          <th class="text-center" style="width:68px;" title="Hospital warehouse pallet or shelf location">Pallet</th>
+                          <th class="sortable" onclick="sortTable('generic_name')" title="Generic medicine name, strength, and dosage form">Medicine Name ↕</th>
+                          <th style="width:95px;" title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
+                          <th style="width:65px;" title="Packaging unit (Bottle, Vial, Tablet, Ampule)">Unit</th>
+                          <th class="num-cell sortable" onclick="sortTable('avg_monthly_consumption')" style="width:105px;" title="Average quantity dispensed or used per month across hospital wards">Monthly Usage ↕</th>
+                          <th class="num-cell sortable" onclick="sortTable('total_inventory_qty')" style="width:100px;" title="Current physical units available on hand in the pharmacy">Stock on Hand ↕</th>
+                          <th class="num-cell sortable" onclick="sortTable('inventory_level_days')" style="width:88px;" title="Estimated days current stock will last based on monthly usage">Days Left ↕</th>
+                          <th class="num-cell" style="width:92px;" title="Projected date when current stock reaches zero (estimated stockout date)">Est. Stockout</th>
+                          <th class="num-cell" style="width:108px;" title="Units already ordered from suppliers awaiting delivery (Purchase Orders / Call-Offs)">Incoming Orders</th>
+                          <th class="text-center" style="width:95px;" title="Stock status: Normal, Low, Critical, or Out of Stock">Status</th>
                         </tr>
                       </thead>
                       <tbody id="inv-tbody"></tbody>
@@ -3004,14 +3010,14 @@
                     <table class="data-table" id="reorder-table">
                       <thead>
                         <tr>
-                          <th>Priority</th>
-                          <th>DCI Code</th>
-                          <th>Generic Name / PNF Name</th>
-                          <th>Category</th>
-                          <th class="num-cell">Stock Days</th>
-                          <th class="num-cell">Avg Monthly</th>
-                          <th class="num-cell">Reorder Qty (6mo SS)</th>
-                          <th class="num-cell">Pending PO</th>
+                          <th style="width:85px;">Priority</th>
+                          <th style="width:96px;" title="Hospital DCI reference code">DCI Code</th>
+                          <th title="Generic medicine name, strength, and dosage form">Medicine Name</th>
+                          <th style="width:105px;" title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
+                          <th class="num-cell" style="width:90px;" title="Estimated days current stock will last based on monthly usage">Days Left</th>
+                          <th class="num-cell" style="width:105px;" title="Average quantity dispensed or used per month">Monthly Usage</th>
+                          <th class="num-cell" style="width:115px;" title="Recommended replenishment quantity including 6-month safety stock buffer">Qty to Order (6mo)</th>
+                          <th class="num-cell" style="width:108px;" title="Units already ordered from suppliers awaiting delivery">Incoming Orders</th>
                           <th>Remarks</th>
                         </tr>
                       </thead>
@@ -4399,9 +4405,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const end = parseFloat(it.ending_inventory_qty);
           if (!isNaN(end) && end > 0) return end;
           const locSum = (parseFloat(it.dispensing_inventory_qty) || 0) +
-                         (parseFloat(it.storage_inventory_qty) || 0) +
-                         (parseFloat(it.warehouse_inventory_qty) || 0) +
-                         (parseFloat(it.consignment_inventory_qty) || 0);
+            (parseFloat(it.storage_inventory_qty) || 0) +
+            (parseFloat(it.warehouse_inventory_qty) || 0) +
+            (parseFloat(it.consignment_inventory_qty) || 0);
           if (locSum > 0) return locSum;
           return (isNaN(tot) ? 0 : tot);
         }
@@ -4528,13 +4534,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           let isRedundant = false;
           if (gen && desc) {
-            const dLower = desc.toLowerCase();
-            const gLower = gen.toLowerCase();
+            const dClean = desc.replace(/^\((?:c|ep|don|m)\)\s*/i, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const gClean = gen.replace(/^\((?:c|ep|don|m)\)\s*/i, '').toLowerCase().replace(/[^a-z0-9]/g, '');
             isRedundant = (
-              dLower === gLower ||
-              dLower.includes(gLower) ||
-              gLower.includes(dLower) ||
-              dLower.replace(/[^a-z0-9]/g, '') === gLower.replace(/[^a-z0-9]/g, '')
+              dClean === gClean ||
+              dClean.includes(gClean) ||
+              gClean.includes(dClean) ||
+              (dClean.length >= 10 && gClean.length >= 10 && dClean.slice(0, 15) === gClean.slice(0, 15))
             );
           }
 
@@ -4598,8 +4604,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           let title = '';
 
           const scopeLabel = dashCategoryScope === 'regular' ? 'Medicine Regular' :
-                             dashCategoryScope === 'consignment' ? 'Consignment' :
-                             dashCategoryScope === 'all' ? 'All Categories' : 'Regular & Consignment';
+            dashCategoryScope === 'consignment' ? 'Consignment' :
+              dashCategoryScope === 'all' ? 'All Categories' : 'Regular & Consignment';
 
           switch (activeKpiFilter) {
             case 'outofstock':
@@ -4892,6 +4898,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           tbody.innerHTML = page.map((it, i) => {
             const days = parseFloat(it.inventory_level_days) || 0;
             const stock = getItemStockQty(it);
+            const pending = parseFloat(it.pending_po_co_qty) || 0;
+            const impactDate = formatExcelDate(it.date_of_impact);
             return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + (it.dci_code || it.item_code) + '">' +
               '<td class="text-muted">' + (start + i + 1) + '</td>' +
               '<td class="code">' + (it.dci_code ? '<span class="dci-badge">' + it.dci_code + '</span>' : '—') + '</td>' +
@@ -4899,16 +4907,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               '<td>' + renderItemNameCell(it) + '</td>' +
               '<td><span class="badge ' + getTypeBadgeClass(it.pharmacy_category) + ' text-xs">' + formatType(it.pharmacy_category) + '</span></td>' +
               '<td class="text-muted text-sm">' + (it.unit_of_measure || '—') + '</td>' +
-              '<td class="num-cell">' + fmt(it.avg_monthly_consumption) + '</td>' +
-              '<td class="num-cell"><strong>' + fmt(stock) + '</strong></td>' +
+              '<td class="num-cell" title="' + fmt(it.avg_monthly_consumption) + ' ' + (it.unit_of_measure || 'units') + ' dispensed/month">' + fmt(it.avg_monthly_consumption) + '</td>' +
+              '<td class="num-cell"><strong title="' + fmt(stock) + ' ' + (it.unit_of_measure || 'units') + ' currently on hand">' + fmt(stock) + '</strong></td>' +
               '<td class="num-cell">' +
-              '<div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">' +
-              '<span>' + fmtD(days) + ' days</span>' +
+              '<div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">' +
+              (stock <= 0 ? '<span class="text-muted" style="font-size:11px;">—</span>' : '<span style="font-weight:600;">' + fmtD(days) + 'd</span>') +
               stockBar(days, stock) +
               '</div>' +
               '</td>' +
-              '<td class="num-cell text-muted">' + formatExcelDate(it.date_of_impact) + '</td>' +
-              '<td class="num-cell">' + fmt(it.pending_po_co_qty) + '</td>' +
+              '<td class="num-cell text-muted" title="' + (impactDate !== '—' ? 'Estimated stockout date: ' + impactDate : 'No stockout date calculated') + '">' + impactDate + '</td>' +
+              '<td class="num-cell">' + (pending > 0 ? '<span class="text-accent" style="font-weight:600;" title="' + fmt(pending) + ' units on order awaiting supplier delivery">+' + fmt(pending) + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
               '<td class="text-center">' + statusBadge(days, stock) + '</td>' +
               '</tr>';
           }).join('') || '<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🔍</div><p>No items match your filters.</p></div></td></tr>';
@@ -4975,7 +4983,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               '<td class="num-cell">' + fmtD(days) + ' days</td>' +
               '<td class="num-cell">' + fmt(r.avg_monthly_consumption) + '</td>' +
               '<td class="num-cell"><strong class="text-warning">' + fmt(r.reorder_qty_6mo_safety) + '</strong></td>' +
-              '<td class="num-cell">' + fmt(r.pending_po_call_off) + '</td>' +
+              '<td class="num-cell">' + ((parseFloat(r.pending_po_call_off) || 0) > 0 ? '<span class="text-accent" style="font-weight:600;" title="' + fmt(r.pending_po_call_off) + ' units on order awaiting delivery">+' + fmt(r.pending_po_call_off) + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
               '<td><span class="text-sm text-muted">' + (r.remarks || '—') + '</span></td>' +
               '</tr>';
           }).join('') || '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✅</div><p>No items need reordering right now.</p></div></td></tr>';
