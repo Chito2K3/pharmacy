@@ -4652,14 +4652,23 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               const days = parseFloat(it.inventory_level_days) || 0;
               const avg = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0);
               const stock = getItemStockQty(it);
+              const st = stockStatus(days, stock);
               const reorderQty = Math.max(0, Math.round(avg * 3 + avg * 6 - stock));
+
+              let reorderHtml = '';
+              if (st === 'critical' || st === 'warning' || st === 'outofstock') {
+                reorderHtml = '<strong class="text-warning" title="Replenishment needed to reach safety stock buffer">' + fmt(reorderQty) + '</strong>';
+              } else {
+                reorderHtml = '<span class="text-muted" title="Current inventory is adequate (' + fmtD(days) + ' days on hand) — no immediate order needed" style="font-size:11.5px;">— (Sufficient)</span>';
+              }
+
               return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + it.item_code + '\')" title="Click to view location stock breakdown for ' + (it.dci_code || it.item_code) + '">' +
                 '<td class="code">' + (it.dci_code ? '<span class="dci-badge">' + it.dci_code + '</span>' : '—') + '</td>' +
                 '<td>' + renderItemNameCell(it) + '</td>' +
                 '<td><div class="cat-truncate text-xs text-muted" title="' + (it.pharmacologic_category || '') + '">' + (it.pharmacologic_category || '—') + '</div></td>' +
                 '<td class="num-cell"><strong>' + fmtD(days) + '</strong></td>' +
                 '<td class="text-center">' + statusBadge(days, stock) + '</td>' +
-                '<td class="num-cell">' + fmt(reorderQty) + '</td>' +
+                '<td class="num-cell">' + reorderHtml + '</td>' +
                 '</tr>';
             }).join('') || '<tr><td colspan="6" class="empty-state"><div class="empty-icon">✅</div><p>No items found for this selection.</p></td></tr>';
           }
