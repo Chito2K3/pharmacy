@@ -3918,9 +3918,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                     </div>
                   </div>
 
-                  <!-- 12 Months Labels (Jan to Dec) -->
-                  <div style="display:flex; justify-content:space-between; font-size:9px; font-weight:600; color:var(--text-faint); padding:0 1px; user-select:none;">
-                    <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+                  <!-- 12 Months Labels (Live Window: Oct 2025 to Sep 2026) -->
+                  <div id="item-modal-sparkline-months" style="display:flex; justify-content:space-between; font-size:9px; font-weight:600; color:var(--text-faint); padding:0 1px; user-select:none;">
+                    <span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span>
                   </div>
 
                   <!-- Quick Stats Bar -->
@@ -6390,8 +6390,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         //  12-MONTH CONSUMPTION TREND & SPARKLINE ENGINE
         // ================================================================
 
-        const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const MONTH_NAMES_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const MONTH_NAMES_SHORT = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+        const MONTH_NAMES_FULL = ['October 2025', 'November 2025', 'December 2025', 'January 2026', 'February 2026', 'March 2026', 'April 2026', 'May 2026', 'June 2026', 'July 2026', 'August 2026', 'September 2026'];
 
         function getItemMonthlySeries(item) {
           if (!item) return new Array(12).fill(0);
