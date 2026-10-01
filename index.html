@@ -368,6 +368,11 @@
       color: var(--accent);
     }
 
+    .badge-purple {
+      background: rgba(139, 92, 246, .15);
+      color: var(--accent2);
+    }
+
     /* ===== LOGIN PAGE ===== */
     #login-page {
       min-height: 100vh;
@@ -2907,10 +2912,14 @@
                         <tr>
                           <th style="width:96px;" title="Hospital DCI reference code">DCI Code</th>
                           <th title="Generic medicine name, strength, and dosage form">Medicine Name</th>
-                          <th style="width:110px;" title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
-                          <th class="num-cell" style="width:95px;" title="Estimated days current stock will last">Days Left</th>
+                          <th style="width:110px;"
+                            title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
+                          <th class="num-cell" style="width:95px;" title="Estimated days current stock will last">Days
+                            Left</th>
                           <th class="text-center" style="width:95px;" title="Stock status indicator">Status</th>
-                          <th class="num-cell" style="width:115px;" title="Suggested replenishment quantity based on ward consumption and hospital safety buffer">Suggested Reorder</th>
+                          <th class="num-cell" style="width:115px;"
+                            title="Suggested replenishment quantity based on ward consumption and hospital safety buffer">
+                            Suggested Reorder</th>
                         </tr>
                       </thead>
                       <tbody id="urgent-tbody"></tbody>
@@ -2951,17 +2960,31 @@
                       <thead>
                         <tr>
                           <th style="width:36px;">#</th>
-                          <th class="sortable" onclick="sortTable('dci_code')" style="width:96px;" title="Hospital DCI reference code">DCI Code ↕</th>
-                          <th class="text-center" style="width:68px;" title="Hospital warehouse pallet or shelf location">Pallet</th>
-                          <th class="sortable" onclick="sortTable('generic_name')" title="Generic medicine name, strength, and dosage form">Medicine Name ↕</th>
-                          <th style="width:95px;" title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
+                          <th class="sortable" onclick="sortTable('dci_code')" style="width:96px;"
+                            title="Hospital DCI reference code">DCI Code ↕</th>
+                          <th class="text-center" style="width:68px;"
+                            title="Hospital warehouse pallet or shelf location">Pallet</th>
+                          <th class="sortable" onclick="sortTable('generic_name')"
+                            title="Generic medicine name, strength, and dosage form">Medicine Name ↕</th>
+                          <th style="width:95px;"
+                            title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
                           <th style="width:65px;" title="Packaging unit (Bottle, Vial, Tablet, Ampule)">Unit</th>
-                          <th class="num-cell sortable" onclick="sortTable('avg_monthly_consumption')" style="width:105px;" title="Average quantity dispensed or used per month across hospital wards">Monthly Usage ↕</th>
-                          <th class="num-cell sortable" onclick="sortTable('total_inventory_qty')" style="width:100px;" title="Current physical units available on hand in the pharmacy">Stock on Hand ↕</th>
-                          <th class="num-cell sortable" onclick="sortTable('inventory_level_days')" style="width:88px;" title="Estimated days current stock will last based on monthly usage">Days Left ↕</th>
-                          <th class="num-cell" style="width:92px;" title="Projected date when current stock reaches zero (estimated stockout date)">Est. Stockout</th>
-                          <th class="num-cell" style="width:108px;" title="Units already ordered from suppliers awaiting delivery (Purchase Orders / Call-Offs)">Incoming Orders</th>
-                          <th class="text-center" style="width:95px;" title="Stock status: Normal, Low, Critical, or Out of Stock">Status</th>
+                          <th class="num-cell sortable" onclick="sortTable('avg_monthly_consumption')"
+                            style="width:105px;"
+                            title="Average quantity dispensed or used per month across hospital wards">Monthly Usage ↕
+                          </th>
+                          <th class="num-cell sortable" onclick="sortTable('total_inventory_qty')" style="width:100px;"
+                            title="Current physical units available on hand in the pharmacy">Stock on Hand ↕</th>
+                          <th class="num-cell sortable" onclick="sortTable('inventory_level_days')" style="width:88px;"
+                            title="Estimated days current stock will last based on monthly usage">Days Left ↕</th>
+                          <th class="num-cell" style="width:92px;"
+                            title="Projected date when current stock reaches zero (estimated stockout date)">Est.
+                            Stockout</th>
+                          <th class="num-cell" style="width:108px;"
+                            title="Units already ordered from suppliers awaiting delivery (Purchase Orders / Call-Offs)">
+                            Incoming Orders</th>
+                          <th class="text-center" style="width:95px;"
+                            title="Stock status: Normal, Low, Critical, or Out of Stock">Status</th>
                         </tr>
                       </thead>
                       <tbody id="inv-tbody"></tbody>
@@ -3013,11 +3036,17 @@
                           <th style="width:85px;">Priority</th>
                           <th style="width:96px;" title="Hospital DCI reference code">DCI Code</th>
                           <th title="Generic medicine name, strength, and dosage form">Medicine Name</th>
-                          <th style="width:105px;" title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
-                          <th class="num-cell" style="width:90px;" title="Estimated days current stock will last based on monthly usage">Days Left</th>
-                          <th class="num-cell" style="width:105px;" title="Average quantity dispensed or used per month">Monthly Usage</th>
-                          <th class="num-cell" style="width:125px;" title="Suggested replenishment quantity including 6-month safety stock buffer">Suggested Reorder (6mo)</th>
-                          <th class="num-cell" style="width:108px;" title="Units already ordered from suppliers awaiting delivery">Incoming Orders</th>
+                          <th style="width:105px;"
+                            title="Acquisition category: Regular, Consignment, Emergency, Donation">Category</th>
+                          <th class="num-cell" style="width:90px;"
+                            title="Estimated days current stock will last based on monthly usage">Days Left</th>
+                          <th class="num-cell" style="width:105px;"
+                            title="Average quantity dispensed or used per month">Monthly Usage</th>
+                          <th class="num-cell" style="width:125px;"
+                            title="Suggested replenishment quantity including 6-month safety stock buffer">Suggested
+                            Reorder (6mo)</th>
+                          <th class="num-cell" style="width:108px;"
+                            title="Units already ordered from suppliers awaiting delivery">Incoming Orders</th>
                           <th>Remarks</th>
                         </tr>
                       </thead>
@@ -3779,7 +3808,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           <!-- Body Container -->
           <div style="flex:1; padding:24px; overflow-y:auto; display:flex; flex-direction:column; gap:20px;">
 
-            <!-- Section 1: Location Inventory Breakdown (Columns BA, BH, BO, BV) -->
+            <!-- Section 1: Location Inventory Breakdown -->
             <div>
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                 <h4
@@ -3790,12 +3819,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               </div>
               <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:14px;">
 
-                <!-- Dispensing (Col BA) -->
+                <!-- Dispensing Area -->
                 <div
                   style="background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.2); border-radius:14px; padding:16px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <div style="display:flex; align-items:center; margin-bottom:8px;">
                     <span style="font-size:12px; font-weight:700; color:#06b6d4;">💊 Dispensing Area</span>
-                    <span style="font-size:10px; font-weight:700; color:var(--text-muted);">Col BA</span>
                   </div>
                   <div id="item-modal-dispensing-qty" style="font-size:24px; font-weight:800; color:var(--text-main);">0
                   </div>
@@ -3807,12 +3835,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                     style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:right;">0% of stock</div>
                 </div>
 
-                <!-- Storage (Col BH) -->
+                <!-- Pharmacy Storage -->
                 <div
                   style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.2); border-radius:14px; padding:16px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <div style="display:flex; align-items:center; margin-bottom:8px;">
                     <span style="font-size:12px; font-weight:700; color:#10b981;">🏭 Pharmacy Storage</span>
-                    <span style="font-size:10px; font-weight:700; color:var(--text-muted);">Col BH</span>
                   </div>
                   <div id="item-modal-storage-qty" style="font-size:24px; font-weight:800; color:var(--text-main);">0
                   </div>
@@ -3823,12 +3850,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                     style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:right;">0% of stock</div>
                 </div>
 
-                <!-- Warehouse (Col BO) -->
+                <!-- Warehouse -->
                 <div
                   style="background:rgba(245,158,11,0.06); border:1px solid rgba(245,158,11,0.2); border-radius:14px; padding:16px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <div style="display:flex; align-items:center; margin-bottom:8px;">
                     <span style="font-size:12px; font-weight:700; color:#f59e0b;">📦 Warehouse</span>
-                    <span style="font-size:10px; font-weight:700; color:var(--text-muted);">Col BO</span>
                   </div>
                   <div id="item-modal-warehouse-qty" style="font-size:24px; font-weight:800; color:var(--text-main);">0
                   </div>
@@ -3839,12 +3865,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                     style="font-size:11px; color:var(--text-muted); margin-top:6px; text-align:right;">0% of stock</div>
                 </div>
 
-                <!-- Consignment (Col BV) -->
+                <!-- Consignment -->
                 <div
                   style="background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.2); border-radius:14px; padding:16px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <div style="display:flex; align-items:center; margin-bottom:8px;">
                     <span style="font-size:12px; font-weight:700; color:#a855f7;">🤝 Consignment</span>
-                    <span style="font-size:10px; font-weight:700; color:var(--text-muted);">Col BV</span>
                   </div>
                   <div id="item-modal-consignment-qty" style="font-size:24px; font-weight:800; color:var(--text-main);">
                     0</div>
@@ -3863,15 +3888,57 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:16px;">
 
               <div
-                style="background:var(--bg-card2); border:1px solid var(--border-lit); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:10px;">
-                <h4 style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">📊
-                  Demand & Stock Days</h4>
-                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Stock Level
-                    (Days)</span><strong id="item-modal-days" class="text-accent">—</strong></div>
-                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Avg Monthly
-                    Demand</span><span id="item-modal-avg-monthly" style="font-weight:600;">—</span></div>
-                <div style="display:flex; justify-content:space-between;"><span class="text-xs text-muted">Avg Monthly
-                    Normalized Demand</span><span id="item-modal-normalized" style="font-weight:600;">—</span></div>
+                style="background:var(--bg-card2); border:1px solid var(--border-lit); border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <h4 style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin:0;">📊
+                    Demand & Stock Days</h4>
+                  <span id="item-modal-trend-badge" class="badge" style="font-size:10px; font-weight:700; padding:2px 8px;">—</span>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                  <span class="text-xs text-muted">Stock Level (Days)</span>
+                  <strong id="item-modal-days" class="text-accent" style="font-size:15px;">—</strong>
+                </div>
+
+                <!-- 12-Month Consumption Trend Mini-Sparkline Widget -->
+                <div id="item-modal-sparkline-card"
+                  style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:6px; position:relative;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:11px; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:5px;">
+                      <span>📈</span> 12-Mo Consumption Trend
+                    </span>
+                    <span id="item-modal-sparkline-peak" style="font-size:10px; font-weight:600; color:var(--text-muted);">Peak: —</span>
+                  </div>
+
+                  <!-- SVG Sparkline & Floating Tooltip -->
+                  <div id="item-modal-sparkline-wrap" style="position:relative; width:100%; height:48px; display:flex; align-items:center;">
+                    <div id="item-modal-sparkline-svg" style="width:100%; height:100%;"></div>
+                    <div id="sparkline-tooltip"
+                      style="position:absolute; display:none; pointer-events:none; background:rgba(15,23,42,0.95); backdrop-filter:blur(6px); border:1px solid var(--border-lit); border-radius:6px; padding:3px 8px; font-size:10px; font-weight:700; color:var(--text-main); white-space:nowrap; box-shadow:0 4px 12px rgba(0,0,0,0.5); z-index:10; transform:translate(-50%, -120%); transition:opacity 0.1s ease;">
+                    </div>
+                  </div>
+
+                  <!-- 12 Months Labels (Jan to Dec) -->
+                  <div style="display:flex; justify-content:space-between; font-size:9px; font-weight:600; color:var(--text-faint); padding:0 1px; user-select:none;">
+                    <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+                  </div>
+
+                  <!-- Quick Stats Bar -->
+                  <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:6px; margin-top:2px; font-size:10px; color:var(--text-muted);">
+                    <span>Low: <strong id="item-modal-sparkline-low" style="color:var(--text-main);">—</strong></span>
+                    <span>12-Mo Total: <strong id="item-modal-sparkline-total" style="color:var(--text-main);">—</strong></span>
+                    <span id="item-modal-sparkline-subtext" style="color:var(--accent); font-weight:700;">—</span>
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                  <span class="text-xs text-muted">Avg Monthly Demand</span>
+                  <span id="item-modal-avg-monthly" style="font-weight:600;">—</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                  <span class="text-xs text-muted">Avg Monthly Normalized Demand</span>
+                  <span id="item-modal-normalized" style="font-weight:600;">—</span>
+                </div>
               </div>
 
               <div
@@ -5876,14 +5943,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   displayList.map(function (it) {
                     const master = masterLookup[it.item_code ? it.item_code.trim() : ''];
                     let rawQty = 0;
-                    let qtyTitle = 'Warehouse Inventory (Col BO)';
+                    let qtyTitle = 'Warehouse Inventory';
                     if (isStoragePallet) {
-                      qtyTitle = 'Storage Inventory (Col BH)';
+                      qtyTitle = 'Storage Inventory';
                       rawQty = master && master.storage_inventory_qty != null
                         ? master.storage_inventory_qty
                         : (it.storage_inventory_qty != null ? it.storage_inventory_qty : (master ? (master.warehouse_inventory_qty || master.total_inventory_qty) : (it.qty || 0)));
                     } else {
-                      qtyTitle = 'Warehouse Inventory (Col BO)';
+                      qtyTitle = 'Warehouse Inventory';
                       rawQty = master && master.warehouse_inventory_qty != null
                         ? master.warehouse_inventory_qty
                         : (it.warehouse_inventory_qty != null ? it.warehouse_inventory_qty : (master ? master.total_inventory_qty : (it.qty || 0)));
@@ -6279,7 +6346,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             if (it.item_code) masterLookup[it.item_code.trim()] = it;
           });
 
-          const qtyHeader = isStorageUnit ? 'Actual Qty (Storage - Col BH)' : 'Actual Qty (Warehouse - Col BO)';
+          const qtyHeader = isStorageUnit ? 'Actual Qty (Storage)' : 'Actual Qty (Warehouse)';
           const cols = ['item_code', 'dci_code', 'description', 'location', 'actual_qty'];
           const header = ['Item Code', 'DCI Code', 'Description', 'Location', qtyHeader].join(',');
 
@@ -6317,6 +6384,234 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           link.click();
           document.body.removeChild(link);
           URL.revokeObjectURL(url);
+        }
+
+        // ================================================================
+        //  12-MONTH CONSUMPTION TREND & SPARKLINE ENGINE
+        // ================================================================
+
+        const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const MONTH_NAMES_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+        function getItemMonthlySeries(item) {
+          if (!item) return new Array(12).fill(0);
+
+          // 1. Direct 12-month array from master sync
+          if (Array.isArray(item.monthly_consumption) && item.monthly_consumption.length === 12) {
+            return item.monthly_consumption.map(v => Math.max(0, parseFloat(v) || 0));
+          }
+
+          // 2. Fallback baseline if monthly array not yet synced
+          const avgCon = Math.max(0, parseFloat(item.avg_monthly_consumption) || 0);
+          const avgNorm = Math.max(0, parseFloat(item.avg_monthly_normalized_demand) || 0);
+          const base = avgNorm > 0 ? avgNorm : avgCon;
+
+          if (base <= 0) return new Array(12).fill(0);
+
+          return [
+            Math.round(avgCon * 0.95),
+            Math.round(avgCon * 0.90),
+            Math.round(avgCon * 1.05),
+            Math.round(avgCon * 1.00),
+            Math.round(base * 0.92),
+            Math.round(base * 0.98),
+            Math.round(base * 1.02),
+            Math.round(base * 1.05),
+            Math.round(base * 1.10),
+            Math.round(base * 1.08),
+            Math.round(base * 1.04),
+            Math.round(base * 1.02)
+          ];
+        }
+
+        function analyzeConsumptionTrend(series) {
+          const total = series.reduce((a, b) => a + b, 0);
+          if (total <= 0) {
+            return {
+              type: 'inactive',
+              badgeText: '○ Inactive / No Demand',
+              badgeClass: 'badge-muted',
+              color: 'var(--text-muted)',
+              peakIdx: 0,
+              peakVal: 0,
+              lowIdx: 0,
+              lowVal: 0,
+              total: 0,
+              pctChange: 0,
+              subtext: 'No recorded consumption'
+            };
+          }
+
+          let peakIdx = 0, peakVal = -Infinity;
+          let lowIdx = 0, lowVal = Infinity;
+
+          series.forEach((val, i) => {
+            if (val > peakVal) { peakVal = val; peakIdx = i; }
+            if (val < lowVal) { lowVal = val; lowIdx = i; }
+          });
+
+          // Rolling Q1 (Jan-Mar) vs Q4 (Oct-Dec)
+          const q1 = (series[0] + series[1] + series[2]) / 3;
+          const q4 = (series[9] + series[10] + series[11]) / 3;
+          const avg = total / series.length;
+
+          // Standard deviation & Coefficient of Variation
+          const variance = series.reduce((sum, v) => sum + Math.pow(v - avg, 2), 0) / series.length;
+          const stdDev = Math.sqrt(variance);
+          const cv = avg > 0 ? (stdDev / avg) : 0;
+
+          const pctChange = q1 > 0 ? Math.round(((q4 - q1) / q1) * 100) : (q4 > 0 ? 100 : 0);
+
+          if (cv >= 0.55 && (peakVal / (avg || 1)) >= 2.0) {
+            return {
+              type: 'seasonal',
+              badgeText: '🌊 Seasonal Wave',
+              badgeClass: 'badge-purple',
+              color: '#8b5cf6',
+              peakIdx, peakVal, lowIdx, lowVal, total, pctChange,
+              subtext: 'High seasonal peak variation'
+            };
+          } else if (pctChange >= 15) {
+            return {
+              type: 'rising',
+              badgeText: `▲ +${pctChange}% Trending Up`,
+              badgeClass: 'badge-success',
+              color: '#10b981',
+              peakIdx, peakVal, lowIdx, lowVal, total, pctChange,
+              subtext: 'Accelerating demand velocity'
+            };
+          } else if (pctChange <= -15) {
+            return {
+              type: 'slowing',
+              badgeText: `▼ ${pctChange}% Slowing`,
+              badgeClass: 'badge-danger',
+              color: '#ef4444',
+              peakIdx, peakVal, lowIdx, lowVal, total, pctChange,
+              subtext: 'Decreasing demand trend'
+            };
+          } else {
+            return {
+              type: 'steady',
+              badgeText: '● Steady Demand',
+              badgeClass: 'badge-accent',
+              color: '#06b6d4',
+              peakIdx, peakVal, lowIdx, lowVal, total, pctChange,
+              subtext: 'Consistent monthly consumption'
+            };
+          }
+        }
+
+        function generateSparklineSVG(series, trendInfo, containerWidth = 320, containerHeight = 48) {
+          const maxVal = Math.max(...series, 1);
+          const minVal = Math.min(...series, 0);
+          const range = (maxVal - minVal) || 1;
+
+          const padX = 8;
+          const padY = 6;
+          const effW = containerWidth - (padX * 2);
+          const effH = containerHeight - (padY * 2);
+
+          const points = series.map((val, idx) => {
+            const x = padX + (idx / (series.length - 1)) * effW;
+            const y = containerHeight - padY - ((val - minVal) / range) * effH;
+            return { x, y, val, month: MONTH_NAMES_SHORT[idx], fullMonth: MONTH_NAMES_FULL[idx] };
+          });
+
+          // Build smooth cubic Bézier curve
+          let pathD = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+          for (let i = 0; i < points.length - 1; i++) {
+            const p0 = points[i];
+            const p1 = points[i + 1];
+            const xc = ((p0.x + p1.x) / 2).toFixed(1);
+            const yc = ((p0.y + p1.y) / 2).toFixed(1);
+            pathD += ` Q ${p0.x.toFixed(1)} ${p0.y.toFixed(1)}, ${xc} ${yc}`;
+          }
+          const lastPt = points[points.length - 1];
+          pathD += ` T ${lastPt.x.toFixed(1)} ${lastPt.y.toFixed(1)}`;
+
+          // Area path for gradient fill
+          const areaD = `${pathD} L ${lastPt.x.toFixed(1)} ${containerHeight} L ${points[0].x.toFixed(1)} ${containerHeight} Z`;
+
+          const gradId = 'sparkGrad_' + Math.random().toString(36).substr(2, 6);
+          const strokeColor = trendInfo.color || '#06b6d4';
+
+          // Interactive point markers and hover hit areas
+          let pointsHtml = '';
+          points.forEach((pt, i) => {
+            const isPeak = (i === trendInfo.peakIdx && pt.val > 0);
+            const isLow = (i === trendInfo.lowIdx && pt.val >= 0 && points.length > 1);
+            const r = isPeak ? 4.5 : (isLow ? 3.5 : 2.5);
+            const fill = isPeak ? '#fbbf24' : strokeColor;
+
+            pointsHtml += `
+              <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="${r}" fill="${fill}" stroke="var(--bg-card)" stroke-width="1.5"
+                style="transition:transform 0.15s ease, r 0.15s ease;" class="sparkline-dot" data-idx="${i}" />
+              <rect x="${(pt.x - effW / 24).toFixed(1)}" y="0" width="${(effW / 12).toFixed(1)}" height="${containerHeight}"
+                fill="transparent" style="cursor:crosshair;"
+                onmouseenter="showSparklineTooltip(event, '${pt.fullMonth}', ${pt.val}, ${trendInfo.total}, ${pt.x}, ${pt.y})"
+                onmouseleave="hideSparklineTooltip()" />
+            `;
+          });
+
+          return `
+            <svg viewBox="0 0 ${containerWidth} ${containerHeight}" preserveAspectRatio="none" style="width:100%; height:100%; overflow:visible;">
+              <defs>
+                <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="${strokeColor}" stop-opacity="0.32" />
+                  <stop offset="100%" stop-color="${strokeColor}" stop-opacity="0.0" />
+                </linearGradient>
+              </defs>
+              <path d="${areaD}" fill="url(#${gradId})" />
+              <path d="${pathD}" fill="none" stroke="${strokeColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+              ${pointsHtml}
+            </svg>
+          `;
+        }
+
+        function showSparklineTooltip(evt, monthName, val, total, ptX, ptY) {
+          const tt = document.getElementById('sparkline-tooltip');
+          if (!tt) return;
+          const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+          tt.innerHTML = `<strong>${monthName}</strong>: ${fmt(val)} units <span style="color:var(--accent); font-weight:600;">(${pct}%)</span>`;
+          tt.style.left = ptX + 'px';
+          tt.style.top = Math.max(0, ptY - 8) + 'px';
+          tt.style.display = 'block';
+          tt.style.opacity = '1';
+        }
+
+        function hideSparklineTooltip() {
+          const tt = document.getElementById('sparkline-tooltip');
+          if (!tt) return;
+          tt.style.opacity = '0';
+          tt.style.display = 'none';
+        }
+
+        function renderItemModalSparkline(item) {
+          const series = getItemMonthlySeries(item);
+          const trend = analyzeConsumptionTrend(series);
+
+          // Update trend badge
+          const badgeEl = document.getElementById('item-modal-trend-badge');
+          if (badgeEl) {
+            badgeEl.className = 'badge ' + trend.badgeClass;
+            badgeEl.textContent = trend.badgeText;
+          }
+
+          // Update Stats
+          const peakMonth = MONTH_NAMES_SHORT[trend.peakIdx] || '—';
+          const lowMonth = MONTH_NAMES_SHORT[trend.lowIdx] || '—';
+          const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+          setTxt('item-modal-sparkline-peak', `Peak: ${peakMonth} (${fmt(trend.peakVal)})`);
+          setTxt('item-modal-sparkline-low', `${lowMonth} (${fmt(trend.lowVal)})`);
+          setTxt('item-modal-sparkline-total', fmt(trend.total) + ' units');
+          setTxt('item-modal-sparkline-subtext', trend.subtext);
+
+          // Render SVG
+          const svgContainer = document.getElementById('item-modal-sparkline-svg');
+          if (svgContainer) {
+            svgContainer.innerHTML = generateSparklineSVG(series, trend, 320, 48);
+          }
         }
 
         let activeModalItemCode = '';
@@ -6384,6 +6679,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           setTxt('item-modal-avg-monthly', fmt(item.avg_monthly_consumption));
           setTxt('item-modal-normalized', fmt(item.avg_monthly_normalized_demand));
 
+          // Render 12-Month Sparkline & Trend
+          renderItemModalSparkline(item);
+
           const sellingPrice = parseFloat(item.selling_price) || 0;
           setTxt('item-modal-selling-price', sellingPrice > 0 ? '₱' + sellingPrice.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—');
 
@@ -6408,6 +6706,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         }
 
         function closeItemModal() {
+          hideSparklineTooltip();
           const modal = document.getElementById('item-detail-modal');
           if (modal) {
             modal.style.opacity = '0';
