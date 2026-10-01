@@ -127,6 +127,21 @@ for r_idx in range(header_idx + 1, len(rows)):
     cons_avg_d = parse_num(row[76]) if len(row) > 76 else 0.0
     cons_days = parse_num(row[77]) if len(row) > 77 else 0.0
 
+    # Annualized Metrics for Analytics (matched with Code.gs):
+    # 2024: Cols 10 to 13 (Sep-24 to Dec-24, 4 months annualized)
+    sum_2024 = sum(parse_num(row[c]) if c < len(row) else 0.0 for c in range(10, 14))
+    annual_qty_2024 = (sum_2024 / 4.0) * 12.0
+    annual_val_2024 = annual_qty_2024 * acq_cost
+
+    # 2025: Cols 14 to 25 (Jan-25 to Dec-25, 12 full months)
+    annual_qty_2025 = sum(parse_num(row[c]) if c < len(row) else 0.0 for c in range(14, 26))
+    annual_val_2025 = annual_qty_2025 * acq_cost
+
+    # 2026: Cols 26 to 34 (Jan-26 to Sep-26, 9 months annualized)
+    sum_2026 = sum(parse_num(row[c]) if c < len(row) else 0.0 for c in range(26, 35))
+    annual_qty_2026 = (sum_2026 / 9.0) * 12.0
+    annual_val_2026 = annual_qty_2026 * acq_cost
+
     item_obj = {
         "no": no,
         "item_code": item_code,
@@ -139,6 +154,12 @@ for r_idx in range(header_idx + 1, len(rows)):
         "unit_cost": f"{acq_cost:.2f}" if acq_cost > 0 else "0",
         "selling_price": f"{sell_price:.2f}" if sell_price > 0 else "0",
         "acquisition_price": f"{acq_cost:.2f}" if acq_cost > 0 else "0",
+        "annual_qty_2024": f"{annual_qty_2024:.2f}",
+        "annual_val_2024": f"{annual_val_2024:.2f}",
+        "annual_qty_2025": f"{annual_qty_2025:.2f}",
+        "annual_val_2025": f"{annual_val_2025:.2f}",
+        "annual_qty_2026": f"{annual_qty_2026:.2f}",
+        "annual_val_2026": f"{annual_val_2026:.2f}",
         "avg_monthly_consumption": str(avg_monthly),
         "avg_monthly_normalized_demand": str(avg_normalized),
         "total_inventory_qty": str(total_qty),
