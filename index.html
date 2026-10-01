@@ -3590,29 +3590,43 @@
                   <div class="chart-card"
                     style="display:flex; flex-direction:column; gap:16px; width:100%; border: 1px solid rgba(6,182,212,0.4); background: linear-gradient(180deg, rgba(6,182,212,0.06) 0%, var(--bg-card) 100%);">
                     <div
-                      style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                      style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                       <h3
                         style="margin:0; font-size:15px; color:var(--text-main); font-weight:800; display:flex; align-items:center; gap:8px;">
-                        <span>🏆 Consolidated Annual Consumption (Top 10 — All Categories Combined)</span>
+                        <span>🏆 Consolidated Annual Consumption (<span id="consolidated-limit-label">Top 10</span> — All Categories Combined)</span>
                       </h3>
-                      <span class="badge badge-accent" style="font-size:11px;">Medicine Regular + Consignment + EP +
-                        Donation</span>
+                      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span id="consolidated-abc-pill" class="badge badge-warning" style="font-size:11px; font-weight:700;">Top 10 Budget: Calculating...</span>
+                        <span class="badge badge-accent" style="font-size:11px;">Medicine Regular + Consignment + EP + Donation</span>
+                        <div class="filter-pills" style="display:inline-flex; gap:4px; margin-left:4px;">
+                          <button class="filter-pill" id="btn-cons-5" onclick="setConsolidatedLimit(5, this)" style="padding:2px 8px; font-size:11px;">Top 5</button>
+                          <button class="filter-pill active" id="btn-cons-10" onclick="setConsolidatedLimit(10, this)" style="padding:2px 8px; font-size:11px;">Top 10</button>
+                          <button class="filter-pill" id="btn-cons-20" onclick="setConsolidatedLimit(20, this)" style="padding:2px 8px; font-size:11px;">Top 20</button>
+                        </div>
+                        <button class="btn-save" onclick="exportConsolidatedCSV()" style="padding:4px 10px; font-size:11px; background:var(--bg-card2); border:1px solid var(--border-lit);" title="Export Consolidated Ranking to CSV">📥 Export CSV</button>
+                      </div>
                     </div>
                     <div class="charts-subgrid"
                       style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; width:100%;">
                       <div>
-                        <h4
-                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
-                          By Qty Consumed (Combined)</h4>
-                        <div class="chart-wrap" style="height:340px; width:100%;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                          <h4
+                            style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin:0; letter-spacing:.05em;">
+                            By Qty Consumed (Combined)</h4>
+                          <span style="font-size:10px; color:var(--text-faint);">💡 Click bar to view item details</span>
+                        </div>
+                        <div id="wrap-consolidated-qty" class="chart-wrap" style="height:360px; width:100%;">
                           <canvas id="chart-consolidated-qty"></canvas>
                         </div>
                       </div>
                       <div>
-                        <h4
-                          style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:.05em;">
-                          By Acquisition Value (Combined Amount ₱)</h4>
-                        <div class="chart-wrap" style="height:340px; width:100%;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                          <h4
+                            style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin:0; letter-spacing:.05em;">
+                            By Acquisition Value (Combined Amount ₱)</h4>
+                          <span style="font-size:10px; color:var(--text-faint);">💡 Click bar to view item details</span>
+                        </div>
+                        <div id="wrap-consolidated-val" class="chart-wrap" style="height:360px; width:100%;">
                           <canvas id="chart-consolidated-val"></canvas>
                         </div>
                       </div>
@@ -5285,16 +5299,174 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
+        let currentConsolidatedLimit = 10;
+
+        function formatCompactNumber(num) {
+          if (num === null || num === undefined || isNaN(num)) return '0';
+          const abs = Math.abs(num);
+          if (abs >= 1e9) return (num / 1e9).toFixed(2).replace(/\.00$/, '') + 'B';
+          if (abs >= 1e6) return (num / 1e6).toFixed(2).replace(/\.00$/, '') + 'M';
+          if (abs >= 1e3) return (num / 1e3).toFixed(1).replace(/\.0$/, '') + 'k';
+          return Number(num).toLocaleString('en-US');
+        }
+
+        const consolidatedValueLabelPlugin = {
+          id: 'consolidatedValueLabel',
+          afterDatasetsDraw(chart, args, pluginOptions) {
+            const { ctx } = chart;
+            const meta = chart.getDatasetMeta(0);
+            if (!meta || !meta.data || !meta.data.length) return;
+            const isVal = pluginOptions && pluginOptions.isCurrency;
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
+            ctx.save();
+            ctx.font = '600 10px Inter, system-ui, -apple-system, sans-serif';
+            ctx.textBaseline = 'middle';
+
+            meta.data.forEach((bar, index) => {
+              const val = chart.data.datasets[0].data[index];
+              if (val === undefined || val === null) return;
+
+              const text = isVal ? ('₱' + formatCompactNumber(val)) : (formatCompactNumber(val) + ' u');
+              const textWidth = ctx.measureText(text).width;
+              const barLength = Math.abs(bar.x - bar.base);
+
+              if (barLength > textWidth + 24) {
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+                ctx.shadowBlur = 3;
+                ctx.textAlign = 'right';
+                ctx.fillText(text, bar.x - 8, bar.y);
+                ctx.shadowBlur = 0;
+              } else {
+                ctx.fillStyle = isLight ? '#334155' : '#cbd5e1';
+                ctx.shadowBlur = 0;
+                ctx.textAlign = 'left';
+                const posX = Math.min(bar.x + 6, chart.chartArea.right - textWidth - 2);
+                ctx.fillText(text, posX, bar.y);
+              }
+            });
+            ctx.restore();
+          }
+        };
+
+        function setConsolidatedLimit(limit, btn) {
+          currentConsolidatedLimit = parseInt(limit, 10) || 10;
+          const labelEl = document.getElementById('consolidated-limit-label');
+          if (labelEl) labelEl.textContent = 'Top ' + currentConsolidatedLimit;
+
+          ['btn-cons-5', 'btn-cons-10', 'btn-cons-20'].forEach(id => {
+            const b = document.getElementById(id);
+            if (b) b.classList.remove('active');
+          });
+          if (btn) {
+            btn.classList.add('active');
+          } else {
+            const target = document.getElementById('btn-cons-' + currentConsolidatedLimit);
+            if (target) target.classList.add('active');
+          }
+
+          buildConsolidatedCharts();
+        }
+
+        function exportConsolidatedCSV() {
+          const yr = document.getElementById('analytics-year').value || '2025';
+          const qtyKey = 'annual_qty_' + yr;
+          const valKey = 'annual_val_' + yr;
+
+          const groupMap = {};
+          allItems.forEach(it => {
+            const q = parseFloat(it[qtyKey] || 0);
+            const v = parseFloat(it[valKey] || 0);
+            if (q <= 0 && v <= 0) return;
+
+            const cleanName = String(it.generic_name || it.description || it.item_code)
+              .replace(/^\((c|ep|don)\)\s*/i, '')
+              .trim();
+            const key = cleanName.toLowerCase();
+
+            if (!groupMap[key]) {
+              groupMap[key] = {
+                name: cleanName,
+                primaryItemCode: it.item_code || '',
+                dci_code: it.dci_code || '',
+                qty: 0,
+                val: 0,
+                maxItemQty: q,
+                categories: {}
+              };
+            } else {
+              if (q > groupMap[key].maxItemQty) {
+                groupMap[key].primaryItemCode = it.item_code || groupMap[key].primaryItemCode;
+                groupMap[key].maxItemQty = q;
+              }
+              if (!groupMap[key].dci_code && it.dci_code) {
+                groupMap[key].dci_code = it.dci_code;
+              }
+            }
+            groupMap[key].qty += q;
+            groupMap[key].val += v;
+            const cat = it.pharmacy_category || 'Other';
+            groupMap[key].categories[cat] = (groupMap[key].categories[cat] || 0) + q;
+          });
+
+          const sortedList = Object.values(groupMap).sort((a, b) => b.val - a.val);
+          if (sortedList.length === 0) {
+            showToast('No consumption data available to export for year ' + yr, 'warning');
+            return;
+          }
+
+          const cols = [
+            'Rank',
+            'Generic / Item Description',
+            'Primary Item Code',
+            'DCI Code',
+            'Annual Qty (' + yr + ')',
+            'Annual Value PHP (' + yr + ')',
+            'Medicine Regular Qty',
+            'Consignment Qty',
+            'Emergency Purchase Qty',
+            'Donation Qty'
+          ];
+          const header = cols.map(c => `"${c}"`).join(',');
+          const rows = sortedList.map((item, idx) => {
+            return [
+              idx + 1,
+              `"${(item.name || '').replace(/"/g, '""')}"`,
+              `"${(item.primaryItemCode || '').replace(/"/g, '""')}"`,
+              `"${(item.dci_code || '').replace(/"/g, '""')}"`,
+              item.qty,
+              item.val.toFixed(2),
+              item.categories['Medicine Regular'] || 0,
+              item.categories['Consignment'] || 0,
+              item.categories['Emergency Purchase'] || 0,
+              item.categories['Donation'] || 0
+            ].join(',');
+          });
+
+          downloadCSV([header, ...rows].join('\n'), 'Consolidated_Annual_Consumption_' + yr + '.csv');
+        }
+
         function buildConsolidatedCharts() {
           const yr = document.getElementById('analytics-year').value || '2025';
           const qtyKey = 'annual_qty_' + yr;
           const valKey = 'annual_val_' + yr;
 
+          // Dynamically adjust wrapper heights based on limit so bars don't squeeze
+          const dynamicH = Math.max(280, currentConsolidatedLimit * 28 + 80);
+          const wrapQty = document.getElementById('wrap-consolidated-qty');
+          const wrapVal = document.getElementById('wrap-consolidated-val');
+          if (wrapQty) wrapQty.style.height = dynamicH + 'px';
+          if (wrapVal) wrapVal.style.height = dynamicH + 'px';
+
           // Group all items across all categories (Medicine Regular, Consignment, Emergency Purchase, Donation)
           const groupMap = {};
+          let totalHospitalSpend = 0;
+
           allItems.forEach(it => {
             const q = parseFloat(it[qtyKey] || 0);
             const v = parseFloat(it[valKey] || 0);
+            totalHospitalSpend += v;
             if (q <= 0 && v <= 0) return;
 
             // Normalize item name for cross-category grouping (strip prefixes like (C), (EP), (DON))
@@ -5306,11 +5478,21 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             if (!groupMap[key]) {
               groupMap[key] = {
                 name: cleanName,
+                primaryItemCode: it.item_code || '',
                 dci_code: it.dci_code || '',
                 qty: 0,
                 val: 0,
+                maxItemQty: q,
                 categories: {}
               };
+            } else {
+              if (q > groupMap[key].maxItemQty) {
+                groupMap[key].primaryItemCode = it.item_code || groupMap[key].primaryItemCode;
+                groupMap[key].maxItemQty = q;
+              }
+              if (!groupMap[key].dci_code && it.dci_code) {
+                groupMap[key].dci_code = it.dci_code;
+              }
             }
             groupMap[key].qty += q;
             groupMap[key].val += v;
@@ -5320,51 +5502,100 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           const aggregatedList = Object.values(groupMap);
 
+          // Update ABC / Pareto Pill
+          const topLimitVal = [...aggregatedList]
+            .filter(item => item.val > 0)
+            .sort((a, b) => b.val - a.val)
+            .slice(0, currentConsolidatedLimit);
+
+          const topLimitSpend = topLimitVal.reduce((acc, it) => acc + it.val, 0);
+          const pctOfSpend = totalHospitalSpend > 0 ? ((topLimitSpend / totalHospitalSpend) * 100).toFixed(1) : '0';
+          const abcPill = document.getElementById('consolidated-abc-pill');
+          if (abcPill) {
+            abcPill.textContent = `Top ${currentConsolidatedLimit} Budget: ₱${formatCompactNumber(topLimitSpend)} (${pctOfSpend}% of Total Spend)`;
+            abcPill.title = `Total Annual Expenditure across all categories: ₱${totalHospitalSpend.toLocaleString('en-PH', { maximumFractionDigits: 2 })}`;
+          }
+
           // 1. Consolidated Qty Chart
           const ctxQty = document.getElementById('chart-consolidated-qty');
           if (ctxQty) {
-            const top10Qty = [...aggregatedList]
+            const topLimitQty = [...aggregatedList]
               .filter(item => item.qty > 0)
               .sort((a, b) => b.qty - a.qty)
-              .slice(0, 10);
+              .slice(0, currentConsolidatedLimit);
 
             if (consQtyChart) { consQtyChart.destroy(); }
             consQtyChart = new Chart(ctxQty, {
               type: 'bar',
+              plugins: [consolidatedValueLabelPlugin],
               data: {
-                labels: top10Qty.map(it => {
+                labels: topLimitQty.map(it => {
                   const name = it.name || '';
-                  return name.length > 38 ? name.substring(0, 38) + '…' : name;
+                  return name.length > 36 ? name.substring(0, 36) + '…' : name;
                 }),
                 datasets: [{
                   label: 'Combined Qty Consumed',
-                  data: top10Qty.map(it => it.qty),
-                  backgroundColor: top10Qty.map((_, i) => 'hsla(' + (175 + i * 5) + ', 85%, 48%, 0.8)'),
+                  data: topLimitQty.map(it => it.qty),
+                  backgroundColor: topLimitQty.map((_, i) => 'hsla(' + (175 + i * 4) + ', 85%, 48%, 0.85)'),
                   borderRadius: 6,
                 }]
               },
               options: {
-                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                onClick: (evt, elements) => {
+                  if (elements && elements.length > 0) {
+                    const idx = elements[0].index;
+                    const item = topLimitQty[idx];
+                    if (item && item.primaryItemCode) {
+                      openItemModal(item.primaryItemCode);
+                    }
+                  }
+                },
+                onHover: (evt, activeElements, chart) => {
+                  chart.canvas.style.cursor = (activeElements && activeElements.length > 0) ? 'pointer' : 'default';
+                },
                 plugins: {
                   legend: { display: false },
+                  consolidatedValueLabel: { isCurrency: false },
                   tooltip: {
                     callbacks: {
                       title: (items) => {
                         const idx = items[0].dataIndex;
-                        return top10Qty[idx]?.name || '';
+                        return topLimitQty[idx]?.name || '';
                       },
                       label: (context) => {
-                        const item = top10Qty[context.dataIndex];
-                        const catStr = Object.entries(item.categories).map(([c, q]) => c + ': ' + q.toLocaleString()).join(' | ');
-                        return [' Total Qty: ' + context.raw.toLocaleString() + ' units', ' Breakdown: ' + catStr];
+                        const item = topLimitQty[context.dataIndex];
+                        const catStr = Object.entries(item.categories).map(([c, q]) => c + ': ' + Number(q).toLocaleString()).join(' | ');
+                        return [
+                          ' Total Qty: ' + context.raw.toLocaleString() + ' units',
+                          ' Annual Value: ₱' + item.val.toLocaleString('en-PH', { maximumFractionDigits: 2 }),
+                          ' Breakdown: ' + catStr,
+                          ' 💡 Click bar to view item specifications'
+                        ];
                       }
                     }
                   }
                 },
-                layout: { padding: { left: 10, right: 10 } },
+                layout: { padding: { left: 8, right: 35, top: 4, bottom: 4 } },
                 scales: {
-                  x: { grid: { color: getChartThemeColors().gridColor }, ticks: { color: getChartThemeColors().tickColor, font: { size: 10 } } },
-                  y: { grid: { display: false }, ticks: { color: getChartThemeColors().labelColor, font: { size: 11, weight: '600' }, padding: 6 } },
+                  x: {
+                    grid: { color: getChartThemeColors().gridColor },
+                    ticks: {
+                      color: getChartThemeColors().tickColor,
+                      font: { size: 10 },
+                      callback: (value) => formatCompactNumber(value) + ' u'
+                    }
+                  },
+                  y: {
+                    grid: { display: false },
+                    ticks: {
+                      color: getChartThemeColors().labelColor,
+                      font: { size: 11, weight: '600' },
+                      padding: 6
+                    }
+                  },
                 }
               }
             });
@@ -5373,53 +5604,78 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           // 2. Consolidated Value Chart
           const ctxVal = document.getElementById('chart-consolidated-val');
           if (ctxVal) {
-            const top10Val = [...aggregatedList]
-              .filter(item => item.val > 0)
-              .sort((a, b) => b.val - a.val)
-              .slice(0, 10);
-
             if (consValChart) { consValChart.destroy(); }
             consValChart = new Chart(ctxVal, {
               type: 'bar',
+              plugins: [consolidatedValueLabelPlugin],
               data: {
-                labels: top10Val.map(it => {
+                labels: topLimitVal.map(it => {
                   const name = it.name || '';
-                  return name.length > 38 ? name.substring(0, 38) + '…' : name;
+                  return name.length > 36 ? name.substring(0, 36) + '…' : name;
                 }),
                 datasets: [{
                   label: 'Combined Acquisition Value (₱)',
-                  data: top10Val.map(it => it.val),
-                  backgroundColor: top10Val.map((_, i) => 'hsla(' + (275 + i * 5) + ', 85%, 60%, 0.8)'),
+                  data: topLimitVal.map(it => it.val),
+                  backgroundColor: topLimitVal.map((_, i) => 'hsla(' + (275 + i * 4) + ', 85%, 60%, 0.85)'),
                   borderRadius: 6,
                 }]
               },
               options: {
-                responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                onClick: (evt, elements) => {
+                  if (elements && elements.length > 0) {
+                    const idx = elements[0].index;
+                    const item = topLimitVal[idx];
+                    if (item && item.primaryItemCode) {
+                      openItemModal(item.primaryItemCode);
+                    }
+                  }
+                },
+                onHover: (evt, activeElements, chart) => {
+                  chart.canvas.style.cursor = (activeElements && activeElements.length > 0) ? 'pointer' : 'default';
+                },
                 plugins: {
                   legend: { display: false },
+                  consolidatedValueLabel: { isCurrency: true },
                   tooltip: {
                     callbacks: {
                       title: (items) => {
                         const idx = items[0].dataIndex;
-                        return top10Val[idx]?.name || '';
+                        return topLimitVal[idx]?.name || '';
                       },
                       label: (context) => {
-                        return ' Total Amount: ₱' + context.raw.toLocaleString('en-PH', { maximumFractionDigits: 2 });
+                        const item = topLimitVal[context.dataIndex];
+                        const catStr = Object.entries(item.categories).map(([c, q]) => c + ': ' + Number(q).toLocaleString()).join(' | ');
+                        return [
+                          ' Total Amount: ₱' + context.raw.toLocaleString('en-PH', { maximumFractionDigits: 2 }),
+                          ' Total Qty: ' + item.qty.toLocaleString() + ' units',
+                          ' Breakdown: ' + catStr,
+                          ' 💡 Click bar to view item specifications'
+                        ];
                       }
                     }
                   }
                 },
-                layout: { padding: { left: 10, right: 10 } },
+                layout: { padding: { left: 8, right: 35, top: 4, bottom: 4 } },
                 scales: {
                   x: {
                     grid: { color: getChartThemeColors().gridColor },
                     ticks: {
                       color: getChartThemeColors().tickColor,
                       font: { size: 10 },
-                      callback: function (value) { return '₱' + value.toLocaleString(); }
+                      callback: (value) => '₱' + formatCompactNumber(value)
                     }
                   },
-                  y: { grid: { display: false }, ticks: { color: getChartThemeColors().labelColor, font: { size: 11, weight: '600' }, padding: 6 } },
+                  y: {
+                    grid: { display: false },
+                    ticks: {
+                      color: getChartThemeColors().labelColor,
+                      font: { size: 11, weight: '600' },
+                      padding: 6
+                    }
+                  },
                 }
               }
             });
