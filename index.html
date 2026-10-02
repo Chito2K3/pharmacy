@@ -6989,7 +6989,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
         function showSection(id, el) {
           if (id === 'setup' && !setupUnlocked) {
-            const pin = prompt('Enter Admin PIN to open Setup & Configuration (Default: 1234):');
+            const pin = prompt('Enter Admin PIN to open Setup & Configuration:');
             if (pin === null) return;
             if (pin.trim() === '1234' || pin.trim().toLowerCase() === 'armmc') {
               setupUnlocked = true;
