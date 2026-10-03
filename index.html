@@ -2019,6 +2019,223 @@
       }
     }
 
+    /* ===== SHEET UPDATE STATUS PILL & STALE BANNER ===== */
+    .sheet-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-lit);
+      background: var(--bg-card2);
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .sheet-status-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .sheet-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      flex-shrink: 0;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sheet-status-pill.fresh {
+      background: rgba(16, 185, 129, 0.09);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--success);
+    }
+
+    .sheet-status-pill.fresh .sheet-status-dot {
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+    }
+
+    .sheet-status-pill.stale {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: var(--warning);
+      animation: pillAttention 3s infinite ease-in-out;
+    }
+
+    .sheet-status-pill.stale .sheet-status-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+      animation: pulseWarning 1.5s infinite;
+    }
+
+    .sheet-status-pill.overdue {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: var(--danger);
+      animation: pillAttention 2s infinite ease-in-out;
+    }
+
+    .sheet-status-pill.overdue .sheet-status-dot {
+      background: #ef4444;
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+      animation: pulseWarning 1.2s infinite;
+    }
+
+    @keyframes pulseWarning {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+      50% {
+        transform: scale(1.3);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+    }
+
+    @keyframes pillAttention {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+      }
+      50% {
+        box-shadow: 0 0 14px 2px rgba(245, 158, 11, 0.25);
+      }
+    }
+
+    /* Stale Sheet Banner on Dashboard */
+    .stale-sheet-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(239, 68, 68, 0.08) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.12);
+      animation: slideUp 0.3s ease;
+      position: relative;
+    }
+
+    [data-theme="light"] .stale-sheet-banner {
+      background: linear-gradient(135deg, rgba(254, 243, 199, 0.95) 0%, rgba(254, 226, 226, 0.9) 100%);
+      border-color: rgba(245, 158, 11, 0.5);
+    }
+
+    .stale-sheet-content {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .stale-sheet-icon {
+      font-size: 26px;
+      line-height: 1;
+      flex-shrink: 0;
+      animation: pulseWarning 2s infinite ease-in-out;
+    }
+
+    .stale-sheet-text {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stale-sheet-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stale-sheet-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .stale-sheet-desc strong {
+      color: var(--text-main);
+    }
+
+    .stale-sheet-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .stale-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .stale-btn-primary {
+      background: #f59e0b;
+      color: #0b0f1a;
+      border: 1px solid #d97706;
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
+    }
+
+    .stale-btn-primary:hover {
+      background: #d97706;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .stale-btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-lit);
+    }
+
+    .stale-btn-secondary:hover {
+      background: var(--table-hover);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .stale-btn-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      padding: 6px;
+      cursor: pointer;
+      line-height: 1;
+      border-radius: 4px;
+      transition: color 0.2s ease;
+    }
+
+    .stale-btn-close:hover {
+      color: var(--text-main);
+    }
+
     @media (max-width: 900px) {
       .sidebar {
         position: fixed;
@@ -2987,6 +3204,10 @@
             <span>🔍</span>
             <input type="text" id="global-search" placeholder="Search items…" oninput="globalSearch(this.value)" />
           </div>
+          <div class="sheet-status-pill" id="sheet-status-pill" onclick="openSheetStatusModal()" title="View Google Sheet update details" style="display:none;">
+            <span class="sheet-status-dot" id="sheet-status-dot"></span>
+            <span id="sheet-status-text">Checking Sheet...</span>
+          </div>
           <div class="topbar-date" id="topbar-date"></div>
           <button class="theme-toggle-btn" id="theme-toggle-topbar" onclick="toggleTheme()"
             title="Toggle Light / Dark Theme" type="button">
@@ -3013,6 +3234,31 @@
                   <option value="consignment">Consignment Only</option>
                   <option value="all">All Categories (incl. Donation & EP)</option>
                 </select>
+              </div>
+            </div>
+
+            <!-- Stale Inventory Alert Banner (shown when sheet update is >= 3 days old) -->
+            <div id="stale-sheet-banner" class="stale-sheet-banner" style="display:none;">
+              <div class="stale-sheet-content">
+                <div class="stale-sheet-icon">⚠️</div>
+                <div class="stale-sheet-text">
+                  <div class="stale-sheet-title">
+                    <span>Inventory Update Notice — Sheet is Overdue</span>
+                    <span class="badge badge-warning" id="stale-sheet-days-badge" style="font-size:11px;">3 days ago</span>
+                  </div>
+                  <div class="stale-sheet-desc" id="stale-sheet-desc">
+                    The master Google Sheet was last updated on <strong id="stale-sheet-date">—</strong> (<span id="stale-sheet-days-text">—</span>). Please update the inventory sheet to keep stock monitoring and replenishment calculations accurate.
+                  </div>
+                </div>
+              </div>
+              <div class="stale-sheet-actions">
+                <a id="stale-sheet-link" href="https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801" target="_blank" rel="noopener noreferrer" class="stale-btn stale-btn-primary" title="Open master Google Sheet in new tab">
+                  <span>↗</span> Open Google Sheet
+                </a>
+                <button type="button" class="stale-btn stale-btn-secondary" onclick="retryLoadInventory()" title="Sync freshly updated sheet data">
+                  <span>🔄</span> Sync Live Data
+                </button>
+                <button type="button" class="stale-btn-close" onclick="dismissStaleBanner()" title="Dismiss this notice for now">✕</button>
               </div>
             </div>
 
@@ -3926,6 +4172,56 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         </div><!-- /app-layout -->
       </div><!-- /app -->
 
+      <!-- ========================= SHEET STATUS MODAL ========================= -->
+      <div id="modal-sheet-status" class="sidebar-backdrop" onclick="if(event.target===this) closeSheetStatusModal()"
+        style="align-items:center; justify-content:center; padding:20px; z-index:1000; backdrop-filter:blur(6px); transition:opacity 0.2s ease; display:none;">
+        <div class="table-card"
+          style="width: 500px; max-width: 92vw; background:var(--bg-card); border:1px solid var(--border-lit); border-radius:18px; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.6); overflow:hidden;">
+          <div
+            style="padding:18px 22px; background:var(--bg-card2); border-bottom:1px solid var(--border-lit); display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:20px;" id="modal-sheet-icon">📊</span>
+              <h3 style="margin:0; font-size:15px; font-weight:800; color:var(--text-main);">Google Sheet Sync Status</h3>
+            </div>
+            <button onclick="closeSheetStatusModal()"
+              style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:4px; line-height:1;"
+              title="Close">✕</button>
+          </div>
+          <div style="padding:22px 24px; display:flex; flex-direction:column; gap:16px;">
+            <div id="modal-sheet-alert-box" style="padding:12px 16px; border-radius:10px; font-size:13px; line-height:1.5;"></div>
+
+            <div style="background:var(--bg-card2); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; font-size:13px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:var(--text-muted);">Manual Date (Sheet Row 2):</span>
+                <strong id="modal-sheet-manual-date" style="color:var(--text-main);">—</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:var(--text-muted);">Auto Last Modified (Drive):</span>
+                <strong id="modal-sheet-auto-date" style="color:var(--text-main);">—</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:var(--text-muted);">Effective Data Age:</span>
+                <strong id="modal-sheet-age" style="color:var(--accent);">—</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:var(--text-muted);">Freshness Threshold:</span>
+                <span style="color:var(--text-main);">3 days (Notification triggered if ≥ 3 days)</span>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px; flex-wrap:wrap;">
+              <a id="modal-sheet-open-btn" href="https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801"
+                target="_blank" rel="noopener noreferrer" class="stale-btn stale-btn-primary" style="padding:8px 16px;">
+                <span>↗</span> Open Sheet in New Tab
+              </a>
+              <button onclick="closeSheetStatusModal(); retryLoadInventory();" class="stale-btn stale-btn-secondary" style="padding:8px 16px;">
+                <span>🔄</span> Re-sync Live Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ========================= ADMIN PIN MODAL ========================= -->
       <div id="admin-pin-modal" class="sidebar-backdrop" onclick="if(event.target===this)closeAdminPinModal()"
         style="align-items:center; justify-content:center; padding:20px; z-index:1000; backdrop-filter:blur(6px); transition:opacity 0.2s ease;">
@@ -4614,21 +4910,194 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
+        // ================================================================
+        //  SHEET FRESHNESS & UPDATE CONTROLLER
+        // ================================================================
+        let currentSheetMetadata = null;
+        let staleBannerDismissed = false;
+
+        function parseSheetDateString(val) {
+          if (!val) return null;
+          if (val instanceof Date) return val;
+          const s = String(val).trim();
+          const dateMatch = s.match(/([A-Za-z]{3}\s+\d{1,2}\s+\d{4})/);
+          if (dateMatch) {
+            const d = new Date(dateMatch[1]);
+            if (!isNaN(d.getTime())) return d;
+          }
+          const slashMatch = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+          if (slashMatch) {
+            const d = new Date(parseInt(slashMatch[3]), parseInt(slashMatch[1]) - 1, parseInt(slashMatch[2]));
+            if (!isNaN(d.getTime())) return d;
+          }
+          const d = new Date(s);
+          return isNaN(d.getTime()) ? null : d;
+        }
+
+        function updateSheetFreshnessUI(meta) {
+          if (!meta) return;
+          currentSheetMetadata = meta;
+          try {
+            localStorage.setItem('armmc_sheet_metadata', JSON.stringify(meta));
+          } catch (e) { }
+
+          const pill = document.getElementById('sheet-status-pill');
+          const pillText = document.getElementById('sheet-status-text');
+
+          const daysOld = typeof meta.daysSinceUpdate === 'number' ? meta.daysSinceUpdate : 0;
+          const threshold = typeof meta.staleThresholdDays === 'number' ? meta.staleThresholdDays : 3;
+          const isStale = daysOld >= threshold;
+          const isOverdue = daysOld >= 5;
+
+          const dateDisplay = meta.manualDateFormatted || meta.manualDateRaw || (meta.effectiveDate ? new Date(meta.effectiveDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '10/01/2026');
+
+          const daysText = daysOld === 0 ? 'Today' : (daysOld === 1 ? '1 day ago' : daysOld + ' days ago');
+
+          if (pill) {
+            pill.style.display = 'inline-flex';
+            pill.className = 'sheet-status-pill ' + (isOverdue ? 'overdue' : (isStale ? 'stale' : 'fresh'));
+            if (pillText) {
+              if (isStale) {
+                pillText.textContent = 'Sheet: ' + daysText + ' (Update needed)';
+              } else {
+                pillText.textContent = 'Sheet: ' + dateDisplay + ' (' + daysText + ')';
+              }
+            }
+          }
+
+          // Stale banner on Dashboard Overview
+          const banner = document.getElementById('stale-sheet-banner');
+          if (banner) {
+            if (isStale && !staleBannerDismissed) {
+              banner.style.display = 'flex';
+              const dateEl = document.getElementById('stale-sheet-date');
+              const daysTextEl = document.getElementById('stale-sheet-days-text');
+              const daysBadge = document.getElementById('stale-sheet-days-badge');
+              const sheetLink = document.getElementById('stale-sheet-link');
+
+              if (dateEl) dateEl.textContent = dateDisplay;
+              if (daysTextEl) daysTextEl.textContent = daysText;
+              if (daysBadge) daysBadge.textContent = daysText;
+              if (sheetLink && meta.sheetUrl) sheetLink.href = meta.sheetUrl;
+            } else {
+              banner.style.display = 'none';
+            }
+          }
+
+          const modalLink = document.getElementById('modal-sheet-open-btn');
+          if (modalLink && meta.sheetUrl) modalLink.href = meta.sheetUrl;
+        }
+
+        function dismissStaleBanner() {
+          staleBannerDismissed = true;
+          const banner = document.getElementById('stale-sheet-banner');
+          if (banner) banner.style.display = 'none';
+        }
+
+        function openSheetStatusModal() {
+          const modal = document.getElementById('modal-sheet-status');
+          if (!modal) return;
+
+          const meta = currentSheetMetadata || {};
+          const daysOld = typeof meta.daysSinceUpdate === 'number' ? meta.daysSinceUpdate : 0;
+          const threshold = typeof meta.staleThresholdDays === 'number' ? meta.staleThresholdDays : 3;
+          const isStale = daysOld >= threshold;
+          const daysText = daysOld === 0 ? 'Today (0 days ago)' : (daysOld === 1 ? '1 day ago' : daysOld + ' days ago');
+
+          const alertBox = document.getElementById('modal-sheet-alert-box');
+          const modalIcon = document.getElementById('modal-sheet-icon');
+          if (alertBox) {
+            if (isStale) {
+              if (modalIcon) modalIcon.textContent = '⚠️';
+              alertBox.style.background = 'rgba(245, 158, 11, 0.15)';
+              alertBox.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+              alertBox.style.color = 'var(--text-main)';
+              alertBox.innerHTML = '<strong>Action Recommended:</strong> The Google Sheet was last updated <strong>' + daysText + '</strong>. Because it is 3 or more days old, please update the master sheet with the latest stock counts to keep reorder calculations accurate.';
+            } else {
+              if (modalIcon) modalIcon.textContent = '✅';
+              alertBox.style.background = 'rgba(16, 185, 129, 0.15)';
+              alertBox.style.border = '1px solid rgba(16, 185, 129, 0.35)';
+              alertBox.style.color = 'var(--text-main)';
+              alertBox.innerHTML = '<strong>Data is Fresh:</strong> The Google Sheet was updated recently (<strong>' + daysText + '</strong>). Current inventory counts, consumption rates, and replenishment formulas are up to date.';
+            }
+          }
+
+          const mDateEl = document.getElementById('modal-sheet-manual-date');
+          const aDateEl = document.getElementById('modal-sheet-auto-date');
+          const ageEl = document.getElementById('modal-sheet-age');
+
+          if (mDateEl) mDateEl.textContent = meta.manualDateFormatted || meta.manualDateRaw || '10/01/2026';
+          if (aDateEl) {
+            if (meta.autoLastModified) {
+              const d = new Date(meta.autoLastModified);
+              aDateEl.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            } else {
+              aDateEl.textContent = 'Live sheet date tracking active';
+            }
+          }
+          if (ageEl) {
+            ageEl.textContent = daysText;
+            ageEl.style.color = isStale ? 'var(--warning)' : 'var(--success)';
+          }
+
+          modal.style.display = 'flex';
+          modal.style.opacity = '1';
+        }
+
+        function closeSheetStatusModal() {
+          const modal = document.getElementById('modal-sheet-status');
+          if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 200);
+          }
+        }
+
         async function loadData() {
           showInventoryLoading('Syncing Inventory Data', 'Connecting to Google Sheets...');
 
           let loaded = false;
           let loadError = null;
+          let sheetMeta = null;
 
           // 1. Try google.script.run (when hosted inside Apps Script)
           if (typeof google !== 'undefined' && google.script && google.script.run) {
             try {
-              updateInventoryLoading('Google Apps Script Detected', 'Retrieving live records from sheet...');
+              updateInventoryLoading('Google Apps Script Detected', 'Retrieving live records and sheet status...');
               let items = [];
               try { items = await gscriptCall('getItems'); } catch (err1) { console.warn('getItems error:', err1); loadError = err1; }
 
               let reorders = [];
               try { reorders = await gscriptCall('getReorders'); } catch (err2) { console.warn('getReorders error:', err2); }
+
+              try {
+                sheetMeta = await gscriptCall('getSheetMetadata');
+              } catch (err3) {
+                try {
+                  const info = await gscriptCall('getSheetInfo');
+                  if (info && Array.isArray(info.headerCells)) {
+                    const h2 = info.headerCells.find(h => h.row === 2 && (h.col === 'B' || h.idx === 1));
+                    if (h2 && h2.value) {
+                      const parsedD = parseSheetDateString(h2.value);
+                      if (parsedD) {
+                        const now = new Date();
+                        const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                        const updateMid = new Date(parsedD.getFullYear(), parsedD.getMonth(), parsedD.getDate()).getTime();
+                        const daysOld = Math.max(0, Math.round((todayMid - updateMid) / (1000 * 60 * 60 * 24)));
+                        sheetMeta = {
+                          manualDateRaw: h2.value,
+                          manualDateFormatted: parsedD.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                          effectiveDate: parsedD.toISOString(),
+                          effectiveType: 'manual',
+                          daysSinceUpdate: daysOld,
+                          isStale: daysOld >= 3,
+                          staleThresholdDays: 3,
+                          sheetUrl: 'https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801'
+                        };
+                      }
+                    }
+                  }
+                } catch (e4) { }
+              }
 
               if (Array.isArray(items) && items.length > 0) {
                 allItems = items;
@@ -4646,12 +5115,54 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           if (!loaded && APPS_SCRIPT_URL) {
             try {
               updateInventoryLoading('Connecting via API...', 'Fetching items & reorder sheets...');
-              const [itemsRes, reordRes] = await Promise.all([
+              const [itemsRes, reordRes, metaRes] = await Promise.all([
                 fetch(APPS_SCRIPT_URL + '?action=getItems'),
                 fetch(APPS_SCRIPT_URL + '?action=getReorders'),
+                fetch(APPS_SCRIPT_URL + '?action=getMetadata').catch(() => null),
               ]);
               const items = await itemsRes.json();
               const reorders = reordRes.ok ? await reordRes.json() : [];
+
+              if (metaRes && metaRes.ok) {
+                try {
+                  const m = await metaRes.json();
+                  if (m && !m.error && (m.manualDateFormatted || m.effectiveDate)) {
+                    sheetMeta = m;
+                  }
+                } catch (e) { }
+              }
+
+              // Fallback to getSheetInfo if getMetadata endpoint is not yet redeployed
+              if (!sheetMeta) {
+                try {
+                  const infoRes = await fetch(APPS_SCRIPT_URL + '?action=getSheetInfo');
+                  if (infoRes.ok) {
+                    const info = await infoRes.json();
+                    if (info && Array.isArray(info.headerCells)) {
+                      const h2 = info.headerCells.find(h => h.row === 2 && (h.col === 'B' || h.idx === 1));
+                      if (h2 && h2.value) {
+                        const parsedD = parseSheetDateString(h2.value);
+                        if (parsedD) {
+                          const now = new Date();
+                          const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                          const updateMid = new Date(parsedD.getFullYear(), parsedD.getMonth(), parsedD.getDate()).getTime();
+                          const daysOld = Math.max(0, Math.round((todayMid - updateMid) / (1000 * 60 * 60 * 24)));
+                          sheetMeta = {
+                            manualDateRaw: h2.value,
+                            manualDateFormatted: parsedD.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                            effectiveDate: parsedD.toISOString(),
+                            effectiveType: 'manual',
+                            daysSinceUpdate: daysOld,
+                            isStale: daysOld >= 3,
+                            staleThresholdDays: 3,
+                            sheetUrl: 'https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801'
+                          };
+                        }
+                      }
+                    }
+                  }
+                } catch (e) { }
+              }
 
               if (Array.isArray(items) && items.length > 0) {
                 allItems = items;
@@ -4682,6 +5193,39 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               'Connection timed out or access was interrupted. Click Retry to reconnect or Refresh to reload.'
             );
             loadSampleData();
+          }
+
+          // Update Sheet Freshness UI
+          if (sheetMeta) {
+            updateSheetFreshnessUI(sheetMeta);
+          } else {
+            // Check local cache or default to manual date
+            try {
+              const cached = localStorage.getItem('armmc_sheet_metadata');
+              if (cached) {
+                const cObj = JSON.parse(cached);
+                if (cObj && cObj.manualDateFormatted) {
+                  updateSheetFreshnessUI(cObj);
+                  return;
+                }
+              }
+            } catch (e) { }
+
+            // Default to manual date 10/01/2026
+            const defDate = new Date(2026, 9, 1);
+            const now = new Date();
+            const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const updateMid = new Date(defDate.getFullYear(), defDate.getMonth(), defDate.getDate()).getTime();
+            const daysOld = Math.max(0, Math.round((todayMid - updateMid) / (1000 * 60 * 60 * 24)));
+            updateSheetFreshnessUI({
+              manualDateRaw: '10/01/2026',
+              manualDateFormatted: 'Oct 1, 2026',
+              effectiveDate: defDate.toISOString(),
+              daysSinceUpdate: daysOld,
+              isStale: daysOld >= 3,
+              staleThresholdDays: 3,
+              sheetUrl: 'https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801'
+            });
           }
 
           // Data normalization

@@ -50,6 +50,7 @@ function doGet(e) {
       case 'getUser':      return respond(getUser(email));
       case 'getStats':     return respond(getStats());
       case 'getSheetInfo': return respond(getSheetInfo());
+      case 'getMetadata':  return respond(getSheetMetadata());
       case 'ping':         return respond({ status: 'ok', timestamp: new Date().toISOString() });
       default:
         return respond({ error: 'Unknown action: ' + action });
@@ -317,6 +318,98 @@ function getItemSheet(ss) {
     sheet = ss.getSheetByName('New Inventory Utilization 2025');
   }
   return sheet;
+}
+
+/**
+ * Returns metadata about the Inventory Utilization Report sheet:
+ * - Manual update date from Cell B2 (e.g. '10/01/2026')
+ * - Automatic Google Drive file last modified timestamp
+ * - Sheet URL and tab GID
+ * - Calculated days elapsed and staleness indicator (default: >= 3 days)
+ */
+function getSheetMetadata() {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = getItemSheet(ss);
+  
+  let manualDateRaw = '';
+  let manualDateIso = null;
+  let manualDateFormatted = '';
+  
+  if (sheet) {
+    try {
+      // Cell B2 (Row 2, Column 2)
+      const b2 = sheet.getRange(2, 2).getValue();
+      if (b2 instanceof Date) {
+        manualDateIso = b2.toISOString();
+        manualDateFormatted = (b2.getMonth() + 1) + '/' + b2.getDate() + '/' + b2.getFullYear();
+        manualDateRaw = manualDateFormatted;
+      } else if (b2 !== null && b2 !== undefined && String(b2).trim() !== '') {
+        manualDateRaw = String(b2).trim();
+        const d = new Date(manualDateRaw);
+        if (!isNaN(d.getTime())) {
+          manualDateIso = d.toISOString();
+          manualDateFormatted = (d.getMonth() + 1) + '/' + d.getDate() + '/' + d.getFullYear();
+        } else {
+          manualDateFormatted = manualDateRaw;
+        }
+      }
+    } catch (e) {
+      Logger.log('Error reading Cell B2: ' + e.message);
+    }
+  }
+
+  let autoLastModified = null;
+  try {
+    const file = DriveApp.getFileById(ss.getId());
+    if (file) {
+      autoLastModified = file.getLastUpdated().toISOString();
+    }
+  } catch (e) {
+    Logger.log('DriveApp getLastUpdated error: ' + e.message);
+  }
+
+  let effectiveDate = null;
+  let effectiveType = 'none';
+
+  const mTime = manualDateIso ? new Date(manualDateIso).getTime() : 0;
+  const aTime = autoLastModified ? new Date(autoLastModified).getTime() : 0;
+
+  if (mTime > 0 && mTime >= aTime) {
+    effectiveDate = manualDateIso;
+    effectiveType = 'manual';
+  } else if (aTime > 0) {
+    effectiveDate = autoLastModified;
+    effectiveType = 'automatic';
+  } else if (mTime > 0) {
+    effectiveDate = manualDateIso;
+    effectiveType = 'manual';
+  }
+
+  let daysSinceUpdate = 0;
+  if (effectiveDate) {
+    const diffMs = Date.now() - new Date(effectiveDate).getTime();
+    daysSinceUpdate = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+  }
+
+  let sheetUrl = ss.getUrl();
+  if (sheet) {
+    sheetUrl += '#gid=' + sheet.getSheetId();
+  }
+
+  return {
+    manualDateRaw       : manualDateRaw,
+    manualDateIso       : manualDateIso,
+    manualDateFormatted : manualDateFormatted,
+    autoLastModified    : autoLastModified,
+    effectiveDate       : effectiveDate,
+    effectiveType       : effectiveType,
+    daysSinceUpdate     : daysSinceUpdate,
+    isStale             : daysSinceUpdate >= 3,
+    staleThresholdDays  : 3,
+    sheetUrl            : sheetUrl,
+    sheetName           : sheet ? sheet.getName() : (SHEET_ITEMS || 'Inventory Utilization Report'),
+    serverTime          : new Date().toISOString()
+  };
 }
 
 /**
