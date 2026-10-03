@@ -1752,7 +1752,7 @@
       }
     }
 
-    /* ===== TOAST ===== */
+    /* ===== ENHANCED LOADING WIDGET & TOASTS ===== */
     #toast-container {
       position: fixed;
       bottom: 24px;
@@ -1760,10 +1760,13 @@
       z-index: 9999;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+      max-width: 420px;
+      pointer-events: none;
     }
 
     .toast {
+      pointer-events: auto;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -1799,6 +1802,221 @@
 
     .toast.info {
       border-left: 3px solid var(--info);
+    }
+
+    /* Dedicated Inventory Loading Widget Card */
+    .loading-card-widget {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border-lit);
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 24px rgba(6, 182, 212, 0.15);
+      min-width: 320px;
+      max-width: 390px;
+      overflow: hidden;
+      animation: slideUp .3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.35s ease;
+      position: relative;
+    }
+
+    [data-theme="light"] .loading-card-widget {
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15), 0 0 20px rgba(2, 132, 199, 0.12);
+    }
+
+    .loading-card-widget.success {
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 24px rgba(16, 185, 129, 0.2);
+    }
+
+    .loading-card-widget.error {
+      border-color: rgba(239, 68, 68, 0.5);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 24px rgba(239, 68, 68, 0.25);
+    }
+
+    .loading-card-body {
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .loading-card-icon-wrap {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--accent-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .loading-card-widget.success .loading-card-icon-wrap {
+      background: rgba(16, 185, 129, 0.18);
+    }
+
+    .loading-card-widget.error .loading-card-icon-wrap {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .loading-spinner {
+      width: 17px;
+      height: 17px;
+      border: 2px solid rgba(6, 182, 212, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    [data-theme="light"] .loading-spinner {
+      border-color: rgba(2, 132, 199, 0.2);
+      border-top-color: var(--accent);
+    }
+
+    .loading-card-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .loading-card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .loading-card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .loading-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .loading-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--border-lit);
+      background: var(--bg-card2);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .loading-btn:hover {
+      background: var(--table-hover);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .loading-btn.btn-primary-action {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    .loading-btn.btn-primary-action:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    /* Progress bar track at bottom of card */
+    .loading-progress-track {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    [data-theme="light"] .loading-progress-track {
+      background: rgba(15, 23, 42, 0.08);
+    }
+
+    .loading-progress-bar {
+      height: 100%;
+      position: absolute;
+      left: 0;
+      width: 35%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      animation: progressIndeterminate 1.6s infinite ease-in-out;
+      transition: width 0.3s ease, background 0.3s ease, left 0.3s ease;
+    }
+
+    .loading-card-widget.success .loading-progress-bar {
+      animation: none;
+      left: 0 !important;
+      width: 100% !important;
+      background: var(--success) !important;
+    }
+
+    .loading-card-widget.error .loading-progress-bar {
+      animation: none;
+      left: 0 !important;
+      width: 100% !important;
+      background: var(--danger) !important;
+    }
+
+    @keyframes progressIndeterminate {
+      0% {
+        left: -35%;
+        width: 35%;
+      }
+      50% {
+        left: 35%;
+        width: 50%;
+      }
+      100% {
+        left: 100%;
+        width: 35%;
+      }
+    }
+
+    /* Skeleton Loading Shimmer for KPI counters */
+    .kpi-skeleton {
+      display: inline-block;
+      width: 52px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.20) 50%, rgba(255, 255, 255, 0.06) 75%);
+      background-size: 200% 100%;
+      animation: skeletonPulse 1.4s infinite ease-in-out;
+      vertical-align: middle;
+    }
+
+    [data-theme="light"] .kpi-skeleton {
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.06) 25%, rgba(15, 23, 42, 0.16) 50%, rgba(15, 23, 42, 0.06) 75%);
+      background-size: 200% 100%;
+    }
+
+    @keyframes skeletonPulse {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
     }
 
     @media (max-width: 900px) {
@@ -3713,15 +3931,20 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         style="align-items:center; justify-content:center; padding:20px; z-index:1000; backdrop-filter:blur(6px); transition:opacity 0.2s ease;">
         <div class="table-card"
           style="width: 420px; max-width: 92vw; background:var(--bg-card); border:1px solid var(--border-lit); border-radius:18px; box-shadow:0 25px 50px -12px rgba(0, 0, 0, 0.6); overflow:hidden;">
-          <div style="padding:18px 22px; background:var(--bg-card2); border-bottom:1px solid var(--border-lit); display:flex; justify-content:space-between; align-items:center;">
+          <div
+            style="padding:18px 22px; background:var(--bg-card2); border-bottom:1px solid var(--border-lit); display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex; align-items:center; gap:10px;">
               <span style="font-size:20px;">🔒</span>
-              <h3 style="margin:0; font-size:15px; font-weight:800; color:var(--text-main);">Admin Passcode Required</h3>
+              <h3 style="margin:0; font-size:15px; font-weight:800; color:var(--text-main);">Admin Passcode Required
+              </h3>
             </div>
-            <button onclick="closeAdminPinModal()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:4px; line-height:1;" title="Close">✕</button>
+            <button onclick="closeAdminPinModal()"
+              style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:4px; line-height:1;"
+              title="Close">✕</button>
           </div>
           <div style="padding:22px 24px; display:flex; flex-direction:column; gap:14px;">
-            <p style="font-size:13px; color:var(--text-muted); margin:0;">Enter the administrator passcode to access Setup & Configuration:</p>
+            <p style="font-size:13px; color:var(--text-muted); margin:0;">Enter the administrator passcode to access
+              Setup & Configuration:</p>
             <div style="position:relative; width:100%;">
               <input type="password" id="admin-pin-input" class="form-input" placeholder="••••••••"
                 style="width:100%; padding:10px 42px 10px 14px; font-size:15px; letter-spacing:0.12em;"
@@ -4159,19 +4382,179 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
-        // Helper: safe google.script.run Promise wrapper
+        // ================================================================
+        //  ENHANCED INVENTORY LOADING CONTROLLER
+        // ================================================================
+        let inventoryLoadingTimeoutTimer = null;
+        let inventoryLoadingWidgetEl = null;
+
+        function showInventoryLoading(title, subtitle) {
+          const container = document.getElementById('toast-container');
+          if (!container) return;
+
+          if (inventoryLoadingTimeoutTimer) {
+            clearTimeout(inventoryLoadingTimeoutTimer);
+            inventoryLoadingTimeoutTimer = null;
+          }
+
+          // Show skeleton shimmer on KPI cards if no items are loaded yet
+          const kpiIds = ['kpi-total-items', 'kpi-outofstock', 'kpi-critical', 'kpi-warning', 'kpi-ok', 'kpi-overstock', 'kpi-pending'];
+          kpiIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && (!allItems || allItems.length === 0)) {
+              el.innerHTML = '<span class="kpi-skeleton"></span>';
+            }
+          });
+
+          let widget = document.getElementById('inventory-loading-widget');
+          if (!widget) {
+            widget = document.createElement('div');
+            widget.id = 'inventory-loading-widget';
+            container.appendChild(widget);
+          }
+
+          widget.className = 'loading-card-widget';
+          widget.style.display = 'flex';
+          widget.style.opacity = '1';
+          widget.style.transform = 'translateY(0)';
+
+          widget.innerHTML = `
+            <div class="loading-card-body">
+              <div class="loading-card-icon-wrap" id="loading-card-icon-wrap">
+                <div class="loading-spinner"></div>
+              </div>
+              <div class="loading-card-details">
+                <div class="loading-card-title">
+                  <span id="loading-card-title-text">${title || 'Syncing Inventory Data...'}</span>
+                </div>
+                <div class="loading-card-subtitle" id="loading-card-sub-text">${subtitle || 'Connecting to Google Sheets...'}</div>
+                <div class="loading-card-actions" id="loading-card-actions" style="display:none;"></div>
+              </div>
+            </div>
+            <div class="loading-progress-track">
+              <div class="loading-progress-bar" id="loading-progress-bar"></div>
+            </div>
+          `;
+
+          inventoryLoadingWidgetEl = widget;
+
+          // 20-second timeout safeguard: trigger error state if request hangs
+          inventoryLoadingTimeoutTimer = setTimeout(() => {
+            if (inventoryLoadingWidgetEl && !inventoryLoadingWidgetEl.classList.contains('success')) {
+              showInventoryLoadingError(
+                'Data Sync Timed Out',
+                'Connection to Google Sheets is taking longer than expected. You can retry the sync or refresh the page.'
+              );
+            }
+          }, 20000);
+        }
+
+        function updateInventoryLoading(title, subtitle) {
+          const titleEl = document.getElementById('loading-card-title-text');
+          const subEl = document.getElementById('loading-card-sub-text');
+          if (titleEl && title) titleEl.textContent = title;
+          if (subEl && subtitle) subEl.textContent = subtitle;
+        }
+
+        function finishInventoryLoadingSuccess(successMsg) {
+          if (inventoryLoadingTimeoutTimer) {
+            clearTimeout(inventoryLoadingTimeoutTimer);
+            inventoryLoadingTimeoutTimer = null;
+          }
+
+          const widget = document.getElementById('inventory-loading-widget');
+          if (!widget) return;
+
+          widget.className = 'loading-card-widget success';
+          const iconWrap = document.getElementById('loading-card-icon-wrap');
+          if (iconWrap) iconWrap.innerHTML = '<span style="font-size:16px;">✅</span>';
+
+          const titleEl = document.getElementById('loading-card-title-text');
+          if (titleEl) titleEl.textContent = 'Live Data Connected';
+
+          const subEl = document.getElementById('loading-card-sub-text');
+          if (subEl) subEl.textContent = successMsg || 'Google Sheets inventory synced successfully.';
+
+          const actionsEl = document.getElementById('loading-card-actions');
+          if (actionsEl) actionsEl.style.display = 'none';
+
+          // Auto-dismiss smoothly after 2.8s
+          setTimeout(() => {
+            if (widget && widget.classList.contains('success')) {
+              widget.style.opacity = '0';
+              widget.style.transform = 'translateY(12px)';
+              setTimeout(() => {
+                if (widget && widget.classList.contains('success')) widget.remove();
+              }, 400);
+            }
+          }, 2800);
+        }
+
+        function showInventoryLoadingError(title, subtitle) {
+          if (inventoryLoadingTimeoutTimer) {
+            clearTimeout(inventoryLoadingTimeoutTimer);
+            inventoryLoadingTimeoutTimer = null;
+          }
+
+          const widget = document.getElementById('inventory-loading-widget');
+          if (!widget) return;
+
+          widget.className = 'loading-card-widget error';
+          const iconWrap = document.getElementById('loading-card-icon-wrap');
+          if (iconWrap) iconWrap.innerHTML = '<span style="font-size:16px;">⚠️</span>';
+
+          const titleEl = document.getElementById('loading-card-title-text');
+          if (titleEl) titleEl.textContent = title || 'Inventory Load Failed';
+
+          const subEl = document.getElementById('loading-card-sub-text');
+          if (subEl) subEl.textContent = subtitle || 'Could not load live inventory. Please check connection or reload.';
+
+          const actionsEl = document.getElementById('loading-card-actions');
+          if (actionsEl) {
+            actionsEl.style.display = 'flex';
+            actionsEl.innerHTML = `
+              <button class="loading-btn btn-primary-action" onclick="retryLoadInventory()" title="Retry fetching live data">
+                <span>🔄</span> Retry Sync
+              </button>
+              <button class="loading-btn" onclick="refreshPage()" title="Reload dashboard window">
+                <span>⟳</span> Refresh Page
+              </button>
+            `;
+          }
+        }
+
+        function retryLoadInventory() {
+          showInventoryLoading('Reconnecting...', 'Attempting to fetch Google Sheets data again...');
+          loadData();
+        }
+
+        function refreshPage() {
+          window.location.reload();
+        }
+
+        // Helper: safe google.script.run Promise wrapper with 20s timeout safeguard
         function gscriptCall(fnName) {
           return new Promise((resolve, reject) => {
             if (typeof google === 'undefined' || !google || !google.script || !google.script.run) {
               reject(new Error('google.script.run is unavailable'));
               return;
             }
+            const timer = setTimeout(() => {
+              reject(new Error(fnName + ' timed out after 20s'));
+            }, 20000);
             try {
               google.script.run
-                .withSuccessHandler((res) => resolve(res))
-                .withFailureHandler((err) => reject(err))
+                .withSuccessHandler((res) => {
+                  clearTimeout(timer);
+                  resolve(res);
+                })
+                .withFailureHandler((err) => {
+                  clearTimeout(timer);
+                  reject(err);
+                })
               [fnName]();
             } catch (err) {
+              clearTimeout(timer);
               reject(err);
             }
           });
@@ -4189,7 +4572,6 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             if (Array.isArray(items) && items.length > 0) {
               allItems = items;
               allReorders = Array.isArray(reorders) ? reorders : [];
-              showToast('Loaded masterlist data (' + allItems.length.toLocaleString() + ' items) ✓', 'success');
               return true;
             }
           } catch (e) {
@@ -4233,15 +4615,17 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         }
 
         async function loadData() {
-          showToast('Loading inventory data…', 'info');
+          showInventoryLoading('Syncing Inventory Data', 'Connecting to Google Sheets...');
 
           let loaded = false;
+          let loadError = null;
 
           // 1. Try google.script.run (when hosted inside Apps Script)
           if (typeof google !== 'undefined' && google.script && google.script.run) {
             try {
+              updateInventoryLoading('Google Apps Script Detected', 'Retrieving live records from sheet...');
               let items = [];
-              try { items = await gscriptCall('getItems'); } catch (err1) { console.warn('getItems error:', err1); }
+              try { items = await gscriptCall('getItems'); } catch (err1) { console.warn('getItems error:', err1); loadError = err1; }
 
               let reorders = [];
               try { reorders = await gscriptCall('getReorders'); } catch (err2) { console.warn('getReorders error:', err2); }
@@ -4250,16 +4634,18 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 allItems = items;
                 allReorders = Array.isArray(reorders) ? reorders : [];
                 loaded = true;
-                showToast('Live data loaded from Google Sheets (' + allItems.length.toLocaleString() + ' items) ✓', 'success');
+                finishInventoryLoadingSuccess('Live data loaded from Google Sheets (' + allItems.length.toLocaleString() + ' items) ✓');
               }
             } catch (e) {
               console.warn('google.script.run error:', e);
+              loadError = e;
             }
           }
 
           // 2. Fallback: fetch API (if not loaded via google.script.run)
           if (!loaded && APPS_SCRIPT_URL) {
             try {
+              updateInventoryLoading('Connecting via API...', 'Fetching items & reorder sheets...');
               const [itemsRes, reordRes] = await Promise.all([
                 fetch(APPS_SCRIPT_URL + '?action=getItems'),
                 fetch(APPS_SCRIPT_URL + '?action=getReorders'),
@@ -4271,21 +4657,30 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 allItems = items;
                 allReorders = Array.isArray(reorders) ? reorders : [];
                 loaded = true;
-                showToast('Live data loaded via Apps Script API (' + allItems.length.toLocaleString() + ' items) ✓', 'success');
+                finishInventoryLoadingSuccess('Live data loaded via Apps Script API (' + allItems.length.toLocaleString() + ' items) ✓');
               }
             } catch (e) {
               console.warn('Fetch API error:', e);
+              loadError = e;
             }
           }
 
           // 3. Fallback: local JSON files (GitHub Pages static files)
           if (!loaded) {
+            updateInventoryLoading('Checking Local Cache...', 'Fetching local JSON backup...');
             loaded = await loadLocalJsonData();
+            if (loaded) {
+              finishInventoryLoadingSuccess('Loaded from local masterlist cache (' + allItems.length.toLocaleString() + ' items) ✓');
+            }
           }
 
-          // 4. Final Fallback: embedded sample dataset
+          // 4. Final Fallback: show error banner with Retry and Refresh buttons, then load sample
           if (!loaded) {
-            showToast('Loaded offline sample dataset (15 items)', 'warning');
+            console.error('Failed to load live inventory data:', loadError);
+            showInventoryLoadingError(
+              'Unable to Load Google Sheets Data',
+              'Connection timed out or access was interrupted. Click Retry to reconnect or Refresh to reload.'
+            );
             loadSampleData();
           }
 
