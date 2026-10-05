@@ -892,6 +892,175 @@
       outline: none;
     }
 
+    /* Mobile Search Toggle Button (Desktop default: hidden) */
+    .mobile-search-toggle-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: 8px;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-lit);
+      color: var(--text-main);
+      font-size: 15px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-search-toggle-btn:hover,
+    .mobile-search-toggle-btn:focus-visible,
+    .mobile-search-toggle-btn.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Mobile Expandable Search Bar Drawer */
+    .mobile-search-bar {
+      display: none;
+      position: sticky;
+      top: 57px;
+      z-index: 49;
+      background: var(--topbar-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px 10px 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      animation: slideDownMobileSearch 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mobile-search-bar.open {
+      display: block;
+    }
+
+    @keyframes slideDownMobileSearch {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mobile-search-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--accent);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .mobile-search-icon {
+      font-size: 14px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .mobile-search-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 14px;
+      min-width: 0;
+      outline: none;
+    }
+
+    .mobile-search-input::placeholder {
+      color: var(--text-faint);
+      font-size: 13px;
+    }
+
+    .mobile-search-clear-btn {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 11px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .mobile-search-clear-btn:hover {
+      color: var(--text-main);
+      background: var(--border-lit);
+    }
+
+    .mobile-search-close-btn {
+      background: var(--bg-card2);
+      border: 1px solid var(--border-lit);
+      color: var(--text-main);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+
+    .mobile-search-close-btn:hover {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .mobile-search-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 48;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .mobile-search-backdrop.open {
+      display: block;
+    }
+
+    /* Light Theme for Mobile Search */
+    [data-theme="light"] .mobile-search-bar {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: rgba(226, 232, 240, 0.9);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    [data-theme="light"] .mobile-search-inner {
+      background: #ffffff;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+
+    /* Status Pill Full vs Short text */
+    .pill-full {
+      display: inline;
+    }
+
+    .pill-short {
+      display: none;
+    }
+
     .content-area {
       flex: 1;
       padding: 24px 32px;
@@ -2309,29 +2478,59 @@
       }
     }
 
+    @media (max-width: 768px) {
+      #global-search-box {
+        display: none !important;
+      }
+
+      .mobile-search-toggle-btn {
+        display: inline-flex;
+        margin-left: auto;
+      }
+    }
+
     @media (max-width: 640px) {
       .topbar {
-        padding: 10px 14px;
+        padding: 10px 12px;
         gap: 8px;
+        min-height: 56px;
       }
 
       .topbar-title {
         font-size: 15px;
+        font-weight: 700;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        flex-shrink: 0;
+        max-width: 140px;
       }
 
-      .search-box {
-        width: auto;
-        flex: 1;
-        min-width: 0;
-        max-width: 160px;
-        padding: 6px 10px;
+      #global-search-box {
+        display: none !important;
       }
 
-      .search-box input {
-        font-size: 12px;
+      .mobile-search-toggle-btn {
+        display: inline-flex;
+        margin-left: auto;
+      }
+
+      .sheet-status-pill {
+        padding: 4px 8px;
+        font-size: 11px;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 1;
+      }
+
+      .pill-full {
+        display: none !important;
+      }
+
+      .pill-short {
+        display: inline !important;
       }
 
       .theme-toggle-text {
@@ -2339,11 +2538,30 @@
       }
 
       .theme-toggle-btn {
-        padding: 6px 10px;
+        padding: 6px 9px;
         border-radius: 20px;
-        min-width: 34px;
+        min-width: 32px;
         justify-content: center;
+        flex-shrink: 0;
       }
+
+    @media (max-width: 380px) {
+      .topbar {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+
+      .topbar-title {
+        font-size: 14px;
+        max-width: 105px;
+      }
+
+      .sheet-status-pill {
+        max-width: 85px;
+        padding: 3px 6px;
+        font-size: 10px;
+      }
+    }
 
       .content-area {
         padding: 14px 12px;
@@ -3200,10 +3418,15 @@
         <div class="topbar">
           <button class="menu-btn" onclick="toggleSidebar()" title="Toggle Menu">☰</button>
           <div class="topbar-title" id="topbar-title">Dashboard</div>
-          <div class="search-box" id="global-search-box">
+          <div class="search-box" id="global-search-box" style="display:none;">
             <span>🔍</span>
             <input type="text" id="global-search" placeholder="Search items…" oninput="globalSearch(this.value)" />
           </div>
+          <!-- Mobile Search Toggle Button (visible on mobile / responsive) -->
+          <button class="mobile-search-toggle-btn" id="mobile-search-toggle-btn" onclick="toggleMobileSearch()"
+            title="Search Inventory Items" type="button" aria-label="Search items">
+            🔍
+          </button>
           <div class="sheet-status-pill" id="sheet-status-pill" onclick="openSheetStatusModal()" title="View Google Sheet update details" style="display:none;">
             <span class="sheet-status-dot" id="sheet-status-dot"></span>
             <span id="sheet-status-text">Checking Sheet...</span>
@@ -3215,6 +3438,21 @@
             <span class="theme-toggle-text" id="theme-text-topbar">Dark</span>
           </button>
         </div>
+
+        <!-- Mobile Expandable Search Bar Drawer / Sub-bar -->
+        <div class="mobile-search-bar" id="mobile-search-bar">
+          <div class="mobile-search-inner">
+            <span class="mobile-search-icon">🔍</span>
+            <input type="text" id="mobile-global-search" class="mobile-search-input"
+              placeholder="Search medicine, DCI, category..." autocomplete="off"
+              oninput="syncMobileSearch(this.value)" />
+            <button type="button" class="mobile-search-clear-btn" id="mobile-search-clear-btn"
+              onclick="clearMobileSearch()" title="Clear search">✕</button>
+            <button type="button" class="mobile-search-close-btn" onclick="closeMobileSearch()"
+              title="Close search">Close</button>
+          </div>
+        </div>
+        <div class="mobile-search-backdrop" id="mobile-search-backdrop" onclick="closeMobileSearch()"></div>
 
         <div class="content-area">
 
@@ -4958,9 +5196,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             pill.className = 'sheet-status-pill ' + (isOverdue ? 'overdue' : (isStale ? 'stale' : 'fresh'));
             if (pillText) {
               if (isStale) {
-                pillText.textContent = 'Sheet: ' + daysText + ' (Update needed)';
+                pillText.innerHTML = '<span class="pill-full">Sheet: ' + daysText + ' (Update needed)</span><span class="pill-short">' + daysText + '</span>';
               } else {
-                pillText.textContent = 'Sheet: ' + dateDisplay + ' (' + daysText + ')';
+                pillText.innerHTML = '<span class="pill-full">Sheet: ' + dateDisplay + ' (' + daysText + ')</span><span class="pill-short">' + dateDisplay + '</span>';
               }
             }
           }
@@ -5814,7 +6052,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         function filterInventory() {
           const pharmVal = (document.getElementById('filter-pharmacy-cat')?.value || '').toLowerCase();
           const statVal = document.getElementById('filter-status')?.value || '';
-          const searchVal = (document.getElementById('global-search')?.value || '').toLowerCase().trim();
+          const searchVal = (document.getElementById('global-search')?.value || document.getElementById('mobile-global-search')?.value || '').toLowerCase().trim();
 
           invFiltered = allItems.filter(it => {
             if (pharmVal) {
@@ -8046,6 +8284,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             if (input) filterLocator(input.value);
           }
 
+          // Auto-close mobile search drawer if navigating away from inventory
+          if (id !== 'inventory' && typeof closeMobileSearch === 'function') {
+            closeMobileSearch();
+          }
+
           // Auto-close drawer on selection
           const sidebar = document.getElementById('sidebar');
           if (sidebar && sidebar.classList.contains('open')) {
@@ -8053,7 +8296,100 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
-        function globalSearch(val) { filterInventory(); }
+        function globalSearch(val) {
+          const mobileInput = document.getElementById('mobile-global-search');
+          const clearBtn = document.getElementById('mobile-search-clear-btn');
+          if (mobileInput && mobileInput.value !== val) {
+            mobileInput.value = val;
+          }
+          if (clearBtn) {
+            clearBtn.style.display = val && val.length > 0 ? 'inline-flex' : 'none';
+          }
+          filterInventory();
+        }
+
+        // ===== MOBILE SEARCH HANDLERS =====
+        function toggleMobileSearch() {
+          const bar = document.getElementById('mobile-search-bar');
+          const backdrop = document.getElementById('mobile-search-backdrop');
+          const btn = document.getElementById('mobile-search-toggle-btn');
+          const input = document.getElementById('mobile-global-search');
+          if (!bar) return;
+
+          const isOpen = bar.classList.contains('open');
+          if (isOpen) {
+            closeMobileSearch();
+          } else {
+            bar.classList.add('open');
+            if (backdrop) backdrop.classList.add('open');
+            if (btn) btn.classList.add('active');
+
+            // Switch to inventory so user sees the inventory list ready to filter
+            const invSection = document.getElementById('sec-inventory');
+            if (invSection && !invSection.classList.contains('active')) {
+              const invNavItem = document.querySelector('.nav-item[onclick*="inventory"]');
+              if (typeof showSectionDirect === 'function') {
+                showSectionDirect('inventory', invNavItem);
+              }
+            }
+
+            if (input) {
+              setTimeout(() => {
+                input.focus();
+                input.select();
+              }, 80);
+            }
+          }
+        }
+
+        function closeMobileSearch() {
+          const bar = document.getElementById('mobile-search-bar');
+          const backdrop = document.getElementById('mobile-search-backdrop');
+          const btn = document.getElementById('mobile-search-toggle-btn');
+          if (bar) bar.classList.remove('open');
+          if (backdrop) backdrop.classList.remove('open');
+          if (btn) btn.classList.remove('active');
+        }
+
+        function clearMobileSearch() {
+          const mobileInput = document.getElementById('mobile-global-search');
+          const desktopInput = document.getElementById('global-search');
+          const clearBtn = document.getElementById('mobile-search-clear-btn');
+          if (mobileInput) {
+            mobileInput.value = '';
+            mobileInput.focus();
+          }
+          if (desktopInput) desktopInput.value = '';
+          if (clearBtn) clearBtn.style.display = 'none';
+          filterInventory();
+        }
+
+        function syncMobileSearch(val) {
+          const desktopInput = document.getElementById('global-search');
+          const clearBtn = document.getElementById('mobile-search-clear-btn');
+          if (desktopInput) desktopInput.value = val;
+          if (clearBtn) {
+            clearBtn.style.display = val && val.length > 0 ? 'inline-flex' : 'none';
+          }
+
+          // If not currently on inventory section, switch to it automatically so user sees results
+          const invSection = document.getElementById('sec-inventory');
+          if (invSection && !invSection.classList.contains('active')) {
+            const invNavItem = document.querySelector('.nav-item[onclick*="inventory"]');
+            if (typeof showSectionDirect === 'function') {
+              showSectionDirect('inventory', invNavItem);
+            }
+          }
+
+          filterInventory();
+        }
+
+        // Dismiss mobile search on ESC key
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            closeMobileSearch();
+          }
+        });
 
         // ================================================================
         //  EXPORT
