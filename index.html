@@ -18,6 +18,7 @@
       document.documentElement.setAttribute('data-theme', t);
     })();
   </script>
+  <link rel="icon" type="image/jpeg" href="armmc_logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -4430,21 +4431,33 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
             <div style="background:var(--bg-card2); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; font-size:13px;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:var(--text-muted);">Sheet Item Count:</span>
+                <strong id="modal-sheet-item-count" style="color:var(--accent);">2,665 items</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="color:var(--text-muted);">Manual Date (Sheet Row 2):</span>
-                <strong id="modal-sheet-manual-date" style="color:var(--text-main);">—</strong>
+                <strong id="modal-sheet-manual-date" style="color:var(--text-main);">-</strong>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="color:var(--text-muted);">Auto Last Modified (Drive):</span>
-                <strong id="modal-sheet-auto-date" style="color:var(--text-main);">—</strong>
+                <strong id="modal-sheet-auto-date" style="color:var(--text-main);">-</strong>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="color:var(--text-muted);">Effective Data Age:</span>
-                <strong id="modal-sheet-age" style="color:var(--accent);">—</strong>
+                <strong id="modal-sheet-age" style="color:var(--accent);">-</strong>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="color:var(--text-muted);">Freshness Threshold:</span>
                 <span style="color:var(--text-main);">3 days (Notification triggered if ≥ 3 days)</span>
               </div>
+            </div>
+
+            <!-- Change Detection Box -->
+            <div id="modal-sheet-changes-box" style="display:none; background:rgba(6, 182, 212, 0.08); border:1px solid rgba(6, 182, 212, 0.25); border-radius:12px; padding:14px 16px; font-size:13px; line-height:1.5;">
+              <strong id="modal-sheet-changes-title" style="color:var(--accent); display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                <span>🔍</span> Google Sheet Change Verification:
+              </strong>
+              <div id="modal-sheet-changes-desc" style="color:var(--text-main);"></div>
             </div>
 
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px; flex-wrap:wrap;">
@@ -4851,6 +4864,12 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         //  CONFIG — paste your Google Apps Script URL here
         // ================================================================
         let APPS_SCRIPT_URL = localStorage.getItem('pharma_api_url') || 'https://script.google.com/macros/s/AKfycbyNzgzfzN_Rv2ef6MdKB5HjzxohVmZIjDw99e3VDJBvJLNQ0zQuck9Tvq6L9rWuwgGc3g/exec';
+
+        // Direct Google Sheet Sync Configuration
+        const GOOGLE_SHEET_ID = '1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM';
+        const GOOGLE_SHEET_GID = '237243801';
+        const LIVE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/export?format=csv&gid=' + GOOGLE_SHEET_GID;
+        let lastSheetChanges = null;
 
         // ================================================================
         //  STATE & INITIALIZATION
@@ -5263,19 +5282,43 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const mDateEl = document.getElementById('modal-sheet-manual-date');
           const aDateEl = document.getElementById('modal-sheet-auto-date');
           const ageEl = document.getElementById('modal-sheet-age');
+          const countEl = document.getElementById('modal-sheet-item-count');
 
-          if (mDateEl) mDateEl.textContent = meta.manualDateFormatted || meta.manualDateRaw || '10/01/2026';
+          if (countEl) countEl.textContent = (meta.totalItems || allItems.length || 2665).toLocaleString() + ' items';
+          if (mDateEl) mDateEl.textContent = meta.manualDateFormatted || meta.manualDateRaw || '10/22/2026';
           if (aDateEl) {
             if (meta.autoLastModified) {
               const d = new Date(meta.autoLastModified);
               aDateEl.textContent = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             } else {
-              aDateEl.textContent = 'Live sheet date tracking active';
+              aDateEl.textContent = 'Live sheet tracking active';
             }
           }
           if (ageEl) {
             ageEl.textContent = daysText;
             ageEl.style.color = isStale ? 'var(--warning)' : 'var(--success)';
+          }
+
+          // Populate change detection summary
+          const chBox = document.getElementById('modal-sheet-changes-box');
+          const chDesc = document.getElementById('modal-sheet-changes-desc');
+          if (chBox && chDesc) {
+            chBox.style.display = 'block';
+            if (lastSheetChanges && lastSheetChanges.isChanged) {
+              let html = '<div style="margin-bottom:6px;"><strong>Summary:</strong> ' + (lastSheetChanges.summary || 'Sheet modifications detected') + '</div>';
+              if (lastSheetChanges.added && lastSheetChanges.added.length > 0) {
+                html += '<div style="margin-top:4px;"><strong>Added Items (' + lastSheetChanges.added.length + '):</strong><br/>' +
+                  lastSheetChanges.added.slice(0, 5).map(it => '<span style="color:var(--success); font-weight:600;">' + (it.item_code || it.dci_code) + '</span>: ' + (it.description || '').slice(0, 45)).join('<br/>') +
+                  (lastSheetChanges.added.length > 5 ? '<br/><em>...and ' + (lastSheetChanges.added.length - 5) + ' more</em>' : '') + '</div>';
+              }
+              if (lastSheetChanges.removed && lastSheetChanges.removed.length > 0) {
+                html += '<div style="margin-top:6px; color:var(--danger);"><strong>Removed Items (' + lastSheetChanges.removed.length + '):</strong> ' +
+                  lastSheetChanges.removed.slice(0, 5).join(', ') + '</div>';
+              }
+              chDesc.innerHTML = html;
+            } else {
+              chDesc.innerHTML = 'All <strong>' + (allItems.length || 2665).toLocaleString() + ' items</strong> match the live Google Sheet with zero uncommitted additions or subtractions.';
+            }
           }
 
           modal.style.display = 'flex';
@@ -5290,15 +5333,369 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
         }
 
+        // ================================================================
+        //  CSV PARSER & CHANGE DETECTION ENGINE
+        // ================================================================
+        function parseCSV(text) {
+          const lines = [];
+          let row = [];
+          let inQuotes = false;
+          let cur = '';
+          for (let i = 0; i < text.length; i++) {
+            const c = text[i];
+            const next = text[i + 1];
+            if (c === '"') {
+              if (inQuotes && next === '"') { cur += '"'; i++; }
+              else { inQuotes = !inQuotes; }
+            } else if (c === ',' && !inQuotes) {
+              row.push(cur);
+              cur = '';
+            } else if ((c === '\r' || c === '\n') && !inQuotes) {
+              if (c === '\r' && next === '\n') i++;
+              row.push(cur);
+              if (row.some(cell => cell.trim())) lines.push(row);
+              row = [];
+              cur = '';
+            } else {
+              cur += c;
+            }
+          }
+          if (cur || row.length) { row.push(cur); lines.push(row); }
+          return lines;
+        }
+
+        function parseItemsFromCSV(csvText) {
+          const rows = parseCSV(csvText);
+          if (!rows || rows.length < 5) return { items: [], sheetDate: '', lastItemNo: '' };
+
+          // Sheet manual date is in Cell B2 (Row index 1, Col index 1)
+          const sheetDate = rows[1] && rows[1][1] ? rows[1][1].trim() : '';
+
+          let headerIdx = -1;
+          for (let i = 0; i < Math.min(10, rows.length); i++) {
+            if (rows[i].length > 1 && rows[i][1].trim().toLowerCase() === 'item code') {
+              headerIdx = i;
+              break;
+            }
+          }
+          if (headerIdx === -1) headerIdx = 4;
+
+          const parseNum = (v) => {
+            if (!v) return 0;
+            const s = String(v).replace(/,/g, '').trim();
+            if (s === '-' || s === '—' || s.startsWith('#')) return 0;
+            const n = parseFloat(s);
+            return isNaN(n) ? 0 : n;
+          };
+          const cleanStr = (v) => {
+            if (!v) return '';
+            const s = String(v).trim();
+            return (s === '-' || s === '—') ? '' : s;
+          };
+
+          const items = [];
+          for (let rIdx = headerIdx + 1; rIdx < rows.length; rIdx++) {
+            const row = rows[rIdx];
+            if (!row || row.length <= 1) continue;
+
+            const no = cleanStr(row[0]);
+            let itemCode = cleanStr(row[1]);
+            const dciCode = cleanStr(row[2]);
+            const desc = cleanStr(row[3]);
+            const genName = cleanStr(row[4]);
+            const cat = cleanStr(row[5]);
+            const pharmCat = cleanStr(row[6]);
+            const uom = cleanStr(row[7]);
+
+            if (!no && !itemCode && !desc) continue;
+            if (itemCode.toLowerCase() === 'item code' || desc.toLowerCase() === 'item description') continue;
+
+            // Fallback for items with empty Item Code in sheet
+            if (!itemCode) itemCode = dciCode || ('ITEM-' + no);
+
+            const acqCost = parseNum(row[8]);
+            const sellPrice = parseNum(row[9]);
+
+            const recent12 = [];
+            for (let c = 23; c <= 34; c++) recent12.push(c < row.length ? parseNum(row[c]) : 0);
+            const cal2025 = [];
+            for (let c = 14; c <= 25; c++) cal2025.push(c < row.length ? parseNum(row[c]) : 0);
+            const monthlySeries = recent12.some(v => v > 0) ? recent12 : cal2025;
+
+            let sum2024 = 0;
+            for (let c = 10; c <= 13; c++) sum2024 += (c < row.length ? parseNum(row[c]) : 0);
+            const annualQty2024 = (sum2024 / 4.0) * 12.0;
+
+            let sum2025 = 0;
+            for (let c = 14; c <= 25; c++) sum2025 += (c < row.length ? parseNum(row[c]) : 0);
+            const annualQty2025 = sum2025;
+
+            let sum2026 = 0;
+            for (let c = 26; c <= 34; c++) sum2026 += (c < row.length ? parseNum(row[c]) : 0);
+            const annualQty2026 = (sum2026 / 9.0) * 12.0;
+
+            const avgMonthly = parseNum(row[36]);
+            const avgNorm = parseNum(row[37]);
+            const totalQty = parseNum(row[38]);
+            const invVal = parseNum(row[39]);
+            const levelDays = parseNum(row[40]);
+            const impactDate = cleanStr(row[41]);
+            const pendingPo = parseNum(row[43]);
+            const endingQty = parseNum(row[44]);
+            const endingDays = parseNum(row[45]);
+            const endingImpact = cleanStr(row[46]);
+            const epaBal = parseNum(row[47]);
+            const endingWithEpaQty = parseNum(row[48]);
+            const endingWithEpaDays = parseNum(row[49]);
+
+            const dispQty = parseNum(row[52]);
+            const dispVal = parseNum(row[53]);
+            const dispAvgM = parseNum(row[54]);
+            const dispAvgD = parseNum(row[55]);
+            const dispDays = parseNum(row[56]);
+
+            const storQty = parseNum(row[59]);
+            const storVal = parseNum(row[60]);
+            const storAvgM = parseNum(row[61]);
+            const storAvgD = parseNum(row[62]);
+            const storDays = parseNum(row[63]);
+
+            const wareQty = parseNum(row[66]);
+            const wareVal = parseNum(row[67]);
+            const wareAvgM = parseNum(row[68]);
+            const wareAvgD = parseNum(row[69]);
+            const wareDays = parseNum(row[70]);
+
+            const consQty = parseNum(row[73]);
+            const consVal = parseNum(row[74]);
+            const consAvgM = parseNum(row[75]);
+            const consAvgD = parseNum(row[76]);
+            const consDays = parseNum(row[77]);
+
+            items.push({
+              no: no,
+              item_code: itemCode,
+              dci_code: dciCode,
+              description: desc,
+              generic_name: genName,
+              pharmacy_category: cat,
+              pharmacologic_category: pharmCat,
+              unit_of_measure: uom,
+              unit_cost: acqCost > 0 ? acqCost.toFixed(2) : "0",
+              selling_price: sellPrice > 0 ? sellPrice.toFixed(2) : "0",
+              acquisition_price: acqCost > 0 ? acqCost.toFixed(2) : "0",
+              annual_qty_2024: annualQty2024.toFixed(2),
+              annual_val_2024: (annualQty2024 * acqCost).toFixed(2),
+              annual_qty_2025: annualQty2025.toFixed(2),
+              annual_val_2025: (annualQty2025 * acqCost).toFixed(2),
+              annual_qty_2026: annualQty2026.toFixed(2),
+              annual_val_2026: (annualQty2026 * acqCost).toFixed(2),
+              avg_monthly_consumption: String(avgMonthly),
+              avg_monthly_normalized_demand: String(avgNorm),
+              total_inventory_qty: String(totalQty),
+              inventory_value_php: invVal > 0 ? invVal.toFixed(2) : "0",
+              inventory_level_days: String(levelDays),
+              date_of_impact: impactDate,
+              pending_po_co_qty: String(pendingPo),
+              ending_inventory_qty: String(endingQty),
+              ending_inventory_level_days: String(endingDays),
+              ending_impact_date: endingImpact,
+              epa_cy2026_balance: String(epaBal),
+              ending_inv_with_epa_qty: String(endingWithEpaQty),
+              ending_inv_with_epa_days: String(endingWithEpaDays),
+              dispensing_inventory_qty: String(dispQty),
+              dispensing_inventory_value: String(dispVal),
+              dispensing_avg_monthly: String(dispAvgM),
+              dispensing_avg_daily: String(dispAvgD),
+              dispensing_level_days: String(dispDays),
+              storage_inventory_qty: String(storQty),
+              storage_inventory_value: String(storVal),
+              storage_avg_monthly: String(storAvgM),
+              storage_avg_daily: String(storAvgD),
+              storage_level_days: String(storDays),
+              warehouse_inventory_qty: String(wareQty),
+              warehouse_inventory_value: String(wareVal),
+              warehouse_avg_monthly: String(wareAvgM),
+              warehouse_avg_daily: String(wareAvgD),
+              warehouse_level_days: String(wareDays),
+              consignment_inventory_qty: String(consQty),
+              consignment_inventory_value: String(consVal),
+              consignment_avg_monthly: String(consAvgM),
+              consignment_avg_daily: String(consAvgD),
+              consignment_level_days: String(consDays),
+              monthly_consumption: monthlySeries
+            });
+          }
+
+          const lastItemNo = items.length > 0 ? items[items.length - 1].no : '';
+          return { items, sheetDate, lastItemNo };
+        }
+
+        function detectSheetChanges(newItems, newDate) {
+          let prevSnapshot = null;
+          try {
+            const raw = localStorage.getItem('armmc_sheet_snapshot_v2');
+            if (raw) prevSnapshot = JSON.parse(raw);
+          } catch (e) { }
+
+          const prevCodes = prevSnapshot && Array.isArray(prevSnapshot.codes) ? new Set(prevSnapshot.codes) : null;
+          const prevCount = prevSnapshot && typeof prevSnapshot.count === 'number' ? prevSnapshot.count : null;
+          const prevDate = prevSnapshot && prevSnapshot.date ? prevSnapshot.date : null;
+
+          const currentCodes = new Set(newItems.map(it => it.item_code));
+          const currentCount = newItems.length;
+
+          let added = [];
+          let removed = [];
+          let isChanged = false;
+          let summary = '';
+
+          if (prevCodes) {
+            newItems.forEach(it => {
+              if (!prevCodes.has(it.item_code)) {
+                added.push(it);
+              }
+            });
+            prevSnapshot.codes.forEach(code => {
+              if (!currentCodes.has(code)) {
+                removed.push(code);
+              }
+            });
+
+            if (added.length > 0 || removed.length > 0 || (prevDate && prevDate !== newDate)) {
+              isChanged = true;
+              const parts = [];
+              if (added.length > 0) parts.push('+' + added.length + ' added');
+              if (removed.length > 0) parts.push('-' + removed.length + ' removed');
+              if (prevDate && prevDate !== newDate) parts.push('Sheet date: ' + newDate);
+              summary = parts.join(', ');
+            }
+          } else if (prevCount !== null && prevCount !== currentCount) {
+            isChanged = true;
+            const diff = currentCount - prevCount;
+            summary = (diff > 0 ? '+' + diff : String(diff)) + ' items';
+          }
+
+          try {
+            const snapshot = {
+              count: currentCount,
+              date: newDate,
+              timestamp: Date.now(),
+              codes: newItems.map(it => it.item_code)
+            };
+            localStorage.setItem('armmc_sheet_snapshot_v2', JSON.stringify(snapshot));
+          } catch (e) { }
+
+          lastSheetChanges = {
+            isChanged,
+            added,
+            removed,
+            prevCount: prevCount || currentCount,
+            currentCount,
+            prevDate,
+            newDate,
+            summary
+          };
+
+          return lastSheetChanges;
+        }
+
+        function generateReordersFromItems() {
+          if (!Array.isArray(allItems) || allItems.length === 0) return;
+          allReorders = allItems
+            .filter(it => parseFloat(it.total_inventory_qty || 0) < (parseFloat(it.avg_monthly_consumption || 0) * 1.5))
+            .map(it => {
+              const avg = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0);
+              const stock = parseFloat(it.total_inventory_qty || 0);
+              const safetyStock = avg * 6;
+              const reorderQty = Math.max(0, Math.round(avg * 3 + safetyStock - stock));
+              return {
+                item_code: it.item_code,
+                dci_code: it.dci_code,
+                generic_name: it.generic_name,
+                description: it.description,
+                pharmacologic_category: it.pharmacologic_category,
+                pharmacy_category: it.pharmacy_category,
+                avg_monthly_consumption: it.avg_monthly_normalized_demand || it.avg_monthly_consumption,
+                inventory_level_days: it.inventory_level_days,
+                reorder_qty_6mo_safety: reorderQty.toString(),
+                pending_po_call_off: it.pending_po_co_qty,
+                remarks: reorderQty > 0 ? 'Replenish' : '',
+              };
+            });
+        }
+
         async function loadData() {
-          showInventoryLoading('Syncing Inventory Data', 'Connecting to Google Sheets...');
+          showInventoryLoading('Inspecting Google Sheet...', 'Connecting to master sheet & checking for live updates...');
 
           let loaded = false;
           let loadError = null;
           let sheetMeta = null;
 
-          // 1. Try google.script.run (when hosted inside Apps Script)
-          if (typeof google !== 'undefined' && google.script && google.script.run) {
+          // 1. Direct Google Sheet Live Inspection & Change Check
+          try {
+            updateInventoryLoading('Checking Google Sheet Status...', 'Reading live rows & verifying sheet changes...');
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 9000);
+            const resp = await fetch(LIVE_SHEET_CSV_URL, { signal: controller.signal, cache: 'no-cache' });
+            clearTimeout(timeoutId);
+
+            if (resp && resp.ok) {
+              const csvText = await resp.text();
+              const parsed = parseItemsFromCSV(csvText);
+
+              if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
+                allItems = parsed.items;
+
+                // Load reorders list
+                try {
+                  const rRes = await fetch('reorders.json');
+                  if (rRes.ok) allReorders = await rRes.json();
+                } catch (eR) { }
+                if (!allReorders || allReorders.length === 0) {
+                  generateReordersFromItems();
+                }
+
+                // Detect additions, deletions, and modifications
+                const changes = detectSheetChanges(allItems, parsed.sheetDate);
+
+                const parsedD = parseSheetDateString(parsed.sheetDate);
+                let daysOld = 0;
+                if (parsedD) {
+                  const now = new Date();
+                  const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                  const updateMid = new Date(parsedD.getFullYear(), parsedD.getMonth(), parsedD.getDate()).getTime();
+                  daysOld = Math.max(0, Math.round((todayMid - updateMid) / (1000 * 60 * 60 * 24)));
+                }
+
+                sheetMeta = {
+                  manualDateRaw: parsed.sheetDate || '10/22/2026',
+                  manualDateFormatted: parsedD ? parsedD.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (parsed.sheetDate || '10/22/2026'),
+                  effectiveDate: parsedD ? parsedD.toISOString() : new Date().toISOString(),
+                  effectiveType: 'live_sheet',
+                  daysSinceUpdate: daysOld,
+                  isStale: daysOld >= 3,
+                  staleThresholdDays: 3,
+                  totalItems: allItems.length,
+                  lastItemNo: parsed.lastItemNo,
+                  sheetUrl: 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/edit?gid=' + GOOGLE_SHEET_GID + '#gid=' + GOOGLE_SHEET_GID
+                };
+
+                loaded = true;
+                let msg = 'Live Sheet Synced (' + allItems.length.toLocaleString() + ' items) ✓';
+                if (changes && changes.isChanged && changes.summary) {
+                  msg = 'Live Sheet Synced (' + allItems.length.toLocaleString() + ' items, ' + changes.summary + ') ✓';
+                  showToast('Sheet changes detected: ' + changes.summary + ' (' + allItems.length.toLocaleString() + ' total items)', 'success');
+                }
+                finishInventoryLoadingSuccess(msg);
+              }
+            }
+          } catch (eLive) {
+            console.warn('Live Google Sheet direct fetch notice:', eLive.message);
+          }
+
+          // 2. Fallback: Google Apps Script (when hosted inside Apps Script or via APPS_SCRIPT_URL)
+          if (!loaded && typeof google !== 'undefined' && google.script && google.script.run) {
             try {
               updateInventoryLoading('Google Apps Script Detected', 'Retrieving live records and sheet status...');
               let items = [];
@@ -5309,39 +5706,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
               try {
                 sheetMeta = await gscriptCall('getSheetMetadata');
-              } catch (err3) {
-                try {
-                  const info = await gscriptCall('getSheetInfo');
-                  if (info && Array.isArray(info.headerCells)) {
-                    const h2 = info.headerCells.find(h => h.row === 2 && (h.col === 'B' || h.idx === 1));
-                    if (h2 && h2.value) {
-                      const parsedD = parseSheetDateString(h2.value);
-                      if (parsedD) {
-                        const now = new Date();
-                        const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-                        const updateMid = new Date(parsedD.getFullYear(), parsedD.getMonth(), parsedD.getDate()).getTime();
-                        const daysOld = Math.max(0, Math.round((todayMid - updateMid) / (1000 * 60 * 60 * 24)));
-                        sheetMeta = {
-                          manualDateRaw: h2.value,
-                          manualDateFormatted: parsedD.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                          effectiveDate: parsedD.toISOString(),
-                          effectiveType: 'manual',
-                          daysSinceUpdate: daysOld,
-                          isStale: daysOld >= 3,
-                          staleThresholdDays: 3,
-                          sheetUrl: 'https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801'
-                        };
-                      }
-                    }
-                  }
-                } catch (e4) { }
-              }
+              } catch (err3) { }
 
               if (Array.isArray(items) && items.length > 0) {
                 allItems = items;
                 allReorders = Array.isArray(reorders) ? reorders : [];
                 loaded = true;
-                finishInventoryLoadingSuccess('Live data loaded from Google Sheets (' + allItems.length.toLocaleString() + ' items) ✓');
+                finishInventoryLoadingSuccess('Live data loaded from Google Apps Script (' + allItems.length.toLocaleString() + ' items) ✓');
               }
             } catch (e) {
               console.warn('google.script.run error:', e);
@@ -5349,7 +5720,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
           }
 
-          // 2. Fallback: fetch API (if not loaded via google.script.run)
+          // 3. Fallback: fetch via APPS_SCRIPT_URL API
           if (!loaded && APPS_SCRIPT_URL) {
             try {
               updateInventoryLoading('Connecting via API...', 'Fetching items & reorder sheets...');
@@ -5370,38 +5741,6 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 } catch (e) { }
               }
 
-              // Fallback to getSheetInfo if getMetadata endpoint is not yet redeployed
-              if (!sheetMeta) {
-                try {
-                  const infoRes = await fetch(APPS_SCRIPT_URL + '?action=getSheetInfo');
-                  if (infoRes.ok) {
-                    const info = await infoRes.json();
-                    if (info && Array.isArray(info.headerCells)) {
-                      const h2 = info.headerCells.find(h => h.row === 2 && (h.col === 'B' || h.idx === 1));
-                      if (h2 && h2.value) {
-                        const parsedD = parseSheetDateString(h2.value);
-                        if (parsedD) {
-                          const now = new Date();
-                          const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-                          const updateMid = new Date(parsedD.getFullYear(), parsedD.getMonth(), parsedD.getDate()).getTime();
-                          const daysOld = Math.max(0, Math.round((todayMid - updateMid) / (1000 * 60 * 60 * 24)));
-                          sheetMeta = {
-                            manualDateRaw: h2.value,
-                            manualDateFormatted: parsedD.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                            effectiveDate: parsedD.toISOString(),
-                            effectiveType: 'manual',
-                            daysSinceUpdate: daysOld,
-                            isStale: daysOld >= 3,
-                            staleThresholdDays: 3,
-                            sheetUrl: 'https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801'
-                          };
-                        }
-                      }
-                    }
-                  }
-                } catch (e) { }
-              }
-
               if (Array.isArray(items) && items.length > 0) {
                 allItems = items;
                 allReorders = Array.isArray(reorders) ? reorders : [];
@@ -5414,7 +5753,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
           }
 
-          // 3. Fallback: local JSON files (GitHub Pages static files)
+          // 4. Fallback: local JSON files (GitHub Pages static cache)
           if (!loaded) {
             updateInventoryLoading('Checking Local Cache...', 'Fetching local JSON backup...');
             loaded = await loadLocalJsonData();

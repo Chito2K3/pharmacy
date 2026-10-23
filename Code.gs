@@ -51,6 +51,7 @@ function doGet(e) {
       case 'getStats':     return respond(getStats());
       case 'getSheetInfo': return respond(getSheetInfo());
       case 'getMetadata':  return respond(getSheetMetadata());
+      case 'checkSheetStatus': return respond(getSheetMetadata());
       case 'ping':         return respond({ status: 'ok', timestamp: new Date().toISOString() });
       default:
         return respond({ error: 'Unknown action: ' + action });
@@ -408,6 +409,10 @@ function getSheetMetadata() {
     staleThresholdDays  : 3,
     sheetUrl            : sheetUrl,
     sheetName           : sheet ? sheet.getName() : (SHEET_ITEMS || 'Inventory Utilization Report'),
+    lastRow             : sheet ? sheet.getLastRow() : 0,
+    totalItems          : sheet ? Math.max(0, sheet.getLastRow() - 5) : 0,
+    lastItemNo          : (sheet && sheet.getLastRow() >= 6) ? String(sheet.getRange(sheet.getLastRow(), 1).getValue()).trim() : '',
+    lastItemCode        : (sheet && sheet.getLastRow() >= 6) ? String(sheet.getRange(sheet.getLastRow(), 2).getValue()).trim() : '',
     serverTime          : new Date().toISOString()
   };
 }
@@ -509,7 +514,15 @@ function getItems() {
   const values = sheet.getRange(5, 1, lastRow - 4, lastCol).getValues();
 
   return values.map((row, idx) => {
-    const itemCode = String(row[1] || '').trim();
+    const noVal = String(row[0] || (idx + 1)).trim();
+    let itemCode = String(row[1] || '').trim();
+    const dciCode = String(row[2] || '').trim();
+    const descVal = String(row[3] || '').trim();
+
+    // Fallback if item_code is empty in Sheet: use DCI code or item sequence
+    if (!itemCode && (dciCode || descVal)) {
+      itemCode = dciCode || ('ITEM-' + noVal);
+    }
 
     // Calculate annualized metrics dynamically for all detected years (2024, 2025, 2026, 2027, etc.)
     const annualMetrics = {};

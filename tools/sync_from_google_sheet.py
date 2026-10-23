@@ -62,17 +62,24 @@ for r_idx in range(header_idx + 1, len(rows)):
     if len(row) <= 1:
         continue
     
-    item_code = clean_str(row[1])
-    if not item_code or item_code.lower() == "item code":
-        continue
-    
     no = clean_str(row[0])
+    item_code = clean_str(row[1])
     dci_code = clean_str(row[2])
     desc = clean_str(row[3])
     gen_name = clean_str(row[4])
     cat = clean_str(row[5])
     pharm_cat = clean_str(row[6])
     uom = clean_str(row[7])
+
+    # Skip empty divider rows or repeated header rows
+    if not no and not item_code and not desc:
+        continue
+    if item_code.lower() == "item code" or desc.lower() == "item description":
+        continue
+
+    # Fallback if Item Code is empty in the sheet: use DCI code or generated ID
+    if not item_code:
+        item_code = dci_code if dci_code else f"ITEM-{no}"
     acq_cost = parse_num(row[8])
     sell_price = parse_num(row[9])
 
