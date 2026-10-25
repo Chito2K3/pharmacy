@@ -1,0 +1,86 @@
+name: Scheduled Google Sheet Sync
+
+on:
+  schedule:
+    # Runs daily at 22:00 UTC (06:00 AM Philippine Standard Time, UTC+8)
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Force sync and re-commit even if differences are minor'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "sync-sheet"
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+        continue-on-error: true
+
+      - name: Execute Live Google Sheet Sync
+        run: |
+          python tools/sync_from_google_sheet.py
+
+      - name: Verify Generated Datasets
+        run: |
+          node -e "
+            const fs = require('fs');
+            const items = JSON.parse(fs.readFileSync('items.json', 'utf8'));
+            const reorders = JSON.parse(fs.readFileSync('reorders.json', 'utf8'));
+            console.log('Verified items.json count:', items.length);
+            console.log('Verified reorders.json count:', reorders.length);
+            if (items.length < 1000) {
+              console.error('ERROR: items count unexpectedly low');
+              process.exit(1);
+            }
+          "
+
+      - name: Check for Changes & Commit
+        id: commit_step
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add items.json reorders.json sheet_metadata.json
+          
+          if git diff --staged --quiet; then
+            echo "No data changes detected in Google Sheet."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected, committing updated masterlists..."
+            git commit -m "chore(sync): automated google sheet sync [skip ci]"
+            git push origin main
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate Summary Report
+        if: always()
+        run: |
+          echo "### 🏥 ARMMC Pharmacy IMS — Live Sync Report" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.commit_step.outputs.changed }}" = "true" ]; then
+            echo "✅ **Status**: Masterlist data updated and pushed to repository." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ **Status**: Masterlist data is already up to date with Google Sheet." >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f sheet_metadata.json ]; then
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            cat sheet_metadata.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,0 +1,19 @@
+{
+  "manualDateRaw": "10/22/2026",
+  "manualDateFormatted": "10/22/2026",
+  "daysSinceCellDate": 3,
+  "effectiveDate": "2026-10-25T12:09:40.381689Z",
+  "effectiveType": "content_verified",
+  "daysSinceUpdate": 0,
+  "isStale": false,
+  "staleThresholdDays": 3,
+  "contentFingerprint": "2665_1531076_154411570_776965_59c0d986",
+  "totalItems": 2665,
+  "totalReorders": 1813,
+  "totalStockQty": 1531076,
+  "totalInventoryValue": 154411569.74,
+  "lastItemNo": "2665",
+  "lastItemCode": "DMEP1040406000-0524",
+  "sheetUrl": "https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801",
+  "syncTimestamp": "2026-10-25T12:09:40.382689Z"
+}
