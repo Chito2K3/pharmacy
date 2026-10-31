@@ -3499,6 +3499,101 @@
       margin-top: 3px;
       margin-left: 3px;
     }
+
+    /* ===== STOCK MOVEMENTS & AUDIT MODULE STYLES ===== */
+    .mov-area-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 1024px) {
+      .mov-area-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .mov-area-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mov-area-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mov-area-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .mov-area-card.active {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+
+    .mov-delta-pos {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .mov-delta-neg {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .mov-delta-neutral {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      background: rgba(6, 182, 212, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(6, 182, 212, 0.32);
+    }
+
+    .mov-area-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-lit);
+      white-space: nowrap;
+    }
   </style>
 </head>
 
@@ -3541,6 +3636,10 @@
           <div class="nav-item" data-section="near-expiry" onclick="showSection('near-expiry',this)" id="nav-near-expiry">
             <span class="nav-icon">⏳</span> Near Expiry
             <span class="nav-badge" id="near-expiry-badge" style="background:rgba(239,68,68,0.18); color:#ef4444;">0</span>
+          </div>
+          <div class="nav-item" data-section="movements" onclick="showSection('movements',this)" id="nav-movements">
+            <span class="nav-icon">📋</span> Stock Movements
+            <span class="nav-badge" id="movements-badge" style="background:rgba(16,185,129,0.18); color:#10b981;">0</span>
           </div>
           <div class="nav-item" data-section="locator" onclick="showSection('locator',this)">
             <span class="nav-icon">🗺️</span> Locator
@@ -4022,6 +4121,197 @@
                   <div class="pagination" id="ne-pagination">
                     <div id="ne-page-info">—</div>
                     <div class="text-xs text-muted" id="ne-change-summary-text">Live content fingerprinting active</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ===== STOCK MOVEMENTS & INVENTORY AUDIT SECTION ===== -->
+              <div class="section" id="sec-movements">
+                <div class="section-header flex items-center justify-between" style="flex-wrap:wrap; gap:12px;">
+                  <div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <h2 style="margin:0;">Stock Movements &amp; Inventory Audit</h2>
+                      <span class="badge badge-accent" id="mov-baseline-badge" style="font-size:11.5px; padding:4px 10px;">🕒 Baseline: Verified Snapshot</span>
+                      <span class="badge badge-success" id="mov-sync-status-badge" style="font-size:11px; padding:4px 10px;">🟢 Real-Time Delta Audit Active</span>
+                    </div>
+                    <p style="margin-top:4px;">Monitor restocked deliveries (+Qty), stock deductions/consumption (-Qty), area-by-area stock shifts (Dispensing, Storage, Warehouse, Consignment), and critical status transitions</p>
+                  </div>
+                  <div class="flex items-center gap-2" style="flex-wrap:wrap;">
+                    <select class="filter-select" id="mov-baseline-select" onchange="switchMovementBaseline(this.value)"
+                      style="font-weight:600; min-width:230px;" title="Choose which baseline snapshot to compare current live inventory against">
+                      <option value="auto">📊 Best Available Audit Baseline (Auto)</option>
+                      <option value="latest_log">🕒 Latest Detected Sheet Change Log</option>
+                      <option value="pinned">📌 Pinned Checkpoint Baseline</option>
+                      <option value="repo">📦 Master Repository Snapshot (Oct 2026)</option>
+                    </select>
+                    <button type="button" class="stale-btn stale-btn-secondary" onclick="pinCurrentStockBaseline()"
+                      style="padding:7px 13px; font-size:12px;" title="Save current live Google Sheet quantities as your new custom checkpoint to track all future restocks and deductions from this moment">
+                      <span>📌</span> Pin Current Stock as Baseline
+                    </button>
+                    <button type="button" class="stale-btn stale-btn-secondary" onclick="printStockMovementReport()"
+                      style="padding:7px 13px; font-size:12px;" title="Generate a printable ARMMC Pharmacy Stock Movement & Audit Report">
+                      <span>🖨️</span> Print Audit Report
+                    </button>
+                    <button type="button" class="btn-export" onclick="exportStockMovementsCSV()">⬇ Export CSV</button>
+                  </div>
+                </div>
+
+                <!-- 6 Executive KPI Summary Cards -->
+                <div class="kpi-grid" id="mov-kpi-grid" style="margin-bottom:16px;">
+                  <div class="kpi-card active" data-mov-mode="ALL" style="--kpi-color:var(--accent)"
+                    onclick="setMovementFilterMode('ALL', this)">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-value" id="mov-kpi-total">0</div>
+                    <div class="kpi-label" id="mov-kpi-total-sub">Total Medicines with Movement</div>
+                  </div>
+                  <div class="kpi-card" data-mov-mode="RESTOCKED" style="--kpi-color:var(--success)"
+                    onclick="setMovementFilterMode('RESTOCKED', this)"
+                    title="Items whose total stock increased due to deliveries, returns, or positive adjustments">
+                    <div class="kpi-icon">📥</div>
+                    <div class="kpi-value" id="mov-kpi-restocked">0</div>
+                    <div class="kpi-label" id="mov-kpi-restocked-sub">Restocked / Replenished (+Qty)</div>
+                  </div>
+                  <div class="kpi-card" data-mov-mode="DEDUCTED" style="--kpi-color:var(--danger)"
+                    onclick="setMovementFilterMode('DEDUCTED', this)"
+                    title="Items whose total stock decreased due to dispensing, ward issuance, or pull-outs">
+                    <div class="kpi-icon">📤</div>
+                    <div class="kpi-value" id="mov-kpi-deducted">0</div>
+                    <div class="kpi-label" id="mov-kpi-deducted-sub">Stock Deductions / Issued (-Qty)</div>
+                  </div>
+                  <div class="kpi-card" data-mov-mode="CRITICAL_RISK" style="--kpi-color:var(--warning)"
+                    onclick="setMovementFilterMode('CRITICAL_RISK', this)"
+                    title="Items that were deducted and are now Out of Stock (0 qty) or Critical (<30 days on hand)">
+                    <div class="kpi-icon">🚨</div>
+                    <div class="kpi-value" id="mov-kpi-critical">0</div>
+                    <div class="kpi-label" id="mov-kpi-critical-sub">Deducted into Critical / OOS</div>
+                  </div>
+                  <div class="kpi-card" data-mov-mode="RECOVERED" style="--kpi-color:#06b6d4"
+                    onclick="setMovementFilterMode('RECOVERED', this)"
+                    title="Items that were restocked and improved their stock status or days on hand">
+                    <div class="kpi-icon">✅</div>
+                    <div class="kpi-value" id="mov-kpi-recovered">0</div>
+                    <div class="kpi-label" id="mov-kpi-recovered-sub">Replenished &amp; Status Improved</div>
+                  </div>
+                  <div class="kpi-card" data-mov-mode="PO_CHANGED" style="--kpi-color:var(--accent2)"
+                    onclick="setMovementFilterMode('PO_CHANGED', this)"
+                    title="Items where Pending PO / Call-Off quantity or Internal Area transfer occurred">
+                    <div class="kpi-icon">📋</div>
+                    <div class="kpi-value" id="mov-kpi-po">0</div>
+                    <div class="kpi-label" id="mov-kpi-po-sub">PO / Area Transfer Updates</div>
+                  </div>
+                </div>
+
+                <!-- 4 Physical Area Movement Breakdown Cards -->
+                <div class="mov-area-grid" id="mov-area-strip">
+                  <div class="mov-area-card" data-area="dispensing" onclick="toggleMovementAreaFilter('dispensing', this)"
+                    title="Click to filter items whose Dispensing Area stock (Column BA) changed">
+                    <div class="flex items-center justify-between">
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">💊 Dispensing Area</span>
+                      <span class="badge badge-accent text-xs" id="mov-area-disp-count">0 items</span>
+                    </div>
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
+                      <span style="font-size:16px; font-weight:800;" id="mov-area-disp-net">0 units</span>
+                      <span class="text-xs text-muted" id="mov-area-disp-sub">+0 in / -0 out</span>
+                    </div>
+                  </div>
+                  <div class="mov-area-card" data-area="storage" onclick="toggleMovementAreaFilter('storage', this)"
+                    title="Click to filter items whose Pharmacy Storage stock (Column BH) changed">
+                    <div class="flex items-center justify-between">
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">📦 Pharmacy Storage</span>
+                      <span class="badge badge-ok text-xs" id="mov-area-stor-count">0 items</span>
+                    </div>
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
+                      <span style="font-size:16px; font-weight:800;" id="mov-area-stor-net">0 units</span>
+                      <span class="text-xs text-muted" id="mov-area-stor-sub">+0 in / -0 out</span>
+                    </div>
+                  </div>
+                  <div class="mov-area-card" data-area="warehouse" onclick="toggleMovementAreaFilter('warehouse', this)"
+                    title="Click to filter items whose Warehouse stock (Column BO) changed">
+                    <div class="flex items-center justify-between">
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">🏭 Warehouse</span>
+                      <span class="badge badge-warning text-xs" id="mov-area-whse-count">0 items</span>
+                    </div>
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
+                      <span style="font-size:16px; font-weight:800;" id="mov-area-whse-net">0 units</span>
+                      <span class="text-xs text-muted" id="mov-area-whse-sub">+0 in / -0 out</span>
+                    </div>
+                  </div>
+                  <div class="mov-area-card" data-area="consignment" onclick="toggleMovementAreaFilter('consignment', this)"
+                    title="Click to filter items whose Consignment stock (Column BV) changed">
+                    <div class="flex items-center justify-between">
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">🤝 Consignment</span>
+                      <span class="badge badge-purple text-xs" id="mov-area-cons-count">0 items</span>
+                    </div>
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
+                      <span style="font-size:16px; font-weight:800;" id="mov-area-cons-net">0 units</span>
+                      <span class="text-xs text-muted" id="mov-area-cons-sub">+0 in / -0 out</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Stock Movements Table Card -->
+                <div class="table-card">
+                  <div class="table-toolbar" style="flex-wrap:wrap; gap:10px;">
+                    <div id="mov-filter-pills" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                      <button type="button" class="ne-filter-pill active" data-mov-pill="ALL" onclick="setMovementFilterMode('ALL')">All Movements</button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="RESTOCKED" onclick="setMovementFilterMode('RESTOCKED')">📥 Restocked (+)</button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="DEDUCTED" onclick="setMovementFilterMode('DEDUCTED')">📤 Deducted (-)</button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="CRITICAL_RISK" onclick="setMovementFilterMode('CRITICAL_RISK')">🚨 Critical / OOS Impact</button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="RECOVERED" onclick="setMovementFilterMode('RECOVERED')">✅ Replenished</button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="PO_CHANGED" onclick="setMovementFilterMode('PO_CHANGED')">📋 PO / Transfer</button>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:auto;">
+                      <div class="search-box" style="display:flex; min-width:210px; padding:5px 11px;">
+                        <span>🔍</span>
+                        <input type="text" id="mov-search-input" placeholder="Search medicine, DCI, item code…"
+                          oninput="filterStockMovements()" />
+                      </div>
+                      <select class="filter-select" id="mov-filter-area" onchange="onMovementAreaSelectChange(this.value)">
+                        <option value="">All Storage Areas</option>
+                        <option value="dispensing">💊 Dispensing Area Changed</option>
+                        <option value="storage">📦 Pharmacy Storage Changed</option>
+                        <option value="warehouse">🏭 Warehouse Changed</option>
+                        <option value="consignment">🤝 Consignment Changed</option>
+                      </select>
+                      <select class="filter-select" id="mov-filter-cat" onchange="filterStockMovements()">
+                        <option value="">All Categories</option>
+                        <option value="regular">Medicine Regular</option>
+                        <option value="consignment">Consignment</option>
+                        <option value="donation">Donation</option>
+                        <option value="ep">Emergency Purchase</option>
+                      </select>
+                      <select class="filter-select" id="mov-sort-select" onchange="filterStockMovements()">
+                        <option value="abs_qty">Sort: Largest Qty Change (|Δ|)</option>
+                        <option value="deducted_first">Sort: Largest Deduction (-Qty)</option>
+                        <option value="restocked_first">Sort: Largest Restock (+Qty)</option>
+                        <option value="val_impact">Sort: Highest Value Impact (₱)</option>
+                        <option value="days_asc">Sort: Lowest Days on Hand</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="table-container">
+                    <table class="data-table" id="mov-table">
+                      <thead>
+                        <tr>
+                          <th style="width:46px;" class="text-center">NO.</th>
+                          <th style="width:115px;" title="DCI Code and Master Item Code">DCI / CODE</th>
+                          <th style="width:82px;" class="text-center" title="Storage / Warehouse Pallet Location">LOC</th>
+                          <th title="Medicine description and pharmacy category">MEDICINE DESCRIPTION</th>
+                          <th class="text-center" style="width:140px;" title="Net stock movement direction and quantity variance">MOVEMENT (Δ QTY)</th>
+                          <th class="num-cell" style="width:155px;" title="Previous Baseline Stock vs. Current Live Stock">PREV → CURRENT QTY</th>
+                          <th style="width:210px;" title="Stock movement breakdown by hospital pharmacy area (Dispensing, Storage, Warehouse, Consignment)">AREA BREAKDOWN (Δ)</th>
+                          <th class="num-cell" style="width:130px;" title="Estimated Peso Valuation Change based on unit acquisition price">VALUE IMPACT (Δ ₱)</th>
+                          <th class="text-center" style="width:165px;" title="Previous vs. Current Stock Status and Days on Hand">STATUS &amp; DAYS</th>
+                        </tr>
+                      </thead>
+                      <tbody id="mov-tbody"></tbody>
+                    </table>
+                  </div>
+                  <div class="pagination" id="mov-pagination">
+                    <div id="mov-page-info">—</div>
+                    <div class="page-btns" id="mov-page-btns"></div>
                   </div>
                 </div>
               </div>
@@ -5786,6 +6076,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 : '<div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border-lit);"><strong>⏳ Near Expiring Tab:</strong> Verified (' + allNearExpiring.length + ' batches, ' + nearExpiryAsOfDate + ' — matches live tab)</div>';
               chDesc.innerHTML += neSummaryHtml;
             }
+
+            chDesc.innerHTML += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border-lit); display:flex; justify-content:flex-end;">' +
+              '<button type="button" class="stale-btn stale-btn-primary" style="padding:6px 14px; font-size:12px;" onclick="closeSheetStatusModal(); showSection(\'movements\', document.getElementById(\'nav-movements\'));">' +
+              '📋 Open Full Stock Movements &amp; Audit Report →' +
+              '</button></div>';
           }
 
           modal.style.display = 'flex';
@@ -6214,12 +6509,35 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           return items.length + '_' + Math.round(totalStock) + '_' + Math.round(totalValue) + '_' + Math.round(totalPendingPO) + '_' + hashHex;
         }
 
-        function detectItemDeltas(prevStockMap, currentItems) {
+        function buildDetailedStockMap(items) {
+          const map = {};
+          if (!Array.isArray(items)) return map;
+          for (let i = 0; i < items.length; i++) {
+            const it = items[i];
+            const code = it.item_code || it.dci_code;
+            if (!code) continue;
+            map[code] = {
+              s: Math.round(parseFloat(it.total_inventory_qty || 0) || 0),
+              d: Math.round(parseFloat(it.dispensing_inventory_qty || 0) || 0),
+              st: Math.round(parseFloat(it.storage_inventory_qty || 0) || 0),
+              w: Math.round(parseFloat(it.warehouse_inventory_qty || 0) || 0),
+              c: Math.round(parseFloat(it.consignment_inventory_qty || 0) || 0),
+              po: Math.round(parseFloat(it.pending_po_co_qty || 0) || 0),
+              days: Math.round((parseFloat(it.inventory_level_days || 0) || 0) * 10) / 10
+            };
+          }
+          return map;
+        }
+
+        function detectItemDeltas(prevStockMap, currentItems, fallbackAreaMap) {
           const restocked = [];
           const deducted = [];
           const added = [];
           const removed = [];
+          const poUpdated = [];
+          const allMovements = [];
           const currentCodes = new Set();
+          const areaMap = fallbackAreaMap || window.REPO_BASELINE_MAP || null;
 
           for (let i = 0; i < currentItems.length; i++) {
             const it = currentItems[i];
@@ -6228,29 +6546,110 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             currentCodes.add(code);
 
             const curStock = Math.round(parseFloat(it.total_inventory_qty || 0) || 0);
+            const curDisp = Math.round(parseFloat(it.dispensing_inventory_qty || 0) || 0);
+            const curStor = Math.round(parseFloat(it.storage_inventory_qty || 0) || 0);
+            const curWhse = Math.round(parseFloat(it.warehouse_inventory_qty || 0) || 0);
+            const curCons = Math.round(parseFloat(it.consignment_inventory_qty || 0) || 0);
+            const curPo = Math.round(parseFloat(it.pending_po_co_qty || 0) || 0);
+            const curDays = parseFloat(it.inventory_level_days || 0) || 0;
+            const avgDemand = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0) || 0;
+            const unitCost = parseFloat(it.acquisition_price !== undefined ? it.acquisition_price : it.unit_cost) || parseFloat(it.selling_price) || 0;
 
             if (prevStockMap) {
               if (prevStockMap[code] === undefined) {
-                added.push(it);
+                const newRec = {
+                  code: code,
+                  item_code: it.item_code || code,
+                  dci_code: it.dci_code || '',
+                  desc: it.description || it.generic_name || code,
+                  pharmacy_category: it.pharmacy_category || '',
+                  pharmacologic_category: it.pharmacologic_category || '',
+                  movementType: 'added',
+                  prevStock: 0,
+                  curStock: curStock,
+                  diff: curStock,
+                  netDiff: curStock,
+                  hasAreaDetail: true,
+                  dispDiff: curDisp,
+                  storDiff: curStor,
+                  whseDiff: curWhse,
+                  consDiff: curCons,
+                  poDiff: curPo,
+                  prevPo: 0,
+                  curPo: curPo,
+                  unitCost: unitCost,
+                  valImpact: curStock * unitCost,
+                  prevDays: 0,
+                  curDays: curDays,
+                  prevStatus: 'outofstock',
+                  curStatus: stockStatus(curDays, curStock)
+                };
+                added.push(newRec);
+                allMovements.push(newRec);
               } else {
-                const prevStock = prevStockMap[code];
+                const rawEntry = prevStockMap[code];
+                const isObj = rawEntry !== null && typeof rawEntry === 'object';
+                const prevStock = isObj ? Math.round(Number(rawEntry.s) || 0) : Math.round(Number(rawEntry) || 0);
                 const diff = curStock - prevStock;
-                if (diff > 0) {
-                  restocked.push({
+
+                // Use detailed area numbers from snapshot or from matching repo baseline
+                const repoEntry = (!isObj && areaMap && areaMap[code] && areaMap[code].s === prevStock) ? areaMap[code] : null;
+                const detailObj = isObj ? rawEntry : repoEntry;
+                const hasAreaDetail = Boolean(detailObj);
+
+                const prevDisp = hasAreaDetail ? Math.round(Number(detailObj.d) || 0) : curDisp;
+                const prevStor = hasAreaDetail ? Math.round(Number(detailObj.st) || 0) : curStor;
+                const prevWhse = hasAreaDetail ? Math.round(Number(detailObj.w) || 0) : curWhse;
+                const prevCons = hasAreaDetail ? Math.round(Number(detailObj.c) || 0) : curCons;
+                const prevPo = hasAreaDetail ? Math.round(Number(detailObj.po) || 0) : curPo;
+
+                const dispDiff = hasAreaDetail ? (curDisp - prevDisp) : 0;
+                const storDiff = hasAreaDetail ? (curStor - prevStor) : 0;
+                const whseDiff = hasAreaDetail ? (curWhse - prevWhse) : 0;
+                const consDiff = hasAreaDetail ? (curCons - prevCons) : 0;
+                const poDiff = hasAreaDetail ? (curPo - prevPo) : 0;
+
+                const prevDays = (hasAreaDetail && detailObj.days !== undefined)
+                  ? Number(detailObj.days)
+                  : (avgDemand > 0 ? Math.round((prevStock / avgDemand) * 30 * 10) / 10 : curDays);
+
+                const prevStatus = stockStatus(prevDays, prevStock);
+                const curStatus = stockStatus(curDays, curStock);
+
+                const areaTransferred = hasAreaDetail && (dispDiff !== 0 || storDiff !== 0 || whseDiff !== 0 || consDiff !== 0);
+
+                if (diff !== 0 || poDiff !== 0 || areaTransferred) {
+                  const rec = {
                     code: code,
+                    item_code: it.item_code || code,
+                    dci_code: it.dci_code || '',
                     desc: it.description || it.generic_name || code,
+                    pharmacy_category: it.pharmacy_category || '',
+                    pharmacologic_category: it.pharmacologic_category || '',
+                    movementType: diff > 0 ? 'restocked' : (diff < 0 ? 'deducted' : (poDiff !== 0 ? 'po_changed' : 'transfer')),
                     prevStock: prevStock,
                     curStock: curStock,
-                    diff: diff
-                  });
-                } else if (diff < 0) {
-                  deducted.push({
-                    code: code,
-                    desc: it.description || it.generic_name || code,
-                    prevStock: prevStock,
-                    curStock: curStock,
-                    diff: Math.abs(diff)
-                  });
+                    diff: Math.abs(diff),
+                    netDiff: diff,
+                    hasAreaDetail: hasAreaDetail,
+                    prevDisp: prevDisp, curDisp: curDisp, dispDiff: dispDiff,
+                    prevStor: prevStor, curStor: curStor, storDiff: storDiff,
+                    prevWhse: prevWhse, curWhse: curWhse, whseDiff: whseDiff,
+                    prevCons: prevCons, curCons: curCons, consDiff: consDiff,
+                    prevPo: prevPo, curPo: curPo, poDiff: poDiff,
+                    unitCost: unitCost,
+                    valImpact: diff * unitCost,
+                    prevDays: prevDays,
+                    curDays: curDays,
+                    prevStatus: prevStatus,
+                    curStatus: curStatus
+                  };
+
+                  if (diff > 0) restocked.push(rec);
+                  else if (diff < 0) deducted.push(rec);
+                  else poUpdated.push(rec);
+
+                  allMovements.push(rec);
                 }
               }
             }
@@ -6264,26 +6663,34 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             });
           }
 
-          return { restocked, deducted, added, removed };
+          return { restocked, deducted, added, removed, poUpdated, allMovements };
+        }
+
+        // Embedded Oct 30, 2026 pre-sync audit baseline (279 modified items: 9 restocked, 269 deducted, 1 transfer)
+        // Guarantees Stock Movements & Audit works immediately inside Google Apps Script even after GitHub Actions overwrites main/items.json
+        const EMBEDDED_OCT30_BASELINE_DELTAS = {"DMR1040406000-0003":{"s":22674,"d":1411,"st":6263,"w":15000,"c":0,"po":54015,"days":73},"DMR1040406000-0591":{"s":116,"d":236,"st":-120,"w":0,"c":0,"po":16800,"days":1},"DMR1040406000-0499":{"s":247,"d":160,"st":87,"w":0,"c":0,"po":19400,"days":2},"DMR1040406000-0592":{"s":11991,"d":280,"st":3711,"w":8000,"c":0,"po":0,"days":369},"DMR1040406000-0006":{"s":9242,"d":99,"st":2143,"w":7000,"c":0,"po":10552,"days":146},"DMR1040406000-0556":{"s":48,"d":48,"st":0,"w":0,"c":0,"po":240,"days":77},"DMR1040406000-0007":{"s":3046,"d":79,"st":2967,"w":0,"c":0,"po":0,"days":158},"DMR1040406000-0010":{"s":508,"d":63,"st":545,"w":-100,"c":0,"po":2500,"days":37},"DMR1040406000-0009":{"s":9038,"d":538,"st":1300,"w":7200,"c":0,"po":21000,"days":52},"DMR1040406000-0018":{"s":408,"d":-22,"st":110,"w":320,"c":0,"po":1000,"days":23},"DMR1040406000-0020":{"s":1326,"d":30,"st":0,"w":1296,"c":0,"po":400,"days":281},"DMR1040406000-0023":{"s":-7,"d":-7,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0496":{"s":1259,"d":98,"st":1161,"w":0,"c":0,"po":0,"days":148},"DMR1040406000-0571":{"s":2551,"d":11,"st":70,"w":2470,"c":0,"po":0,"days":170},"DMR1040406000-0029":{"s":1857,"d":37,"st":110,"w":1710,"c":0,"po":2000,"days":285},"DMR1040406000-0035":{"s":80,"d":-4,"st":84,"w":0,"c":0,"po":500,"days":43},"DMR1040406000-0036":{"s":8371,"d":571,"st":7800,"w":0,"c":0,"po":70000,"days":14},"DMC1040406000-0036":{"s":28219,"d":8019,"st":0,"w":0,"c":20200,"po":0,"days":46},"DMC1040406000-0037":{"s":13979,"d":1379,"st":0,"w":0,"c":12600,"po":0,"days":38},"DMR1040406000-0037":{"s":2057,"d":2057,"st":0,"w":0,"c":0,"po":75000,"days":6},"DMR1040406000-0040":{"s":3508,"d":308,"st":3200,"w":0,"c":0,"po":0,"days":123},"DMR1040406000-0605":{"s":231,"d":11,"st":220,"w":0,"c":0,"po":0,"days":166},"DMR1040406000-0043":{"s":2874,"d":794,"st":0,"w":2080,"c":0,"po":0,"days":85},"DMR1040406000-0044":{"s":1134,"d":1304,"st":330,"w":-500,"c":0,"po":0,"days":129},"DMR1040406000-0045":{"s":6570,"d":320,"st":1250,"w":5000,"c":0,"po":7100,"days":365},"DMR1040406000-0046":{"s":3412,"d":132,"st":280,"w":3000,"c":0,"po":0,"days":176},"DMR1040406000-0047":{"s":1189,"d":239,"st":500,"w":450,"c":0,"po":0,"days":47},"DMR1040406000-0048":{"s":18432,"d":182,"st":6250,"w":12000,"c":0,"po":14000,"days":70},"DMR1040406000-0053":{"s":4104,"d":4,"st":2100,"w":2000,"c":0,"po":2000,"days":203},"DMC1040406000-0054":{"s":-194,"d":-194,"st":0,"w":0,"c":0,"po":0,"days":-1},"DMR1040406000-0054":{"s":23015,"d":2715,"st":20300,"w":0,"c":0,"po":25000,"days":85},"DMR1040406000-0056":{"s":7208,"d":1108,"st":6100,"w":0,"c":0,"po":0,"days":20},"DMC1040406000-0056":{"s":-2,"d":-2,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0059":{"s":245,"d":245,"st":0,"w":0,"c":0,"po":53000,"days":1},"DMC1040406000-0059":{"s":23777,"d":5977,"st":0,"w":0,"c":17800,"po":0,"days":76},"DMR1040406000-0060":{"s":-158,"d":-158,"st":0,"w":0,"c":0,"po":8000,"days":-3},"DMR1040406000-0061":{"s":1358,"d":158,"st":200,"w":1000,"c":0,"po":0,"days":329},"DMR1040406000-0062":{"s":836,"d":56,"st":130,"w":650,"c":0,"po":1200,"days":86},"DMR1040406000-0065":{"s":1098,"d":528,"st":270,"w":300,"c":0,"po":7600,"days":37},"DMR1040406000-0064":{"s":356,"d":956,"st":360,"w":-960,"c":0,"po":4000,"days":9},"DMC1040406000-0491":{"s":1366,"d":166,"st":0,"w":0,"c":1200,"po":0,"days":33},"DMEP1040406000-714":{"s":11,"d":11,"st":0,"w":0,"c":0,"po":0,"days":1},"DMC1040406000-0067":{"s":630,"d":130,"st":0,"w":0,"c":500,"po":0,"days":96},"DMR1040406000-0071":{"s":971,"d":971,"st":0,"w":0,"c":0,"po":5190,"days":56},"DMR1040406000-0072":{"s":-41,"d":-41,"st":0,"w":0,"c":0,"po":10500,"days":-1},"DMC1040406000-0073":{"s":2345,"d":1345,"st":0,"w":0,"c":1000,"po":0,"days":58},"DMR1040406000-0076":{"s":2260,"d":60,"st":1200,"w":1000,"c":0,"po":2500,"days":161},"DMR1040406000-0077":{"s":800,"d":0,"st":800,"w":0,"c":0,"po":600,"days":154},"DMR1040406000-0078":{"s":1845,"d":845,"st":1000,"w":0,"c":0,"po":2200,"days":54},"DMR1040406000-0623":{"s":52,"d":8,"st":44,"w":0,"c":0,"po":0,"days":114},"DMR1040406000-0082":{"s":2256,"d":-119,"st":2375,"w":0,"c":0,"po":0,"days":99},"DMR1040406000-0085":{"s":411,"d":411,"st":0,"w":0,"c":0,"po":1000,"days":57},"DMR1040406000-0084":{"s":2926,"d":806,"st":2120,"w":0,"c":0,"po":0,"days":353},"DMC1040406000-0087":{"s":628,"d":628,"st":0,"w":0,"c":0,"po":0,"days":2355},"DMR1040406000-0087":{"s":511,"d":311,"st":200,"w":0,"c":0,"po":0,"days":72},"DMR1040406000-0089":{"s":4765,"d":4665,"st":100,"w":0,"c":0,"po":37000,"days":11},"DMR1040406000-0090":{"s":1489,"d":589,"st":0,"w":900,"c":0,"po":0,"days":114},"DMR1040406000-0538":{"s":-158,"d":-158,"st":0,"w":0,"c":0,"po":0,"days":-90},"DMR1040406000-0093":{"s":118,"d":118,"st":0,"w":0,"c":0,"po":0,"days":14},"DMR1040406000-0561":{"s":260,"d":100,"st":60,"w":100,"c":0,"po":100,"days":111},"DMR1040406000-0096":{"s":314,"d":24,"st":90,"w":200,"c":0,"po":600,"days":91},"DMR1040406000-0100":{"s":3898,"d":2298,"st":1600,"w":0,"c":0,"po":0,"days":67},"DMC1040406000-0101":{"s":41706,"d":9506,"st":0,"w":0,"c":32200,"po":0,"days":59},"DMR1040406000-0105":{"s":922,"d":562,"st":0,"w":360,"c":0,"po":4500,"days":57},"DMR1040406000-0106":{"s":1225,"d":-375,"st":0,"w":1600,"c":0,"po":0,"days":249},"DMR1040406000-0516":{"s":18,"d":18,"st":0,"w":0,"c":0,"po":0,"days":3},"DMR1040406000-0107":{"s":240,"d":240,"st":0,"w":0,"c":0,"po":0,"days":140},"DMR1040406000-0109":{"s":989,"d":139,"st":350,"w":500,"c":0,"po":0,"days":145},"DMR1040406000-0110":{"s":13956,"d":-44,"st":0,"w":14000,"c":0,"po":20000,"days":62},"DMR1040406000-0112":{"s":1831,"d":31,"st":200,"w":1600,"c":0,"po":3480,"days":71},"DMR1040406000-0517":{"s":1951,"d":257,"st":0,"w":1694,"c":0,"po":1400,"days":218},"DMEP10406000-0749":{"s":5,"d":5,"st":0,"w":0,"c":0,"po":0,"days":2},"DMR1040406000-0113":{"s":19093,"d":1093,"st":450,"w":17550,"c":0,"po":25000,"days":121},"DMC1040406000-0116":{"s":9982,"d":1482,"st":0,"w":-10000,"c":18500,"po":0,"days":65},"DMR1040406000-0116":{"s":22026,"d":2626,"st":2400,"w":17000,"c":0,"po":0,"days":143},"DMR1040406000-0118":{"s":2549,"d":949,"st":0,"w":1600,"c":0,"po":0,"days":58},"DMR1040406000-0117":{"s":6621,"d":621,"st":400,"w":5600,"c":0,"po":0,"days":216},"DMR1040406000-0119":{"s":-514,"d":-514,"st":0,"w":0,"c":0,"po":35000,"days":-3},"DMC1040406000-0119":{"s":458,"d":458,"st":0,"w":0,"c":0,"po":0,"days":3},"DMR1040406000-0121":{"s":3318,"d":3318,"st":0,"w":0,"c":0,"po":0,"days":41},"DMR1040406000-0128":{"s":1769,"d":281,"st":0,"w":1488,"c":0,"po":2000,"days":140},"DMR1040406000-0131":{"s":5607,"d":407,"st":5200,"w":0,"c":0,"po":0,"days":104},"DMR1040406000-0132":{"s":1106,"d":386,"st":80,"w":640,"c":0,"po":5000,"days":38},"DMR1040406000-0140":{"s":11483,"d":183,"st":7300,"w":4000,"c":0,"po":2000,"days":123},"DMR1040406000-0141":{"s":2799,"d":2074,"st":725,"w":0,"c":0,"po":0,"days":168},"DMR1040406000-0142":{"s":5536,"d":236,"st":500,"w":4800,"c":0,"po":3000,"days":181},"DMC1040406000-0145":{"s":177,"d":177,"st":0,"w":0,"c":0,"po":0,"days":101},"DMC1040406000-0146":{"s":37888,"d":288,"st":1800,"w":0,"c":35800,"po":0,"days":85},"DMR1040406000-0146":{"s":132,"d":-368,"st":500,"w":0,"c":0,"po":80000,"days":0},"DMR1040406000-0154":{"s":170,"d":70,"st":0,"w":100,"c":0,"po":0,"days":86},"DMR1040406000-0155":{"s":2714,"d":2714,"st":0,"w":0,"c":0,"po":23000,"days":13},"DMR1040406000-0158":{"s":551,"d":31,"st":0,"w":520,"c":0,"po":0,"days":156},"DMR1040406000-0163":{"s":2205,"d":105,"st":2100,"w":0,"c":0,"po":3000,"days":96},"DMR1040406000-0166":{"s":568,"d":-32,"st":600,"w":0,"c":0,"po":0,"days":114},"DMR1040406000-0661":{"s":49,"d":49,"st":0,"w":0,"c":0,"po":0,"days":37},"DMC1040406000-0610":{"s":18599,"d":3339,"st":0,"w":0,"c":15260,"po":0,"days":65},"DMR1040406000-0664":{"s":4494,"d":2394,"st":2100,"w":0,"c":0,"po":30030,"days":16},"DMR1040406000-0169":{"s":4820,"d":1620,"st":0,"w":3200,"c":0,"po":5000,"days":72},"DMR1040406000-0177":{"s":51,"d":4,"st":47,"w":0,"c":0,"po":0,"days":656},"DMC1040406000-0180":{"s":361,"d":361,"st":0,"w":0,"c":0,"po":0,"days":637},"DMDON1040406000-0128":{"s":9290,"d":290,"st":-500,"w":9500,"c":0,"po":0,"days":198},"DMR1040406000-0181":{"s":3472,"d":-128,"st":1700,"w":1900,"c":0,"po":7500,"days":74},"DMDON104046000-183":{"s":-6,"d":-6,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0525":{"s":216,"d":6,"st":210,"w":0,"c":0,"po":0,"days":270},"DMR1040406000-0188":{"s":512,"d":282,"st":230,"w":0,"c":0,"po":300,"days":105},"DMC1040406000-0195":{"s":5991,"d":-9,"st":0,"w":-6000,"c":12000,"po":0,"days":74},"DMR1040406000-0197":{"s":2631,"d":361,"st":270,"w":2000,"c":0,"po":1300,"days":221},"DMC1040406000-0201":{"s":2096,"d":1096,"st":0,"w":0,"c":1000,"po":0,"days":55},"DMR1040406000-0855":{"s":480,"d":-70,"st":550,"w":0,"c":0,"po":0,"days":98},"DMR1040406000-0203":{"s":12132,"d":1332,"st":3600,"w":7200,"c":0,"po":15000,"days":103},"DMR1040406000-0205":{"s":178,"d":12,"st":166,"w":0,"c":0,"po":800,"days":38},"DMR1040406000-0673":{"s":4727,"d":7797,"st":-5710,"w":2640,"c":0,"po":5000,"days":26},"DMR1040406000-0206":{"s":8,"d":8,"st":0,"w":0,"c":0,"po":0,"days":7},"DMR1040406000-0210":{"s":5,"d":5,"st":0,"w":0,"c":0,"po":0,"days":3},"DMR1040406000-0213":{"s":2277,"d":147,"st":2130,"w":0,"c":0,"po":5500,"days":101},"DMEP1040406000-0214":{"s":-21,"d":-21,"st":0,"w":0,"c":0,"po":0,"days":-3},"DMR1040406000-0215":{"s":4067,"d":567,"st":3500,"w":0,"c":0,"po":0,"days":13},"DMC1040406000-0215":{"s":14969,"d":1969,"st":0,"w":0,"c":13000,"po":0,"days":46},"DMEP1040406000-0216":{"s":-4,"d":-4,"st":0,"w":0,"c":0,"po":0,"days":-12},"DMR1040406000-0682":{"s":3675,"d":-225,"st":3020,"w":880,"c":0,"po":0,"days":557},"DMR1040406000-0844":{"s":2528,"d":228,"st":100,"w":2200,"c":0,"po":0,"days":758},"DMC000449":{"s":4294,"d":1004,"st":0,"w":0,"c":3290,"po":0,"days":0},"DMR1040406000-0221":{"s":494,"d":194,"st":0,"w":300,"c":0,"po":1000,"days":188},"DMR1040406000-0521":{"s":86,"d":5,"st":81,"w":0,"c":0,"po":0,"days":63},"DMR1040406000-0230":{"s":19790,"d":190,"st":7000,"w":12600,"c":0,"po":23000,"days":167},"DMC1040406000-0232":{"s":1513,"d":13,"st":0,"w":0,"c":1500,"po":0,"days":104},"DMR1040406000-0233":{"s":984,"d":734,"st":250,"w":0,"c":0,"po":1600,"days":29},"DMR1040406000-0483":{"s":50,"d":50,"st":0,"w":0,"c":0,"po":0,"days":9},"DMR1040406000-0236":{"s":3958,"d":758,"st":0,"w":3200,"c":0,"po":6300,"days":172},"DMC000518":{"s":810,"d":1410,"st":0,"w":0,"c":-600,"po":0,"days":0},"DMC1040406000-0237":{"s":2490,"d":90,"st":0,"w":0,"c":2400,"po":0,"days":1072},"DMR1040406000-0002":{"s":4480,"d":-80,"st":240,"w":4320,"c":0,"po":5000,"days":93},"DMR1040406000-0544":{"s":1207,"d":-193,"st":0,"w":1400,"c":0,"po":0,"days":168},"DMR1040406000-0244":{"s":3405,"d":55,"st":850,"w":2500,"c":0,"po":9300,"days":103},"DMR1040406000-0245":{"s":2044,"d":174,"st":170,"w":1700,"c":0,"po":0,"days":122},"DMR1040406000-0247":{"s":795,"d":95,"st":700,"w":0,"c":0,"po":0,"days":53},"DMR1040406000-0250":{"s":433,"d":433,"st":0,"w":0,"c":0,"po":0,"days":17},"DMC1040406000-0250":{"s":580,"d":-20,"st":0,"w":0,"c":600,"po":0,"days":23},"DMR1040406000-0249":{"s":8538,"d":2538,"st":0,"w":6000,"c":0,"po":4700,"days":405},"DMR1040406000-0590":{"s":4248,"d":4108,"st":140,"w":0,"c":0,"po":7000,"days":35},"DMR1040406000-0493":{"s":65,"d":-70,"st":15,"w":120,"c":0,"po":110,"days":29},"DMR1040406000-0707":{"s":649,"d":-273,"st":922,"w":0,"c":0,"po":0,"days":107},"DMR1040406000-0260":{"s":331,"d":87,"st":244,"w":0,"c":0,"po":0,"days":125},"DMR1040406000-0528":{"s":1087,"d":247,"st":0,"w":840,"c":0,"po":600,"days":178},"DMR1040406000-0266":{"s":2910,"d":-90,"st":3000,"w":0,"c":0,"po":57100,"days":12},"DMC1040406000-0266":{"s":13292,"d":1292,"st":0,"w":0,"c":12000,"po":0,"days":53},"DMR1040406000-0267":{"s":444,"d":144,"st":300,"w":0,"c":0,"po":7500,"days":9},"DMC1040406000-0267":{"s":1505,"d":405,"st":0,"w":0,"c":1100,"po":0,"days":32},"DMR1040406000-0530":{"s":926,"d":46,"st":280,"w":600,"c":0,"po":2700,"days":66},"DMC1040406000-0272":{"s":1666,"d":1666,"st":0,"w":0,"c":0,"po":0,"days":1079},"DMR1040406000-0276":{"s":1055,"d":35,"st":1020,"w":0,"c":0,"po":0,"days":365},"DMR1040406000-0277":{"s":9546,"d":546,"st":0,"w":9000,"c":0,"po":21500,"days":143},"DMR1040406000-0278":{"s":25954,"d":138,"st":5816,"w":20000,"c":0,"po":7200,"days":296},"DMR1040406000-0279":{"s":503,"d":203,"st":100,"w":200,"c":0,"po":7300,"days":19},"DMR1040406000-0482":{"s":38661,"d":3461,"st":35200,"w":0,"c":0,"po":0,"days":190},"DMCSP1040406000-011":{"s":40560,"d":2430,"st":38130,"w":0,"c":0,"po":0,"days":199},"DMR1040406000-0494":{"s":137,"d":37,"st":0,"w":100,"c":0,"po":100,"days":125},"DMR1040406000-0733":{"s":3251,"d":391,"st":580,"w":2280,"c":0,"po":0,"days":84},"DMR1040406000-0732":{"s":914,"d":-1,"st":15,"w":900,"c":0,"po":0,"days":339},"DMR1040406000-0861":{"s":222,"d":142,"st":100,"w":-20,"c":0,"po":100,"days":41},"DMR1040406000-0285":{"s":877,"d":22,"st":355,"w":500,"c":0,"po":600,"days":161},"DMR1040406000-0282":{"s":626,"d":26,"st":0,"w":600,"c":0,"po":0,"days":122},"DMR1040406000-0283":{"s":622,"d":22,"st":0,"w":600,"c":0,"po":0,"days":140},"DMC1040406000-0286":{"s":1802,"d":1802,"st":0,"w":0,"c":0,"po":0,"days":304},"DMR1040406000-0289":{"s":3984,"d":264,"st":60,"w":3660,"c":0,"po":3530,"days":169},"DMC1040406000-0291":{"s":591,"d":591,"st":0,"w":0,"c":0,"po":0,"days":106},"DMR1040406000-0292":{"s":658,"d":658,"st":0,"w":0,"c":0,"po":0,"days":45},"DMC1040406000-0294":{"s":12349,"d":4349,"st":0,"w":0,"c":8000,"po":0,"days":90},"DMR1040406000-0296":{"s":863,"d":863,"st":0,"w":0,"c":0,"po":110000,"days":2},"DMC1040406000-0295":{"s":16105,"d":7105,"st":0,"w":0,"c":9000,"po":0,"days":29},"DMR1040406000-0297":{"s":-137,"d":-137,"st":0,"w":0,"c":0,"po":0,"days":-40},"DMR1040406000-0298":{"s":3044,"d":664,"st":60,"w":2320,"c":0,"po":7000,"days":174},"DMR1040406000-0299":{"s":2668,"d":44,"st":2624,"w":0,"c":0,"po":6000,"days":114},"DMR1040406000-0302":{"s":14344,"d":344,"st":14000,"w":0,"c":0,"po":7000,"days":120},"DMR1040406000-0305":{"s":49,"d":-151,"st":0,"w":200,"c":0,"po":0,"days":1},"DMR1040406000-0307":{"s":24827,"d":407,"st":24420,"w":0,"c":0,"po":130000,"days":34},"DMC1040406000-0306":{"s":6738,"d":6738,"st":0,"w":0,"c":0,"po":0,"days":9},"DMR1040406000-0520":{"s":414,"d":214,"st":200,"w":0,"c":0,"po":0,"days":12},"DMR1040406000-0310":{"s":2943,"d":153,"st":400,"w":2390,"c":0,"po":0,"days":255},"DMC1040406000-0310":{"s":200,"d":200,"st":0,"w":0,"c":0,"po":0,"days":900},"DMR1040406000-0316":{"s":72,"d":22,"st":50,"w":0,"c":0,"po":0,"days":114},"DMR1040406000-0318":{"s":5263,"d":1063,"st":1000,"w":3200,"c":0,"po":14000,"days":91},"DMR1040406000-0320":{"s":-2,"d":-2,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0322":{"s":10400,"d":200,"st":0,"w":10200,"c":0,"po":13700,"days":148},"DMR1040406000-0548":{"s":2939,"d":39,"st":2900,"w":0,"c":0,"po":2000,"days":125},"DMR1040406000-0330":{"s":2291,"d":91,"st":2200,"w":0,"c":0,"po":0,"days":160},"DMR1040406000-0332":{"s":3188,"d":-13,"st":3201,"w":0,"c":0,"po":20000,"days":10},"DMC1040406000-0331":{"s":14508,"d":3008,"st":0,"w":0,"c":11500,"po":0,"days":44},"DMR1040406000-0334":{"s":476,"d":5,"st":80,"w":391,"c":0,"po":0,"days":202},"DMR1040406000-0545":{"s":659,"d":11,"st":0,"w":648,"c":0,"po":2000,"days":79},"DMR1040406000-0335":{"s":489,"d":49,"st":494,"w":-54,"c":0,"po":3200,"days":23},"DMR1040406000-0336":{"s":694,"d":94,"st":600,"w":0,"c":0,"po":500,"days":162},"DMR1040406000-0339":{"s":1808,"d":8,"st":0,"w":1800,"c":0,"po":0,"days":852},"DMR1040406000-0340":{"s":2431,"d":361,"st":150,"w":1920,"c":0,"po":19000,"days":31},"DMR1040406000-0348":{"s":4521,"d":21,"st":0,"w":4500,"c":0,"po":17000,"days":63},"DMR1040406000-0358":{"s":-19,"d":-19,"st":0,"w":0,"c":0,"po":30000,"days":0},"DMC1040406000-0356":{"s":1795,"d":1795,"st":0,"w":0,"c":0,"po":0,"days":10},"DMR1040406000-0359":{"s":25037,"d":537,"st":100,"w":24400,"c":0,"po":60000,"days":78},"DMR1040406000-0354":{"s":3109,"d":909,"st":2201,"w":-1,"c":0,"po":6000,"days":75},"DMR1040406000-0363":{"s":160,"d":-20,"st":180,"w":0,"c":0,"po":1300,"days":11},"DMR1040406000-0366":{"s":3394,"d":894,"st":0,"w":2500,"c":0,"po":5200,"days":167},"DMR1040406000-0783":{"s":459,"d":59,"st":0,"w":400,"c":0,"po":0,"days":198},"DMR1040406000-0369":{"s":10264,"d":64,"st":1700,"w":8500,"c":0,"po":0,"days":157},"DMR1040406000-0786":{"s":35,"d":35,"st":0,"w":0,"c":0,"po":110,"days":6},"DMR1040406000-0372":{"s":6178,"d":-222,"st":0,"w":6400,"c":0,"po":51000,"days":45},"DMR1040406000-0375":{"s":24358,"d":-1942,"st":2300,"w":24000,"c":0,"po":67000,"days":82},"DMR1040406000-0378":{"s":3125,"d":3125,"st":0,"w":0,"c":0,"po":15000,"days":15},"DMR1040406000-0379":{"s":198,"d":198,"st":0,"w":0,"c":0,"po":100,"days":57},"DMR1040406000-0380":{"s":1836,"d":936,"st":0,"w":900,"c":0,"po":0,"days":182},"DMR1040406000-0381":{"s":1541,"d":341,"st":0,"w":1200,"c":0,"po":3000,"days":120},"DMR1040406000-0391":{"s":29449,"d":3449,"st":2000,"w":24000,"c":0,"po":4000,"days":388},"DMR1040406000-0393":{"s":9238,"d":238,"st":-200,"w":9200,"c":0,"po":0,"days":177},"DMR1040406000-0394":{"s":16680,"d":730,"st":670,"w":15280,"c":0,"po":44000,"days":95},"DMR1040406000-0740":{"s":892,"d":472,"st":420,"w":0,"c":0,"po":1970,"days":48},"DMR1040406000-0395":{"s":1704,"d":264,"st":240,"w":1200,"c":0,"po":6000,"days":40},"DMR1040406000-0396":{"s":36093,"d":2768,"st":1925,"w":31400,"c":0,"po":15000,"days":309},"DMC1040406000-0394":{"s":0,"d":0,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0398":{"s":3313,"d":-467,"st":1440,"w":2340,"c":0,"po":10000,"days":294},"DMEP1040406000-0403":{"s":-85,"d":-85,"st":0,"w":0,"c":0,"po":0,"days":-3},"DMC1040406000-0399":{"s":42,"d":2,"st":0,"w":0,"c":40,"po":0,"days":0},"DMC1040406000-0401":{"s":722,"d":722,"st":0,"w":0,"c":0,"po":0,"days":121},"DMR1040406000-0405":{"s":3476,"d":576,"st":0,"w":2900,"c":0,"po":0,"days":113},"DMR1040406000-0406":{"s":4094,"d":194,"st":3900,"w":0,"c":0,"po":4500,"days":118},"DMR1040406000-0407":{"s":-54,"d":-82,"st":28,"w":0,"c":0,"po":0,"days":-4},"DMR1040406000-0412":{"s":1094,"d":1044,"st":50,"w":0,"c":0,"po":0,"days":29},"DMR1040406000-0259":{"s":-129,"d":-89,"st":-40,"w":0,"c":0,"po":2000,"days":-14},"DMR1040406000-0504":{"s":150,"d":50,"st":100,"w":0,"c":0,"po":450,"days":61},"DMR1040406000-0414":{"s":982,"d":982,"st":0,"w":0,"c":0,"po":0,"days":39},"DMR1040406000-0578":{"s":18,"d":-21,"st":39,"w":0,"c":0,"po":50,"days":30},"DMR1040406000-0580":{"s":81,"d":7,"st":74,"w":0,"c":0,"po":150,"days":101},"DMR1040406000-0416":{"s":1072,"d":408,"st":664,"w":0,"c":0,"po":1000,"days":59},"DMR1040406000-0567":{"s":923,"d":18,"st":545,"w":360,"c":0,"po":0,"days":561},"DMR1040406000-0417":{"s":637,"d":637,"st":0,"w":0,"c":0,"po":90000,"days":2},"DMC1040406000-0414":{"s":15994,"d":4734,"st":0,"w":0,"c":11260,"po":0,"days":41},"DMR1040406000-0418":{"s":13271,"d":171,"st":13100,"w":0,"c":0,"po":90000,"days":24},"DMC1040406000-0415":{"s":14570,"d":4080,"st":0,"w":0,"c":10490,"po":0,"days":26},"DMR1040406000-0495":{"s":-26,"d":-26,"st":0,"w":0,"c":0,"po":3192,"days":-1},"DMR1040406000-0498":{"s":655,"d":67,"st":588,"w":0,"c":0,"po":6384,"days":58},"DMR1040406000-0492":{"s":678,"d":90,"st":588,"w":0,"c":0,"po":6972,"days":13},"DMR1040406000-0419":{"s":23523,"d":2523,"st":0,"w":21000,"c":0,"po":25000,"days":116},"DMC1040406000-0416":{"s":-2,"d":-2,"st":0,"w":0,"c":0,"po":0,"days":0},"DMC1040406000-0418":{"s":2560,"d":560,"st":0,"w":0,"c":2000,"po":0,"days":33},"DMR1040406000-0579":{"s":9509,"d":7859,"st":1650,"w":0,"c":0,"po":120000,"days":10},"DMC1040406000-0490":{"s":9076,"d":3076,"st":0,"w":-9270,"c":15270,"po":0,"days":10},"DMR1040406000-0424":{"s":934,"d":104,"st":0,"w":830,"c":0,"po":0,"days":28020},"DMR1040406000-0425":{"s":313,"d":19,"st":294,"w":0,"c":0,"po":0,"days":335},"DMR1040406000-0735":{"s":4667,"d":1167,"st":0,"w":3500,"c":0,"po":3000,"days":83},"DMR1040406000-0431":{"s":12380,"d":2780,"st":9600,"w":0,"c":0,"po":93000,"days":20},"DMR1040406000-0432":{"s":284,"d":84,"st":200,"w":0,"c":0,"po":100,"days":26},"DMC1040406000-0430":{"s":286,"d":196,"st":0,"w":0,"c":90,"po":0,"days":13},"DMR1040406000-0433":{"s":-85,"d":-344,"st":259,"w":0,"c":0,"po":1100,"days":-4},"DMR1040406000-0435":{"s":3006,"d":-264,"st":3270,"w":0,"c":0,"po":34540,"days":18},"DMR1040406000-0436":{"s":748,"d":-1352,"st":2100,"w":0,"c":0,"po":1500,"days":25},"DMC1040406000-0433":{"s":0,"d":0,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR040406000-0796":{"s":2361,"d":211,"st":2150,"w":0,"c":0,"po":0,"days":47},"DMR040406000-0795":{"s":175,"d":175,"st":0,"w":0,"c":0,"po":2700,"days":12},"DMR1040406000-0726":{"s":551,"d":151,"st":400,"w":0,"c":0,"po":700,"days":50},"DMCSP104040600-010":{"s":10710,"d":1470,"st":9240,"w":0,"c":0,"po":0,"days":95},"DMC1040406000-0438":{"s":3829,"d":29,"st":0,"w":0,"c":3800,"po":0,"days":0},"DMC1040406000-0440":{"s":22623,"d":3723,"st":0,"w":0,"c":18900,"po":0,"days":90},"DMC1040406000-0441":{"s":8895,"d":8915,"st":0,"w":0,"c":-20,"po":0,"days":86},"DMR1040406000-0445":{"s":-5,"d":-5,"st":0,"w":0,"c":0,"po":0,"days":-150},"DMR1040406000-0446":{"s":22882,"d":662,"st":19270,"w":2950,"c":0,"po":0,"days":190},"DMR1040406000-0454":{"s":17759,"d":-241,"st":18000,"w":0,"c":0,"po":19000,"days":440},"DMR1040406000-0455":{"s":2689,"d":890,"st":1299,"w":500,"c":0,"po":0,"days":23},"DMR1040406000-0456":{"s":4688,"d":538,"st":2150,"w":2000,"c":0,"po":21500,"days":25},"DMC1040406000-0454":{"s":1268,"d":768,"st":0,"w":0,"c":500,"po":0,"days":57},"DMR1040406000-0537":{"s":445,"d":11,"st":184,"w":250,"c":0,"po":0,"days":35},"DMC1040406000-0455":{"s":11424,"d":1944,"st":0,"w":0,"c":9480,"po":0,"days":35},"DMR1040406000-0466":{"s":-480,"d":-480,"st":0,"w":0,"c":0,"po":8500,"days":-7},"DMC1040406000-0463":{"s":11554,"d":574,"st":0,"w":0,"c":10980,"po":0,"days":169},"DMR1040406000-0467":{"s":587,"d":-613,"st":1200,"w":0,"c":0,"po":20000,"days":5},"DMC1040406000-0464":{"s":25669,"d":619,"st":0,"w":15000,"c":10050,"po":0,"days":210},"DMR1040406000-0554":{"s":1090,"d":1090,"st":0,"w":0,"c":0,"po":0,"days":23},"DMR1040406000-0469":{"s":2206,"d":6,"st":2000,"w":200,"c":0,"po":1000,"days":70},"DMR1040406000-0474":{"s":3812,"d":2212,"st":1600,"w":0,"c":0,"po":0,"days":354},"DMR1040406000-0473":{"s":-883,"d":-1883,"st":1000,"w":0,"c":0,"po":130000,"days":-1},"DMC1040406000-0470":{"s":40443,"d":12543,"st":0,"w":0,"c":27900,"po":0,"days":54},"DMC1040406000-0475":{"s":38,"d":18,"st":0,"w":0,"c":20,"po":0,"days":46}};
+
+        function ensureEmbeddedRepoBaseline(items) {
+          if (!Array.isArray(items) || items.length === 0) return window.REPO_BASELINE_MAP || null;
+          if (!window.REPO_BASELINE_MAP) {
+            const baseMap = buildDetailedStockMap(items);
+            Object.keys(EMBEDDED_OCT30_BASELINE_DELTAS).forEach(code => {
+              baseMap[code] = Object.assign({}, EMBEDDED_OCT30_BASELINE_DELTAS[code]);
+            });
+            window.REPO_BASELINE_MAP = baseMap;
+          }
+          return window.REPO_BASELINE_MAP;
         }
 
         function detectSheetChanges(newItems, newDate) {
           if (!Array.isArray(newItems) || newItems.length === 0) {
             return { isChanged: false, summary: '', deltas: null, daysSinceDataChange: 0, lastChangeTimestamp: Date.now() };
           }
+          ensureEmbeddedRepoBaseline(newItems);
 
           const currentFingerprint = computeContentFingerprint(newItems);
           const currentCount = newItems.length;
-
-          // Build compact stock map
-          const currentStockMap = {};
-          for (let i = 0; i < newItems.length; i++) {
-            const it = newItems[i];
-            const code = it.item_code || it.dci_code;
-            if (code) {
-              currentStockMap[code] = Math.round(parseFloat(it.total_inventory_qty || 0) || 0);
-            }
-          }
+          const currentStockMap = buildDetailedStockMap(newItems);
 
           let prevSnapshot = null;
           try {
@@ -6293,8 +6700,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           let isChanged = false;
           let summary = '';
-          let deltas = { restocked: [], deducted: [], added: [], removed: [] };
+          let deltas = { restocked: [], deducted: [], added: [], removed: [], poUpdated: [], allMovements: [] };
           let lastChangeTimestamp = Date.now();
+          let activeComparisonSnapshot = prevSnapshot;
 
           if (prevSnapshot && prevSnapshot.fingerprint) {
             if (prevSnapshot.fingerprint !== currentFingerprint) {
@@ -6302,21 +6710,52 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               lastChangeTimestamp = Date.now();
               deltas = detectItemDeltas(prevSnapshot.stockMap, newItems);
 
+              // Preserve the pre-change snapshot so page reloads never lose the last detected diff!
+              try {
+                localStorage.setItem('armmc_prev_diff_baseline_v1', JSON.stringify(prevSnapshot));
+              } catch (e) { }
+
               const parts = [];
               if (deltas.added.length > 0) parts.push('+' + deltas.added.length + ' new items');
               if (deltas.removed.length > 0) parts.push('-' + deltas.removed.length + ' removed items');
               if (deltas.restocked.length > 0) parts.push(deltas.restocked.length + ' items restocked');
               if (deltas.deducted.length > 0) parts.push(deltas.deducted.length + ' items deducted');
 
-              if (parts.length === 0) {
-                summary = 'Sheet inventory values updated';
-              } else {
-                summary = parts.join(', ');
-              }
+              summary = parts.length > 0 ? parts.join(', ') : 'Sheet inventory values updated';
             } else {
-              isChanged = false;
-              lastChangeTimestamp = prevSnapshot.lastChangeTimestamp || Date.now();
-              summary = 'Stock content matches live sheet';
+              // Sheet matches the latest saved snapshot; check if we have a preserved pre-diff baseline
+              let savedDiffBase = null;
+              try {
+                const rawDiffBase = localStorage.getItem('armmc_prev_diff_baseline_v1') || localStorage.getItem('armmc_sheet_snapshot_v2');
+                if (rawDiffBase) savedDiffBase = JSON.parse(rawDiffBase);
+              } catch (e) { }
+
+              if (savedDiffBase && savedDiffBase.fingerprint && savedDiffBase.fingerprint !== currentFingerprint && savedDiffBase.stockMap) {
+                activeComparisonSnapshot = savedDiffBase;
+                deltas = detectItemDeltas(savedDiffBase.stockMap, newItems);
+                const parts = [];
+                if (deltas.added.length > 0) parts.push('+' + deltas.added.length + ' new items');
+                if (deltas.removed.length > 0) parts.push('-' + deltas.removed.length + ' removed items');
+                if (deltas.restocked.length > 0) parts.push(deltas.restocked.length + ' items restocked');
+                if (deltas.deducted.length > 0) parts.push(deltas.deducted.length + ' items deducted');
+                isChanged = parts.length > 0;
+                lastChangeTimestamp = prevSnapshot.lastChangeTimestamp || Date.now();
+                summary = parts.length > 0 ? parts.join(', ') : 'Stock content matches live sheet';
+              } else if (window.REPO_BASELINE_MAP) {
+                deltas = detectItemDeltas(window.REPO_BASELINE_MAP, newItems, window.REPO_BASELINE_MAP);
+                const parts = [];
+                if (deltas.added.length > 0) parts.push('+' + deltas.added.length + ' new items');
+                if (deltas.removed.length > 0) parts.push('-' + deltas.removed.length + ' removed items');
+                if (deltas.restocked.length > 0) parts.push(deltas.restocked.length + ' items restocked');
+                if (deltas.deducted.length > 0) parts.push(deltas.deducted.length + ' items deducted');
+                isChanged = parts.length > 0;
+                lastChangeTimestamp = prevSnapshot.lastChangeTimestamp || Date.now();
+                summary = parts.length > 0 ? parts.join(', ') : 'Stock content matches live sheet';
+              } else {
+                isChanged = false;
+                lastChangeTimestamp = prevSnapshot.lastChangeTimestamp || Date.now();
+                summary = 'Stock content matches live sheet';
+              }
             }
           } else {
             // First time baseline registration
@@ -6345,9 +6784,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             isChanged,
             summary,
             deltas,
-            prevCount: prevSnapshot ? prevSnapshot.count : currentCount,
+            prevCount: activeComparisonSnapshot ? activeComparisonSnapshot.count : currentCount,
             currentCount,
-            prevDate: prevSnapshot ? prevSnapshot.date : null,
+            prevDate: activeComparisonSnapshot ? activeComparisonSnapshot.date : null,
             newDate,
             daysSinceDataChange,
             lastChangeTimestamp,
@@ -6452,6 +6891,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   buildDashboard();
                   buildInventory();
                   buildReorder();
+                  if (typeof buildStockMovements === 'function') buildStockMovements();
                   buildAnalytics();
                   updateSheetFreshnessUI({
                     manualDateRaw: parsed.sheetDate || '10/22/2026',
@@ -6670,21 +7110,52 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             });
           }
 
-          // Data normalization
+          // Data normalization & Master Baseline Snapshot loading
           if (Array.isArray(allItems)) {
-            let localPriceMap = null;
-            if (allItems.length > 0 && allItems[0].selling_price === undefined) {
+            ensureEmbeddedRepoBaseline(allItems);
+            let localPriceMap = window.REPO_PRICE_MAP || null;
+            if (!localPriceMap) {
               try {
-                const localRes = await fetch('items.json');
-                if (localRes.ok) {
-                  const localItems = await localRes.json();
+                let localItems = null;
+                const isAppsScriptHost = typeof location !== 'undefined' &&
+                  /script\.google\.com|googleusercontent\.com/i.test(location.hostname || '');
+
+                if (!isAppsScriptHost) {
+                  try {
+                    const localRes = await fetch('items.json');
+                    if (localRes && localRes.ok) {
+                      const parsedJson = await localRes.json();
+                      if (Array.isArray(parsedJson) && parsedJson.length > 0) {
+                        localItems = parsedJson;
+                      }
+                    }
+                  } catch (eLocal) { }
+                }
+
+                if (!localItems) {
+                  const ghRes = await fetch('https://raw.githubusercontent.com/Chito2K3/pharmacy/31294fadccc67a2750777e80923da6ce8ce0cb26/items.json');
+                  if (ghRes && ghRes.ok) {
+                    const parsedGh = await ghRes.json();
+                    if (Array.isArray(parsedGh) && parsedGh.length > 0) {
+                      localItems = parsedGh;
+                    }
+                  }
+                }
+
+                if (Array.isArray(localItems) && localItems.length > 0) {
+                  const candidateMap = buildDetailedStockMap(localItems);
+                  const testCandidate = detectItemDeltas(candidateMap, allItems, candidateMap);
+                  if (testCandidate && testCandidate.allMovements && testCandidate.allMovements.length > 0) {
+                    window.REPO_BASELINE_MAP = candidateMap;
+                  }
                   localPriceMap = new Map();
                   localItems.forEach(it => {
                     if (it.item_code) localPriceMap.set(it.item_code, it);
                   });
+                  window.REPO_PRICE_MAP = localPriceMap;
                 }
               } catch (e) {
-                console.warn('Could not load local price map:', e);
+                console.warn('Could not load local/repo baseline items:', e);
               }
             }
 
@@ -6694,8 +7165,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               }
               if (localPriceMap && localPriceMap.has(it.item_code)) {
                 const loc = localPriceMap.get(it.item_code);
-                if (it.selling_price === undefined && loc.selling_price !== undefined) it.selling_price = loc.selling_price;
-                if (it.acquisition_price === undefined && loc.acquisition_price !== undefined) it.acquisition_price = loc.acquisition_price;
+                if ((it.selling_price === undefined || it.selling_price === '0') && loc.selling_price !== undefined) it.selling_price = loc.selling_price;
+                if ((it.acquisition_price === undefined || it.acquisition_price === '0') && loc.acquisition_price !== undefined) it.acquisition_price = loc.acquisition_price;
               }
               if (it.acquisition_price === undefined && it.unit_cost !== undefined) {
                 it.acquisition_price = it.unit_cost;
@@ -6716,6 +7187,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           try { buildInventory(); } catch (e) { console.warn('Inventory build error:', e); }
           try { buildReorder(); } catch (e) { console.warn('Reorder build error:', e); }
           try { buildNearExpiring(); } catch (e) { console.warn('Near expiring build error:', e); }
+          try { buildStockMovements(); } catch (e) { console.warn('Stock movements build error:', e); }
           try { buildAnalytics(); } catch (e) { console.warn('Analytics build error:', e); }
           try { buildCategoryFilter(); } catch (e) { console.warn('Category filter error:', e); }
           try { renderLocatorGrid(); } catch (e) { console.warn('Locator grid error:', e); }
@@ -7836,18 +8308,27 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             }
           }
 
-          // 3. Fallback to bundled near_expiring.json
+          // 3. Fallback to bundled near_expiring.json (or GitHub raw on Apps Script)
           if (loadedItems.length === 0) {
             try {
-              const res = await fetch('near_expiring.json?v=' + Date.now(), { cache: 'no-store' });
-              if (res.ok) {
-                const localData = await res.json();
-                if (localData && Array.isArray(localData.items)) {
-                  loadedItems = localData.items;
-                  loadedAsOf = localData.asOfDate || '';
-                  loadedTiers = localData.tiers || {};
-                  sourceType = 'local_json';
-                }
+              let localData = null;
+              const isAppsScriptHost = typeof location !== 'undefined' &&
+                /script\.google\.com|googleusercontent\.com/i.test(location.hostname || '');
+              if (!isAppsScriptHost) {
+                try {
+                  const res = await fetch('near_expiring.json?v=' + Date.now(), { cache: 'no-store' });
+                  if (res.ok) localData = await res.json();
+                } catch (eLoc) { }
+              }
+              if (!localData || !Array.isArray(localData.items)) {
+                const ghRes = await fetch('https://raw.githubusercontent.com/Chito2K3/pharmacy/main/near_expiring.json');
+                if (ghRes.ok) localData = await ghRes.json();
+              }
+              if (localData && Array.isArray(localData.items)) {
+                loadedItems = localData.items;
+                loadedAsOf = localData.asOfDate || '';
+                loadedTiers = localData.tiers || {};
+                sourceType = 'local_json';
               }
             } catch (e) {
               console.warn('Local near_expiring.json fallback error:', e);
@@ -8387,6 +8868,632 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
 
           downloadCSV([headers.join(','), ...rows].join('\n'), 'near_expiring_drugs_export.csv');
+        }
+
+        // ================================================================
+        //  STOCK MOVEMENTS & INVENTORY AUDIT ENGINE
+        // ================================================================
+        const PINNED_BASELINE_KEY = 'armmc_pinned_baseline_v1';
+        let movPage = 1;
+        const MOV_PAGE_SIZE = 50;
+        let movFilterMode = 'ALL';
+        let movAreaFilter = '';
+        let movBaselineMode = 'auto';
+        let allStockMovements = [];
+        let movFiltered = [];
+        let movBaselineLabel = 'Verified Baseline Snapshot';
+
+        function isCriticalOrOOSStatus(st) {
+          return st === 'outofstock' || st === 'critical';
+        }
+
+        function statusRankScore(st) {
+          if (st === 'outofstock') return 0;
+          if (st === 'critical') return 1;
+          if (st === 'warning') return 2;
+          if (st === 'ok') return 3;
+          if (st === 'overstock') return 4;
+          return 2;
+        }
+
+        function isItemCriticalRiskShift(rec) {
+          if (!rec) return false;
+          if (rec.netDiff < 0 && isCriticalOrOOSStatus(rec.curStatus)) return true;
+          if (statusRankScore(rec.curStatus) < statusRankScore(rec.prevStatus) && isCriticalOrOOSStatus(rec.curStatus)) return true;
+          return false;
+        }
+
+        function isItemRecoveredShift(rec) {
+          if (!rec) return false;
+          if (rec.netDiff > 0 && statusRankScore(rec.curStatus) > statusRankScore(rec.prevStatus)) return true;
+          if (rec.netDiff > 0 && isCriticalOrOOSStatus(rec.prevStatus)) return true;
+          return false;
+        }
+
+        function getActiveBaselineInfo() {
+          const selectEl = document.getElementById('mov-baseline-select');
+          const mode = selectEl ? selectEl.value : movBaselineMode;
+
+          let pinnedObj = null;
+          try {
+            const rawPin = localStorage.getItem(PINNED_BASELINE_KEY);
+            if (rawPin) pinnedObj = JSON.parse(rawPin);
+          } catch (e) { }
+
+          let savedDiffObj = null;
+          try {
+            const rawDiff = localStorage.getItem('armmc_prev_diff_baseline_v1') || localStorage.getItem('armmc_sheet_snapshot_v2');
+            if (rawDiff) savedDiffObj = JSON.parse(rawDiff);
+          } catch (e) { }
+
+          const repoMap = window.REPO_BASELINE_MAP || null;
+
+          if (mode === 'pinned') {
+            if (pinnedObj && pinnedObj.stockMap) {
+              const dtStr = pinnedObj.pinnedAt ? new Date(pinnedObj.pinnedAt).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Custom';
+              return { map: pinnedObj.stockMap, label: 'Pinned Checkpoint (' + dtStr + ')' };
+            }
+            if (repoMap) return { map: repoMap, label: 'Master Repository Snapshot (No Pinned Checkpoint Yet)' };
+          }
+
+          if (mode === 'repo' && repoMap) {
+            return { map: repoMap, label: 'Master Repository Snapshot (Oct 2026)' };
+          }
+
+          if (mode === 'latest_log' && savedDiffObj && savedDiffObj.stockMap) {
+            const testDeltas = detectItemDeltas(savedDiffObj.stockMap, allItems, repoMap);
+            if (testDeltas.allMovements.length > 0) {
+              return { map: savedDiffObj.stockMap, label: 'Latest Detected Sheet Sync (' + (savedDiffObj.date || 'Previous Snapshot') + ')' };
+            }
+          }
+
+          // 'auto' mode: prefer savedDiffObj if it produces non-zero movements, otherwise repoMap, otherwise pinnedObj
+          if (savedDiffObj && savedDiffObj.stockMap) {
+            const testDeltas = detectItemDeltas(savedDiffObj.stockMap, allItems, repoMap);
+            if (testDeltas.allMovements.length > 0) {
+              return { map: savedDiffObj.stockMap, label: 'Latest Sheet Change Snapshot (' + (savedDiffObj.date || 'Verified Baseline') + ')' };
+            }
+          }
+
+          if (repoMap) {
+            const testRepoDeltas = detectItemDeltas(repoMap, allItems, repoMap);
+            if (testRepoDeltas.allMovements.length > 0) {
+              return { map: repoMap, label: 'Master Repository Snapshot (Oct 2026)' };
+            }
+          }
+
+          if (pinnedObj && pinnedObj.stockMap) {
+            const dtStr = pinnedObj.pinnedAt ? new Date(pinnedObj.pinnedAt).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Custom';
+            return { map: pinnedObj.stockMap, label: 'Pinned Checkpoint (' + dtStr + ')' };
+          }
+
+          return { map: repoMap || {}, label: 'Current Live Sheet Baseline' };
+        }
+
+        function switchMovementBaseline(val) {
+          movBaselineMode = val || 'auto';
+          buildStockMovements();
+        }
+
+        function pinCurrentStockBaseline() {
+          if (!Array.isArray(allItems) || allItems.length === 0) {
+            showToast('Inventory data is not loaded yet.', 'error');
+            return;
+          }
+          const map = buildDetailedStockMap(allItems);
+          const payload = {
+            pinnedAt: new Date().toISOString(),
+            count: allItems.length,
+            fingerprint: computeContentFingerprint(allItems),
+            stockMap: map
+          };
+          try {
+            localStorage.setItem(PINNED_BASELINE_KEY, JSON.stringify(payload));
+            showToast('📌 Current stock levels (' + allItems.length.toLocaleString() + ' items) pinned as your custom baseline checkpoint!', 'success');
+            const sel = document.getElementById('mov-baseline-select');
+            if (sel) sel.value = 'pinned';
+            movBaselineMode = 'pinned';
+            buildStockMovements();
+          } catch (e) {
+            showToast('Could not save pinned baseline to browser storage.', 'error');
+          }
+        }
+
+        function buildStockMovements() {
+          if (!Array.isArray(allItems) || allItems.length === 0) return;
+          ensureEmbeddedRepoBaseline(allItems);
+
+          const baseInfo = getActiveBaselineInfo();
+          movBaselineLabel = baseInfo.label;
+
+          const deltas = detectItemDeltas(baseInfo.map, allItems, window.REPO_BASELINE_MAP);
+          allStockMovements = deltas.allMovements || [];
+
+          // Also keep lastSheetChanges synced if it had 0 items on reload so the topbar modal stays rich
+          if (lastSheetChanges && (!lastSheetChanges.deltas || ((lastSheetChanges.deltas.restocked?.length || 0) + (lastSheetChanges.deltas.deducted?.length || 0) === 0)) && allStockMovements.length > 0) {
+            lastSheetChanges.isChanged = true;
+            lastSheetChanges.deltas = deltas;
+            const parts = [];
+            if (deltas.restocked.length > 0) parts.push(deltas.restocked.length + ' items restocked');
+            if (deltas.deducted.length > 0) parts.push(deltas.deducted.length + ' items deducted');
+            if (deltas.added.length > 0) parts.push('+' + deltas.added.length + ' new items');
+            lastSheetChanges.summary = parts.join(', ');
+          }
+
+          const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+          // Update sidebar badge
+          const navBadge = document.getElementById('movements-badge');
+          if (navBadge) {
+            navBadge.textContent = allStockMovements.length.toLocaleString();
+            navBadge.style.display = allStockMovements.length > 0 ? 'inline-block' : 'none';
+          }
+
+          setTxt('mov-baseline-badge', '🕒 Baseline: ' + movBaselineLabel);
+
+          // Compute KPI totals
+          let restockedCount = 0, restockedUnits = 0, restockedVal = 0;
+          let deductedCount = 0, deductedUnits = 0, deductedVal = 0;
+          let criticalShiftCount = 0, criticalShiftUnits = 0;
+          let recoveredCount = 0, recoveredUnits = 0;
+          let poOrTransferCount = 0;
+
+          // Area metrics
+          const areaStats = {
+            dispensing: { count: 0, inUnits: 0, outUnits: 0, net: 0 },
+            storage: { count: 0, inUnits: 0, outUnits: 0, net: 0 },
+            warehouse: { count: 0, inUnits: 0, outUnits: 0, net: 0 },
+            consignment: { count: 0, inUnits: 0, outUnits: 0, net: 0 }
+          };
+
+          allStockMovements.forEach(rec => {
+            if (rec.netDiff > 0) {
+              restockedCount++;
+              restockedUnits += rec.netDiff;
+              restockedVal += Math.max(0, rec.valImpact || 0);
+            } else if (rec.netDiff < 0) {
+              deductedCount++;
+              deductedUnits += Math.abs(rec.netDiff);
+              deductedVal += Math.abs(rec.valImpact || 0);
+            }
+
+            if (isItemCriticalRiskShift(rec)) {
+              criticalShiftCount++;
+              criticalShiftUnits += Math.abs(rec.netDiff);
+            }
+            if (isItemRecoveredShift(rec)) {
+              recoveredCount++;
+              recoveredUnits += Math.max(0, rec.netDiff);
+            }
+            if (rec.poDiff !== 0 || rec.movementType === 'po_changed' || rec.movementType === 'transfer') {
+              poOrTransferCount++;
+            }
+
+            if (rec.dispDiff !== 0) {
+              areaStats.dispensing.count++;
+              areaStats.dispensing.net += rec.dispDiff;
+              if (rec.dispDiff > 0) areaStats.dispensing.inUnits += rec.dispDiff;
+              else areaStats.dispensing.outUnits += Math.abs(rec.dispDiff);
+            }
+            if (rec.storDiff !== 0) {
+              areaStats.storage.count++;
+              areaStats.storage.net += rec.storDiff;
+              if (rec.storDiff > 0) areaStats.storage.inUnits += rec.storDiff;
+              else areaStats.storage.outUnits += Math.abs(rec.storDiff);
+            }
+            if (rec.whseDiff !== 0) {
+              areaStats.warehouse.count++;
+              areaStats.warehouse.net += rec.whseDiff;
+              if (rec.whseDiff > 0) areaStats.warehouse.inUnits += rec.whseDiff;
+              else areaStats.warehouse.outUnits += Math.abs(rec.whseDiff);
+            }
+            if (rec.consDiff !== 0) {
+              areaStats.consignment.count++;
+              areaStats.consignment.net += rec.consDiff;
+              if (rec.consDiff > 0) areaStats.consignment.inUnits += rec.consDiff;
+              else areaStats.consignment.outUnits += Math.abs(rec.consDiff);
+            }
+          });
+
+          const netTotalUnits = restockedUnits - deductedUnits;
+          const netSign = netTotalUnits > 0 ? '+' : '';
+
+          setTxt('mov-kpi-total', allStockMovements.length.toLocaleString());
+          setTxt('mov-kpi-total-sub', restockedCount + ' Restocked • ' + deductedCount + ' Deducted (Net: ' + netSign + fmt(netTotalUnits) + ' u)');
+
+          setTxt('mov-kpi-restocked', restockedCount.toLocaleString());
+          setTxt('mov-kpi-restocked-sub', '+' + fmt(restockedUnits) + ' Units Added' + (restockedVal > 0 ? ' • +₱' + Math.round(restockedVal).toLocaleString('en-PH') : ''));
+
+          setTxt('mov-kpi-deducted', deductedCount.toLocaleString());
+          setTxt('mov-kpi-deducted-sub', '-' + fmt(deductedUnits) + ' Units Issued' + (deductedVal > 0 ? ' • -₱' + Math.round(deductedVal).toLocaleString('en-PH') : ''));
+
+          setTxt('mov-kpi-critical', criticalShiftCount.toLocaleString());
+          setTxt('mov-kpi-critical-sub', criticalShiftCount > 0 ? ('-' + fmt(criticalShiftUnits) + ' u Deducted in Critical/OOS') : 'Deducted into Critical / OOS');
+
+          setTxt('mov-kpi-recovered', recoveredCount.toLocaleString());
+          setTxt('mov-kpi-recovered-sub', recoveredCount > 0 ? ('+' + fmt(recoveredUnits) + ' u Replenished') : 'Replenished & Status Improved');
+
+          setTxt('mov-kpi-po', poOrTransferCount.toLocaleString());
+          setTxt('mov-kpi-po-sub', poOrTransferCount > 0 ? (poOrTransferCount + ' PO / Area Transfers') : 'PO / Area Transfer Updates');
+
+          // Populate 4 Area Cards
+          const updateAreaCard = (prefix, st) => {
+            setTxt('mov-area-' + prefix + '-count', st.count.toLocaleString() + ' item' + (st.count === 1 ? '' : 's'));
+            const netEl = document.getElementById('mov-area-' + prefix + '-net');
+            if (netEl) {
+              const s = st.net > 0 ? '+' : '';
+              netEl.textContent = s + fmt(st.net) + ' units';
+              netEl.style.color = st.net > 0 ? 'var(--success)' : (st.net < 0 ? 'var(--danger)' : 'var(--text-primary)');
+            }
+            setTxt('mov-area-' + prefix + '-sub', '+' + fmt(st.inUnits) + ' in / -' + fmt(st.outUnits) + ' out');
+          };
+
+          updateAreaCard('disp', areaStats.dispensing);
+          updateAreaCard('stor', areaStats.storage);
+          updateAreaCard('whse', areaStats.warehouse);
+          updateAreaCard('cons', areaStats.consignment);
+
+          filterStockMovements();
+        }
+
+        function setMovementFilterMode(mode, cardOrBtnEl) {
+          movFilterMode = String(mode || 'ALL').toUpperCase();
+
+          document.querySelectorAll('#mov-filter-pills .ne-filter-pill').forEach(b => {
+            b.classList.toggle('active', String(b.getAttribute('data-mov-pill') || '').toUpperCase() === movFilterMode);
+          });
+
+          document.querySelectorAll('#mov-kpi-grid .kpi-card').forEach(c => {
+            c.classList.toggle('active', String(c.getAttribute('data-mov-mode') || '').toUpperCase() === movFilterMode);
+          });
+
+          movPage = 1;
+          filterStockMovements();
+        }
+
+        function toggleMovementAreaFilter(area, cardEl) {
+          const norm = String(area || '').toLowerCase();
+          if (movAreaFilter === norm) {
+            movAreaFilter = '';
+          } else {
+            movAreaFilter = norm;
+          }
+
+          const areaSel = document.getElementById('mov-filter-area');
+          if (areaSel) areaSel.value = movAreaFilter;
+
+          document.querySelectorAll('#mov-area-strip .mov-area-card').forEach(c => {
+            c.classList.toggle('active', String(c.getAttribute('data-area') || '').toLowerCase() === movAreaFilter && movAreaFilter !== '');
+          });
+
+          movPage = 1;
+          filterStockMovements();
+        }
+
+        function onMovementAreaSelectChange(val) {
+          movAreaFilter = String(val || '').toLowerCase();
+          document.querySelectorAll('#mov-area-strip .mov-area-card').forEach(c => {
+            c.classList.toggle('active', String(c.getAttribute('data-area') || '').toLowerCase() === movAreaFilter && movAreaFilter !== '');
+          });
+          movPage = 1;
+          filterStockMovements();
+        }
+
+        function filterStockMovements() {
+          const q = (document.getElementById('mov-search-input')?.value || '').trim().toLowerCase();
+          const catFilter = (document.getElementById('mov-filter-cat')?.value || '').trim().toLowerCase();
+          const sortMode = (document.getElementById('mov-sort-select')?.value || 'abs_qty').trim();
+
+          movFiltered = (allStockMovements || []).filter(rec => {
+            if (movFilterMode === 'RESTOCKED' && rec.netDiff <= 0) return false;
+            if (movFilterMode === 'DEDUCTED' && rec.netDiff >= 0) return false;
+            if (movFilterMode === 'CRITICAL_RISK' && !isItemCriticalRiskShift(rec)) return false;
+            if (movFilterMode === 'RECOVERED' && !isItemRecoveredShift(rec)) return false;
+            if (movFilterMode === 'PO_CHANGED' && rec.poDiff === 0 && rec.movementType !== 'po_changed' && rec.movementType !== 'transfer') return false;
+
+            if (movAreaFilter === 'dispensing' && rec.dispDiff === 0) return false;
+            if (movAreaFilter === 'storage' && rec.storDiff === 0) return false;
+            if (movAreaFilter === 'warehouse' && rec.whseDiff === 0) return false;
+            if (movAreaFilter === 'consignment' && rec.consDiff === 0) return false;
+
+            if (catFilter) {
+              const pCat = String(rec.pharmacy_category || '').toLowerCase();
+              if (catFilter === 'regular' && !(pCat === 'medicine regular' || (pCat.includes('regular') && !pCat.includes('consig')))) return false;
+              if (catFilter === 'consignment' && !pCat.includes('consig')) return false;
+              if (catFilter === 'donation' && !pCat.includes('donat')) return false;
+              if (catFilter === 'ep' && !(pCat.includes('emergency') || pCat.includes('ep'))) return false;
+            }
+
+            if (q) {
+              const hay = [
+                rec.code,
+                rec.item_code,
+                rec.dci_code,
+                rec.desc,
+                rec.pharmacy_category,
+                rec.pharmacologic_category
+              ].filter(Boolean).join(' ').toLowerCase();
+              if (!hay.includes(q)) return false;
+            }
+
+            return true;
+          });
+
+          movFiltered.sort((a, b) => {
+            if (sortMode === 'deducted_first') {
+              if (a.netDiff !== b.netDiff) return a.netDiff - b.netDiff;
+              return Math.abs(b.valImpact || 0) - Math.abs(a.valImpact || 0);
+            }
+            if (sortMode === 'restocked_first') {
+              if (b.netDiff !== a.netDiff) return b.netDiff - a.netDiff;
+              return Math.abs(b.valImpact || 0) - Math.abs(a.valImpact || 0);
+            }
+            if (sortMode === 'val_impact') {
+              return Math.abs(b.valImpact || 0) - Math.abs(a.valImpact || 0);
+            }
+            if (sortMode === 'days_asc') {
+              return (a.curDays || 0) - (b.curDays || 0);
+            }
+            // Default: abs_qty descending
+            return Math.abs(b.netDiff || 0) - Math.abs(a.netDiff || 0);
+          });
+
+          renderStockMovementsPage();
+        }
+
+        function renderStockMovementsPage() {
+          const tbody = document.getElementById('mov-tbody');
+          if (!tbody) return;
+
+          if (!movFiltered || movFiltered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><p>No stock movements match your current filter selection.</p></div></td></tr>';
+            renderPagination('mov', 0, 1, MOV_PAGE_SIZE);
+            return;
+          }
+
+          const start = (movPage - 1) * MOV_PAGE_SIZE;
+          const pageItems = movFiltered.slice(start, start + MOV_PAGE_SIZE);
+
+          // Build a top summary banner matching the active filter
+          let bannerTitle = '📊 ALL DETECTED STOCK MOVEMENTS';
+          let bannerCls = 'ne-tier-banner-9m';
+          if (movFilterMode === 'RESTOCKED') {
+            bannerTitle = '📥 RESTOCKED / REPLENISHED MEDICINES (+QTY)';
+            bannerCls = 'ne-tier-banner-status';
+          } else if (movFilterMode === 'DEDUCTED') {
+            bannerTitle = '📤 STOCK DEDUCTIONS / ISSUED MEDICINES (-QTY)';
+            bannerCls = 'ne-tier-banner-3m';
+          } else if (movFilterMode === 'CRITICAL_RISK') {
+            bannerTitle = '🚨 DEDUCTED INTO CRITICAL (<30D) OR OUT OF STOCK (0 QTY)';
+            bannerCls = 'ne-tier-banner-risk';
+          } else if (movFilterMode === 'RECOVERED') {
+            bannerTitle = '✅ REPLENISHED & STOCK STATUS IMPROVED';
+            bannerCls = 'ne-tier-banner-status';
+          } else if (movFilterMode === 'PO_CHANGED') {
+            bannerTitle = '📋 PENDING PO / INTERNAL AREA TRANSFERS';
+            bannerCls = 'ne-tier-banner-donation';
+          }
+
+          if (movAreaFilter) {
+            const areaNames = { dispensing: '💊 DISPENSING AREA', storage: '📦 PHARMACY STORAGE', warehouse: '🏭 WAREHOUSE', consignment: '🤝 CONSIGNMENT' };
+            bannerTitle += ' • FILTERED BY ' + (areaNames[movAreaFilter] || movAreaFilter.toUpperCase());
+          }
+
+          const totalNetQty = movFiltered.reduce((s, r) => s + (r.netDiff || 0), 0);
+          const totalAbsVal = movFiltered.reduce((s, r) => s + Math.abs(r.valImpact || 0), 0);
+          const netPrefix = totalNetQty > 0 ? '+' : '';
+
+          let html = '<tr class="ne-tier-banner-row ' + bannerCls + '">' +
+            '<td colspan="9">' + bannerTitle + ' — ' +
+            movFiltered.length.toLocaleString() + ' Medicine' + (movFiltered.length === 1 ? '' : 's') +
+            ' (Net Variance: ' + netPrefix + fmt(totalNetQty) + ' Units' +
+            (totalAbsVal > 0 ? ' • Total Value Volume: ₱' + Math.round(totalAbsVal).toLocaleString('en-PH') : '') +
+            ')</td></tr>';
+
+          const statusMiniLabel = (st) => {
+            if (st === 'outofstock') return 'Out of Stock';
+            if (st === 'critical') return 'Critical';
+            if (st === 'warning') return 'Low';
+            if (st === 'ok') return 'Normal';
+            if (st === 'overstock') return 'Overstock';
+            return st;
+          };
+
+          pageItems.forEach((rec, idx) => {
+            const displayCode = rec.dci_code || rec.code || '—';
+            const locBadgeHtml = typeof locationBadge === 'function' ? locationBadge(rec.item_code || rec.code) : '—';
+
+            let movBadgeHtml = '';
+            if (rec.netDiff > 0) {
+              movBadgeHtml = '<span class="mov-delta-pos">▲ +' + fmt(rec.netDiff) + ' u</span>';
+            } else if (rec.netDiff < 0) {
+              movBadgeHtml = '<span class="mov-delta-neg">▼ ' + fmt(rec.netDiff) + ' u</span>';
+            } else if (rec.poDiff !== 0) {
+              const pSign = rec.poDiff > 0 ? '+' : '';
+              movBadgeHtml = '<span class="mov-delta-neutral">📋 PO ' + pSign + fmt(rec.poDiff) + '</span>';
+            } else {
+              movBadgeHtml = '<span class="mov-delta-neutral">⇄ Area Shift</span>';
+            }
+
+            const pctDiff = rec.prevStock > 0
+              ? ((rec.netDiff / rec.prevStock) * 100).toFixed(1)
+              : (rec.curStock > 0 ? '+100.0' : '0.0');
+            const pctStr = (rec.netDiff > 0 && !String(pctDiff).startsWith('+')) ? ('+' + pctDiff + '%') : (pctDiff + '%');
+
+            // Area breakdown chips
+            const areaChips = [];
+            const fmtAreaChip = (label, diffVal, curVal, color) => {
+              if (diffVal === 0) return '';
+              const s = diffVal > 0 ? '+' : '';
+              const dColor = diffVal > 0 ? '#10b981' : '#ef4444';
+              return '<span class="mov-area-chip" title="' + label + ' changed by ' + s + fmt(diffVal) + ' (Now: ' + fmt(curVal) + ')">' +
+                '<span style="color:var(--text-muted);">' + label + ':</span>' +
+                '<strong style="color:' + dColor + ';">' + s + fmt(diffVal) + '</strong>' +
+                '</span>';
+            };
+
+            if (rec.dispDiff !== 0) areaChips.push(fmtAreaChip('Disp', rec.dispDiff, rec.curDisp));
+            if (rec.storDiff !== 0) areaChips.push(fmtAreaChip('Stor', rec.storDiff, rec.curStor));
+            if (rec.whseDiff !== 0) areaChips.push(fmtAreaChip('Whse', rec.whseDiff, rec.curWhse));
+            if (rec.consDiff !== 0) areaChips.push(fmtAreaChip('Cons', rec.consDiff, rec.curCons));
+            if (rec.poDiff !== 0) {
+              const pSign = rec.poDiff > 0 ? '+' : '';
+              areaChips.push('<span class="mov-area-chip" style="border-color:rgba(168,85,247,0.4);" title="Pending PO/CO changed from ' + fmt(rec.prevPo) + ' to ' + fmt(rec.curPo) + '"><span style="color:#c084fc;">PO: ' + pSign + fmt(rec.poDiff) + '</span></span>');
+            }
+            if (areaChips.length === 0) {
+              areaChips.push('<span class="text-xs text-muted">Overall Total Updated</span>');
+            }
+
+            const valAbs = Math.abs(rec.valImpact || 0);
+            const valSign = rec.valImpact > 0 ? '+' : (rec.valImpact < 0 ? '-' : '');
+            const valColor = rec.valImpact > 0 ? 'var(--success)' : (rec.valImpact < 0 ? 'var(--danger)' : 'var(--text-muted)');
+            const valHtml = valAbs > 0
+              ? '<strong style="color:' + valColor + ';">' + valSign + '₱' + valAbs.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</strong>' +
+                (rec.unitCost > 0 ? '<div class="text-xs text-muted">@ ₱' + rec.unitCost.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '/u</div>' : '')
+              : '<span class="text-muted">—</span>';
+
+            const statusChanged = rec.prevStatus !== rec.curStatus;
+            const statusShiftHtml = statusChanged
+              ? '<div style="font-size:10.5px; font-weight:700; margin-top:4px; color:' + (isItemCriticalRiskShift(rec) ? 'var(--danger)' : 'var(--accent)') + ';">' +
+                statusMiniLabel(rec.prevStatus) + ' → ' + statusMiniLabel(rec.curStatus) + '</div>'
+              : '<div class="text-xs text-muted" style="margin-top:3px;">' + fmtD(rec.curDays) + ' days on hand</div>';
+
+            const clickCode = String(rec.item_code || rec.code || '').replace(/'/g, "\\'");
+
+            html += '<tr style="cursor:pointer;" onclick="openItemModal(\'' + clickCode + '\')" title="Click to inspect full inventory & area breakdown for ' + (rec.desc || '').replace(/"/g, '&quot;') + '">' +
+              '<td class="text-center text-muted" style="font-weight:600;">' + (start + idx + 1) + '</td>' +
+              '<td class="code"><span class="dci-badge">' + displayCode + '</span><div class="text-xs text-muted" style="margin-top:2px; font-size:10px;">' + (rec.item_code || '') + '</div></td>' +
+              '<td class="text-center" onclick="event.stopPropagation();">' + locBadgeHtml + '</td>' +
+              '<td style="white-space:normal; min-width:220px;">' +
+              '<div style="font-weight:700; color:var(--text-primary); line-height:1.35;">' + (rec.desc || '—') + '</div>' +
+              '<div style="margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
+              '<span class="badge ' + getTypeBadgeClass(rec.pharmacy_category) + ' text-xs">' + formatType(rec.pharmacy_category) + '</span>' +
+              (rec.pharmacologic_category ? '<span class="text-xs text-muted">' + rec.pharmacologic_category + '</span>' : '') +
+              '</div>' +
+              '</td>' +
+              '<td class="text-center">' + movBadgeHtml + '<div class="text-xs text-muted" style="margin-top:3px; font-weight:600;">' + pctStr + '</div></td>' +
+              '<td class="num-cell">' +
+              '<div style="font-size:13px;"><span class="text-muted">' + fmt(rec.prevStock) + '</span> <span style="color:var(--text-muted);">→</span> <strong style="font-size:14px; color:var(--text-primary);">' + fmt(rec.curStock) + '</strong></div>' +
+              '</td>' +
+              '<td style="white-space:normal;"><div style="display:flex; flex-wrap:wrap; gap:4px;">' + areaChips.join('') + '</div></td>' +
+              '<td class="num-cell">' + valHtml + '</td>' +
+              '<td class="text-center">' + statusBadge(rec.curDays, rec.curStock) + statusShiftHtml + '</td>' +
+              '</tr>';
+          });
+
+          tbody.innerHTML = html;
+          renderPagination('mov', movFiltered.length, movPage, MOV_PAGE_SIZE);
+        }
+
+        function exportStockMovementsCSV() {
+          const list = (movFiltered && movFiltered.length > 0) ? movFiltered : (allStockMovements || []);
+          if (list.length === 0) {
+            showToast('No stock movements available to export.', 'error');
+            return;
+          }
+          const headers = [
+            'No.',
+            'Item Code',
+            'DCI Code',
+            'Medicine Description',
+            'Pharmacy Category',
+            'Movement Type',
+            'Previous Total Stock',
+            'Current Total Stock',
+            'Net Variance (Qty)',
+            'Dispensing Delta',
+            'Storage Delta',
+            'Warehouse Delta',
+            'Consignment Delta',
+            'Pending PO Delta',
+            'Unit Cost (PHP)',
+            'Value Impact (PHP)',
+            'Previous Status',
+            'Current Status',
+            'Current Days on Hand'
+          ];
+          const rows = list.map((r, i) => [
+            i + 1,
+            r.item_code || r.code || '',
+            r.dci_code || '',
+            r.desc || '',
+            r.pharmacy_category || '',
+            r.movementType || '',
+            r.prevStock || 0,
+            r.curStock || 0,
+            r.netDiff || 0,
+            r.dispDiff || 0,
+            r.storDiff || 0,
+            r.whseDiff || 0,
+            r.consDiff || 0,
+            r.poDiff || 0,
+            r.unitCost || 0,
+            Math.round((r.valImpact || 0) * 100) / 100,
+            r.prevStatus || '',
+            r.curStatus || '',
+            r.curDays || 0
+          ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
+
+          downloadCSV([headers.join(','), ...rows].join('\n'), 'armmc_stock_movements_audit.csv');
+        }
+
+        function printStockMovementReport() {
+          const list = (movFiltered && movFiltered.length > 0) ? movFiltered : (allStockMovements || []);
+          if (list.length === 0) {
+            showToast('No stock movements available to print.', 'error');
+            return;
+          }
+          const win = window.open('', '_blank', 'width=1100,height=800');
+          if (!win) {
+            showToast('Please allow pop-ups to print the audit report.', 'error');
+            return;
+          }
+
+          const restocked = list.filter(r => r.netDiff > 0);
+          const deducted = list.filter(r => r.netDiff < 0);
+          const totalIn = restocked.reduce((s, r) => s + r.netDiff, 0);
+          const totalOut = deducted.reduce((s, r) => s + Math.abs(r.netDiff), 0);
+
+          const rowsHtml = list.map((r, idx) => {
+            const sign = r.netDiff > 0 ? '+' : '';
+            const color = r.netDiff > 0 ? '#059669' : (r.netDiff < 0 ? '#dc2626' : '#0284c7');
+            const areas = [];
+            if (r.dispDiff) areas.push('Disp: ' + (r.dispDiff > 0 ? '+' : '') + r.dispDiff.toLocaleString());
+            if (r.storDiff) areas.push('Stor: ' + (r.storDiff > 0 ? '+' : '') + r.storDiff.toLocaleString());
+            if (r.whseDiff) areas.push('Whse: ' + (r.whseDiff > 0 ? '+' : '') + r.whseDiff.toLocaleString());
+            if (r.consDiff) areas.push('Cons: ' + (r.consDiff > 0 ? '+' : '') + r.consDiff.toLocaleString());
+            return '<tr>' +
+              '<td style="text-align:center;">' + (idx + 1) + '</td>' +
+              '<td><strong>' + (r.dci_code || r.code) + '</strong><br/><span style="font-size:10px;color:#64748b;">' + (r.item_code || '') + '</span></td>' +
+              '<td>' + (r.desc || '') + '</td>' +
+              '<td style="text-align:right;">' + (r.prevStock || 0).toLocaleString() + '</td>' +
+              '<td style="text-align:right;"><strong>' + (r.curStock || 0).toLocaleString() + '</strong></td>' +
+              '<td style="text-align:right;font-weight:700;color:' + color + ';">' + sign + (r.netDiff || 0).toLocaleString() + '</td>' +
+              '<td>' + (areas.join(', ') || '—') + '</td>' +
+              '<td style="text-align:center;">' + (r.curStatus || '').toUpperCase() + ' (' + (r.curDays || 0) + 'd)</td>' +
+              '</tr>';
+          }).join('');
+
+          win.document.write('<!DOCTYPE html><html><head><title>ARMMC Pharmacy Stock Movement Audit Report</title>' +
+            '<style>body{font-family:Arial,sans-serif;margin:24px;color:#0f172a;font-size:12px;}h1{margin:0 0 4px;font-size:18px;}p{margin:2px 0;color:#475569;}' +
+            '.summary{display:flex;gap:16px;margin:14px 0;padding:10px 14px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;}' +
+            'table{width:100%;border-collapse:collapse;margin-top:10px;}th,td{border:1px solid #cbd5e1;padding:6px 8px;text-align:left;font-size:11px;}' +
+            'th{background:#f1f5f9;font-weight:700;} .sig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:36px;padding-top:20px;}</style></head><body>' +
+            '<h1>AMANG RODRIGUEZ MEMORIAL MEDICAL CENTER — PHARMACY INVENTORY MONITORING</h1>' +
+            '<p><strong>Report:</strong> Stock Movements &amp; Inventory Change Audit Report</p>' +
+            '<p><strong>Comparison Baseline:</strong> ' + movBaselineLabel + ' &nbsp;|&nbsp; <strong>Generated:</strong> ' + new Date().toLocaleString('en-PH') + '</p>' +
+            '<div class="summary">' +
+            '<div><strong>Total Medicines Changed:</strong> ' + list.length.toLocaleString() + '</div>' +
+            '<div style="color:#059669;"><strong>Restocked (+):</strong> ' + restocked.length + ' items (+' + totalIn.toLocaleString() + ' units)</div>' +
+            '<div style="color:#dc2626;"><strong>Deducted (-):</strong> ' + deducted.length + ' items (-' + totalOut.toLocaleString() + ' units)</div>' +
+            '</div>' +
+            '<table><thead><tr><th>#</th><th>DCI / Item Code</th><th>Medicine Description</th><th>Prev Qty</th><th>Current Qty</th><th>Variance (Δ)</th><th>Area Breakdown</th><th>Current Status</th></tr></thead><tbody>' +
+            rowsHtml + '</tbody></table>' +
+            '<div class="sig-grid"><div>___________________________<br/><strong>Prepared By:</strong> Pharmacy Staff</div>' +
+            '<div>___________________________<br/><strong>Verified By:</strong> Senior Pharmacist</div>' +
+            '<div>___________________________<br/><strong>Noted By:</strong> Chief Pharmacist</div></div>' +
+            '<script>window.onload=function(){window.print();}<\/script></body></html>');
+          win.document.close();
         }
 
         // ================================================================
@@ -9016,7 +10123,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const b = document.createElement('button');
             b.className = 'page-btn' + (active ? ' active' : '');
             b.textContent = label;
-            b.onclick = () => { if (prefix === 'inv') { invPage = p; renderInventoryPage(); } else { reordPage = p; renderReorderPage(); } };
+            b.onclick = () => {
+              if (prefix === 'inv') { invPage = p; renderInventoryPage(); }
+              else if (prefix === 'mov') { movPage = p; renderStockMovementsPage(); }
+              else { reordPage = p; renderReorderPage(); }
+            };
             btns.appendChild(b);
           };
           if (page > 1) addBtn('‹', page - 1);
@@ -10555,7 +11666,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const targetSec = document.getElementById('sec-' + id);
           if (targetSec) targetSec.classList.add('active');
           if (el) el.classList.add('active');
-          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', 'near-expiry': 'Near Expiring Drugs', locator: (currentLocatorCategory === 'storage' ? 'Locator — Storage' : 'Locator — Warehouse'), analytics: 'Analytics', setup: 'Setup & Config' };
+          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', 'near-expiry': 'Near Expiring Drugs', movements: 'Stock Movements & Audit', locator: (currentLocatorCategory === 'storage' ? 'Locator — Storage' : 'Locator — Warehouse'), analytics: 'Analytics', setup: 'Setup & Config' };
           const titleEl = document.getElementById('topbar-title');
           if (titleEl) titleEl.textContent = titles[id] || id;
           const searchBox = document.getElementById('global-search-box');
@@ -10567,6 +11678,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             if (Date.now() - lastNearExpirySyncTime > 120000 && typeof loadNearExpiringData === 'function') {
               loadNearExpiringData(true, false);
             }
+          }
+          if (id === 'movements') {
+            if (typeof buildStockMovements === 'function') buildStockMovements();
           }
           if (id === 'locator') {
             if (allLocatorItems.length === 0) loadLocatorData();
