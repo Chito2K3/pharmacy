@@ -19,7 +19,9 @@ from datetime import datetime
 
 SHEET_ID = "1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM"
 GID = "237243801"
+NEAR_EXPIRY_GID = "2052140349"
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
+NEAR_EXPIRY_CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={NEAR_EXPIRY_GID}"
 
 # Resolve paths relative to workspace root (parent of tools/)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +29,7 @@ WORKSPACE_DIR = os.path.dirname(SCRIPT_DIR)
 
 ITEMS_PATH = os.path.join(WORKSPACE_DIR, "items.json")
 REORDERS_PATH = os.path.join(WORKSPACE_DIR, "reorders.json")
+NEAR_EXPIRY_PATH = os.path.join(WORKSPACE_DIR, "near_expiring.json")
 METADATA_PATH = os.path.join(WORKSPACE_DIR, "sheet_metadata.json")
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -176,7 +179,7 @@ if cols["overall_ending_impact_date"] == -1: cols["overall_ending_impact_date"] 
 if cols["overall_epa_balance"] == -1: cols["overall_epa_balance"] = s + 11
 if cols["overall_ending_epa"] == -1: cols["overall_ending_epa"] = s + 12
 if cols["overall_ending_epa_days"] == -1: cols["overall_ending_epa_days"] = s + 13
-if cols["overall_ending_epa_impact_date"] == -1: cols["overall_ending_impact_date"] = s + 14
+if cols["overall_ending_epa_impact_date"] == -1: cols["overall_ending_epa_impact_date"] = s + 14
 
 if cols["dispensing_qty"] == -1: cols["dispensing_qty"] = 52
 if cols["storage_qty"] == -1: cols["storage_qty"] = cols["dispensing_qty"] + 7
@@ -411,6 +414,176 @@ for i, it in enumerate(items):
         h = ((h & 0xFFFFFFFF) ^ 0x80000000) - 0x80000000
 content_fingerprint = f"{len(items)}_{int(round(total_stock_qty))}_{int(round(total_inv_val))}_{int(round(total_pending_po))}_{hex(h & 0xFFFFFFFF)[2:]}"
 
+# ==============================================================================
+# NEAR EXPIRING DRUGS SYNCHRONIZATION (GID: 2052140349)
+# ==============================================================================
+print(f"Fetching Near Expiring Drugs tab (GID: {NEAR_EXPIRY_GID})...")
+near_expiry_items = []
+near_expiry_as_of = ""
+near_expiry_tiers = []
+near_expiry_fingerprint = "0_0_0"
+
+try:
+    ne_req = urllib.request.Request(NEAR_EXPIRY_CSV_URL, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+    with urllib.request.urlopen(ne_req, timeout=30) as ne_resp:
+        ne_bytes = ne_resp.read()
+    ne_text = ne_bytes.decode('utf-8', errors='ignore')
+    ne_rows = list(csv.reader(ne_text.splitlines()))
+
+    # Extract 'as of' date from top rows (typically Row 2, Col B)
+    for r_i in range(min(5, len(ne_rows))):
+        for c_val in ne_rows[r_i]:
+            s_val = str(c_val or "").strip()
+            if "as of" in s_val.lower():
+                near_expiry_as_of = s_val
+                break
+        if near_expiry_as_of:
+            break
+
+    # Dynamic Header & Column Auto-Detection
+    ne_header_idx = 3
+    ne_cols = {
+        "no": 0, "item_code": 1, "description": 2, "total_qty": 3, "expiration_date": 4,
+        "dispensing_qty": 6, "storage_qty": 7, "warehouse_qty": 8, "loc_total": 9,
+        "audit_note": 10, "impact_date": 11, "end_users": 12, "status": 13,
+        "gl_note": 14, "followup_note": 15, "extra_note": 16
+    }
+
+    for r_i in range(min(10, len(ne_rows))):
+        row_upper = [str(x or "").strip().upper() for x in ne_rows[r_i]]
+        if any("ITEM DESCRIPTION" in x or "EXPIRATION DATE" in x for x in row_upper):
+            ne_header_idx = r_i
+            for c_i, h_txt in enumerate(row_upper):
+                if h_txt in ("NO.", "NO", "#"):
+                    ne_cols["no"] = c_i
+                elif "ITEM CODE" in h_txt or "DCI CODE" in h_txt:
+                    ne_cols["item_code"] = c_i
+                elif "DESCRIPTION" in h_txt:
+                    ne_cols["description"] = c_i
+                elif "TOTAL STOCK" in h_txt or "STOCKS ON HAND" in h_txt:
+                    ne_cols["total_qty"] = c_i
+                elif "EXPIRATION" in h_txt:
+                    ne_cols["expiration_date"] = c_i
+                elif "DISPENSING" in h_txt:
+                    ne_cols["dispensing_qty"] = c_i
+                elif "STORAGE" in h_txt:
+                    ne_cols["storage_qty"] = c_i
+                elif "WAREHOUSE" in h_txt:
+                    ne_cols["warehouse_qty"] = c_i
+                elif h_txt == "TOTAL":
+                    ne_cols["loc_total"] = c_i
+                elif "IMPACT DATE" in h_txt:
+                    ne_cols["impact_date"] = c_i
+                elif "END-USER" in h_txt or "END USER" in h_txt or "REQUESTING" in h_txt:
+                    ne_cols["end_users"] = c_i
+                elif h_txt == "STATUS" or "DISPOSITION" in h_txt:
+                    ne_cols["status"] = c_i
+            break
+
+    # Build lookup by DCI code / Item code for unit cost & masterlist enrichment
+    dci_lookup = {}
+    for it in items:
+        d_code = (it.get("dci_code") or "").strip().upper()
+        i_code = (it.get("item_code") or "").strip().upper()
+        if d_code and d_code not in dci_lookup:
+            dci_lookup[d_code] = it
+        if i_code and i_code not in dci_lookup:
+            dci_lookup[i_code] = it
+
+    current_tier = "EXPIRING WITHIN 3 MONTHS"
+    seq_id = 0
+
+    for r_i in range(ne_header_idx + 1, len(ne_rows)):
+        r = ne_rows[r_i]
+        if not r or all(not str(x or "").strip() for x in r):
+            continue
+
+        # Detect Section Banner row (e.g. "EXPIRING WITHIN 3 MONTHS", "EXPIRING WITHIN 6 MONTHS", etc.)
+        joined_upper = " ".join(str(x or "").strip().upper() for x in r if str(x or "").strip())
+        c1_upper = clean_str(get_col(r, ne_cols["item_code"])).upper()
+        c2_upper = clean_str(get_col(r, ne_cols["description"])).upper()
+
+        if ("EXPIRING WITHIN" in c1_upper or "EXPIRING WITHIN" in c2_upper or "ALREADY EXPIRED" in c1_upper) and not clean_str(get_col(r, ne_cols["expiration_date"])):
+            banner = c1_upper if "EXPIR" in c1_upper else c2_upper
+            current_tier = banner
+            if current_tier not in near_expiry_tiers:
+                near_expiry_tiers.append(current_tier)
+            continue
+
+        no_val = clean_str(get_col(r, ne_cols["no"]))
+        code_val = clean_str(get_col(r, ne_cols["item_code"]))
+        desc_val = clean_str(get_col(r, ne_cols["description"]))
+        exp_val = clean_str(get_col(r, ne_cols["expiration_date"]))
+        tot_qty = parse_num(get_col(r, ne_cols["total_qty"]))
+
+        if no_val.upper() in ("NO.", "NO") and ("EXPIR" in code_val.upper() or not desc_val):
+            if "EXPIR" in code_val.upper():
+                current_tier = code_val.upper()
+                if current_tier not in near_expiry_tiers:
+                    near_expiry_tiers.append(current_tier)
+            continue
+
+        # Skip trailing notes that have no code, no expiration date, and 0 stock
+        if not code_val and not exp_val and tot_qty <= 0:
+            continue
+
+        if current_tier not in near_expiry_tiers:
+            near_expiry_tiers.append(current_tier)
+
+        disp_q = parse_num(get_col(r, ne_cols["dispensing_qty"]))
+        stor_q = parse_num(get_col(r, ne_cols["storage_qty"]))
+        ware_q = parse_num(get_col(r, ne_cols["warehouse_qty"]))
+        audit_note = clean_str(get_col(r, ne_cols["audit_note"]))
+        impact_date = clean_str(get_col(r, ne_cols["impact_date"]))
+        end_users = clean_str(get_col(r, ne_cols["end_users"]))
+        status_val = clean_str(get_col(r, ne_cols["status"]))
+        gl_note = clean_str(get_col(r, ne_cols["gl_note"]))
+        followup_note = clean_str(get_col(r, ne_cols["followup_note"]))
+        extra_note = clean_str(get_col(r, ne_cols["extra_note"]))
+
+        master_it = dci_lookup.get(code_val.upper())
+        unit_cost = parse_num(master_it.get("unit_cost", 0)) if master_it else 0.0
+        master_item_code = master_it.get("item_code", "") if master_it else ""
+        pharm_cat = master_it.get("pharmacy_category", "") if master_it else ("Donation" if "DON" in code_val.upper() else "")
+
+        seq_id += 1
+        near_expiry_items.append({
+            "id": seq_id,
+            "no": no_val or str(seq_id),
+            "item_code": code_val,
+            "master_item_code": master_item_code,
+            "description": desc_val,
+            "pharmacy_category": pharm_cat,
+            "total_qty": tot_qty,
+            "dispensing_qty": disp_q,
+            "storage_qty": stor_q,
+            "warehouse_qty": ware_q,
+            "expiration_date": exp_val,
+            "horizon_tier": current_tier,
+            "audit_note": audit_note,
+            "impact_date": impact_date,
+            "requesting_end_users": end_users,
+            "status": status_val,
+            "gl_note": gl_note,
+            "followup_note": followup_note,
+            "extra_note": extra_note,
+            "unit_cost": round(unit_cost, 2),
+            "estimated_value_php": round(tot_qty * unit_cost, 2)
+        })
+
+    # Compute Near Expiry content fingerprint
+    ne_total_qty = sum(x["total_qty"] for x in near_expiry_items)
+    ne_h = 0
+    for x in near_expiry_items:
+        s_ne = f"{x['item_code']}:{x['horizon_tier']}:{int(round(x['total_qty']))}:{x['expiration_date']}:{x['impact_date']}:{x['requesting_end_users']}:{x['status']}:{x['gl_note']}"
+        for ch in s_ne:
+            ne_h = ((ne_h << 5) - ne_h) + ord(ch)
+            ne_h = ((ne_h & 0xFFFFFFFF) ^ 0x80000000) - 0x80000000
+    near_expiry_fingerprint = f"{len(near_expiry_items)}_{int(round(ne_total_qty))}_{hex(ne_h & 0xFFFFFFFF)[2:]}"
+    print(f"[OK] Parsed {len(near_expiry_items)} near-expiring items across {len(near_expiry_tiers)} tiers ({near_expiry_as_of}).")
+except Exception as e_ne:
+    print(f"[WARN] Could not fetch Near Expiring Drugs CSV: {e_ne}")
+
 metadata = {
     "manualDateRaw": manual_date_raw or "10/22/2026",
     "manualDateFormatted": manual_date_raw or "10/22/2026",
@@ -428,6 +601,11 @@ metadata = {
     "lastItemNo": items[-1]["no"] if items else "",
     "lastItemCode": items[-1]["item_code"] if items else "",
     "sheetUrl": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={GID}#gid={GID}",
+    "nearExpiryGid": NEAR_EXPIRY_GID,
+    "nearExpirySheetUrl": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={NEAR_EXPIRY_GID}#gid={NEAR_EXPIRY_GID}",
+    "nearExpiryAsOfDate": near_expiry_as_of,
+    "nearExpiryFingerprint": near_expiry_fingerprint,
+    "totalNearExpiring": len(near_expiry_items),
     "syncTimestamp": datetime.utcnow().isoformat() + "Z"
 }
 
@@ -440,11 +618,26 @@ with open(REORDERS_PATH, 'w', encoding='utf-8') as f:
     json.dump(reorders, f, indent=2, ensure_ascii=False)
 print(f"[OK] Saved {len(reorders):,} replenishment items to {REORDERS_PATH}")
 
+if near_expiry_items:
+    near_expiry_payload = {
+        "asOfDate": near_expiry_as_of,
+        "gid": NEAR_EXPIRY_GID,
+        "sheetUrl": f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={NEAR_EXPIRY_GID}#gid={NEAR_EXPIRY_GID}",
+        "fingerprint": near_expiry_fingerprint,
+        "totalItems": len(near_expiry_items),
+        "tiers": near_expiry_tiers,
+        "syncedAt": datetime.utcnow().isoformat() + "Z",
+        "items": near_expiry_items
+    }
+    with open(NEAR_EXPIRY_PATH, 'w', encoding='utf-8') as f:
+        json.dump(near_expiry_payload, f, indent=2, ensure_ascii=False)
+    print(f"[OK] Saved {len(near_expiry_items):,} near-expiring items to {NEAR_EXPIRY_PATH}")
+
 with open(METADATA_PATH, 'w', encoding='utf-8') as f:
     json.dump(metadata, f, indent=2, ensure_ascii=False)
 print(f"[OK] Saved sheet metadata to {METADATA_PATH}")
 
 print("=" * 65)
-print(f"[DONE] Synchronization Complete: {len(items):,} items | {len(reorders):,} reorders")
+print(f"[DONE] Synchronization Complete: {len(items):,} items | {len(reorders):,} reorders | {len(near_expiry_items):,} near-expiring")
 print(f"   Sheet Manual Date: {manual_date_raw} ({days_since_update} days ago)")
 print("=" * 65)

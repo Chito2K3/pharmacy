@@ -44,9 +44,10 @@ function doGet(e) {
 
   try {
     switch (action) {
-      case 'getItems':     return respond(getItems());
-      case 'getReorders':  return respond(getReorders());
-      case 'getLocator':   return respond(getLocatorData());
+      case 'getItems':        return respond(getItems());
+      case 'getReorders':     return respond(getReorders());
+      case 'getNearExpiring': return respond(getNearExpiring());
+      case 'getLocator':      return respond(getLocatorData());
       case 'getUser':      return respond(getUser(email));
       case 'getStats':     return respond(getStats());
       case 'getSheetInfo': return respond(getSheetInfo());
@@ -312,7 +313,24 @@ function detectInventoryColumns(sheet) {
   return cols;
 }
 
-/** Helper to retrieve the items sheet, supporting name fallbacks. */
+/** Helper to retrieve the Near Expiring Drugs sheet dynamically by name or GID. */
+function findNearExpirySheet(ss) {
+  const sheets = ss.getSheets();
+  // 1. Check by exact GID 2052140349 first
+  for (let i = 0; i < sheets.length; i++) {
+    if (String(sheets[i].getSheetId()) === '2052140349') {
+      return sheets[i];
+    }
+  }
+  // 2. Fallback: find any tab with "NEAR EXPIR" in its name (supports monthly tab renames/duplications)
+  for (let i = 0; i < sheets.length; i++) {
+    const nameUpper = String(sheets[i].getName() || '').toUpperCase();
+    if (nameUpper.includes('NEAR EXPIR')) {
+      return sheets[i];
+    }
+  }
+  return null;
+}
 function getItemSheet(ss) {
   let sheet = ss.getSheetByName(SHEET_ITEMS);
   if (!sheet) {
@@ -397,6 +415,10 @@ function getSheetMetadata() {
     sheetUrl += '#gid=' + sheet.getSheetId();
   }
 
+  const neSheet = findNearExpirySheet(ss);
+  const neGid = neSheet ? String(neSheet.getSheetId()) : '2052140349';
+  const neAsOf = neSheet && neSheet.getLastRow() >= 2 ? String(neSheet.getRange(2, 2).getValue() || '').trim() : '';
+
   return {
     manualDateRaw       : manualDateRaw,
     manualDateIso       : manualDateIso,
@@ -413,6 +435,9 @@ function getSheetMetadata() {
     totalItems          : sheet ? Math.max(0, sheet.getLastRow() - 5) : 0,
     lastItemNo          : (sheet && sheet.getLastRow() >= 6) ? String(sheet.getRange(sheet.getLastRow(), 1).getValue()).trim() : '',
     lastItemCode        : (sheet && sheet.getLastRow() >= 6) ? String(sheet.getRange(sheet.getLastRow(), 2).getValue()).trim() : '',
+    nearExpiryGid       : neGid,
+    nearExpirySheetName : neSheet ? neSheet.getName() : 'NEAR EXPIRING DRUGS',
+    nearExpiryAsOfDate  : neAsOf,
     serverTime          : new Date().toISOString()
   };
 }
@@ -615,6 +640,126 @@ function getReorders() {
   if (lastRow < 2) return [];
   
   return sheetToJSON(sheet);
+}
+
+/** Returns all near-expiring drug records dynamically from the NEAR EXPIRING DRUGS sheet tab. */
+function getNearExpiring() {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = findNearExpirySheet(ss);
+  if (!sheet) return { asOfDate: '', gid: '2052140349', tiers: [], items: [] };
+
+  const lastRow = sheet.getLastRow();
+  const lastCol = sheet.getLastColumn();
+  if (lastRow < 5) return { asOfDate: '', gid: String(sheet.getSheetId()), tiers: [], items: [] };
+
+  const rows = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  let asOfDate = '';
+  for (let r = 0; r < Math.min(5, rows.length); r++) {
+    for (let c = 0; c < rows[r].length; c++) {
+      const v = String(rows[r][c] || '').trim();
+      if (v.toLowerCase().includes('as of')) {
+        asOfDate = v;
+        break;
+      }
+    }
+    if (asOfDate) break;
+  }
+
+  let headerIdx = 3;
+  const cols = {
+    no: 0, item_code: 1, description: 2, total_qty: 3, expiration_date: 4,
+    dispensing_qty: 6, storage_qty: 7, warehouse_qty: 8, loc_total: 9,
+    audit_note: 10, impact_date: 11, end_users: 12, status: 13,
+    gl_note: 14, followup_note: 15, extra_note: 16
+  };
+
+  for (let r = 0; r < Math.min(10, rows.length); r++) {
+    const rowUpper = rows[r].map(x => String(x || '').trim().toUpperCase());
+    if (rowUpper.some(x => x.includes('ITEM DESCRIPTION') || x.includes('EXPIRATION DATE'))) {
+      headerIdx = r;
+      rowUpper.forEach((h, c) => {
+        if (h === 'NO.' || h === 'NO' || h === '#') cols.no = c;
+        else if (h.includes('ITEM CODE') || h.includes('DCI CODE')) cols.item_code = c;
+        else if (h.includes('DESCRIPTION')) cols.description = c;
+        else if (h.includes('TOTAL STOCK') || h.includes('STOCKS ON HAND')) cols.total_qty = c;
+        else if (h.includes('EXPIRATION')) cols.expiration_date = c;
+        else if (h.includes('DISPENSING')) cols.dispensing_qty = c;
+        else if (h.includes('STORAGE')) cols.storage_qty = c;
+        else if (h.includes('WAREHOUSE')) cols.warehouse_qty = c;
+        else if (h === 'TOTAL') cols.loc_total = c;
+        else if (h.includes('IMPACT DATE')) cols.impact_date = c;
+        else if (h.includes('END-USER') || h.includes('END USER') || h.includes('REQUESTING')) cols.end_users = c;
+        else if (h === 'STATUS' || h.includes('DISPOSITION')) cols.status = c;
+      });
+      break;
+    }
+  }
+
+  let currentTier = 'EXPIRING WITHIN 3 MONTHS';
+  const tiers = [];
+  const items = [];
+  let seqId = 0;
+
+  for (let r = headerIdx + 1; r < rows.length; r++) {
+    const row = rows[r];
+    if (!row || row.every(cell => String(cell || '').trim() === '')) continue;
+
+    const c1 = String(row[cols.item_code] || '').trim();
+    const c2 = String(row[cols.description] || '').trim();
+    const expRaw = formatDate(row[cols.expiration_date]);
+    const c1Upper = c1.toUpperCase();
+    const c2Upper = c2.toUpperCase();
+
+    if ((c1Upper.includes('EXPIRING WITHIN') || c2Upper.includes('EXPIRING WITHIN') || c1Upper.includes('ALREADY EXPIRED')) && !expRaw) {
+      currentTier = c1Upper.includes('EXPIR') ? c1Upper : c2Upper;
+      if (!tiers.includes(currentTier)) tiers.push(currentTier);
+      continue;
+    }
+
+    const noVal = String(row[cols.no] || '').trim();
+    if ((noVal.toUpperCase() === 'NO.' || noVal.toUpperCase() === 'NO') && (c1Upper.includes('EXPIR') || !c2)) {
+      if (c1Upper.includes('EXPIR')) {
+        currentTier = c1Upper;
+        if (!tiers.includes(currentTier)) tiers.push(currentTier);
+      }
+      continue;
+    }
+
+    const totQty = safeNum(row[cols.total_qty]);
+    if (!c1 && !expRaw && totQty <= 0) continue;
+
+    if (!tiers.includes(currentTier)) tiers.push(currentTier);
+    seqId++;
+
+    items.push({
+      id: seqId,
+      no: noVal || String(seqId),
+      item_code: c1,
+      description: c2,
+      total_qty: totQty,
+      dispensing_qty: safeNum(row[cols.dispensing_qty]),
+      storage_qty: safeNum(row[cols.storage_qty]),
+      warehouse_qty: safeNum(row[cols.warehouse_qty]),
+      expiration_date: expRaw,
+      horizon_tier: currentTier,
+      audit_note: String(row[cols.audit_note] || '').trim(),
+      impact_date: formatDate(row[cols.impact_date]),
+      requesting_end_users: String(row[cols.end_users] || '').trim(),
+      status: String(row[cols.status] || '').trim(),
+      gl_note: String(row[cols.gl_note] || '').trim(),
+      followup_note: String(row[cols.followup_note] || '').trim(),
+      extra_note: String(row[cols.extra_note] || '').trim()
+    });
+  }
+
+  return {
+    asOfDate: asOfDate,
+    gid: String(sheet.getSheetId()),
+    sheetName: sheet.getName(),
+    tiers: tiers,
+    totalItems: items.length,
+    items: items
+  };
 }
 
 /** Returns pallet locator records from the Locator sheet or Google Sheet CSV export. */

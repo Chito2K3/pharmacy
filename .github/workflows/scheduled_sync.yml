@@ -45,8 +45,10 @@ jobs:
             const fs = require('fs');
             const items = JSON.parse(fs.readFileSync('items.json', 'utf8'));
             const reorders = JSON.parse(fs.readFileSync('reorders.json', 'utf8'));
+            const nearExpiry = fs.existsSync('near_expiring.json') ? JSON.parse(fs.readFileSync('near_expiring.json', 'utf8')) : { items: [] };
             console.log('Verified items.json count:', items.length);
             console.log('Verified reorders.json count:', reorders.length);
+            console.log('Verified near_expiring.json count:', (nearExpiry.items || []).length);
             if (items.length < 1000) {
               console.error('ERROR: items count unexpectedly low');
               process.exit(1);
@@ -58,7 +60,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add items.json reorders.json sheet_metadata.json
+          git add items.json reorders.json near_expiring.json sheet_metadata.json
           
           if git diff --staged --quiet; then
             echo "No data changes detected in Google Sheet."

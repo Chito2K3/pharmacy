@@ -1,8 +1,8 @@
 {
   "manualDateRaw": "10/29/2026",
   "manualDateFormatted": "10/29/2026",
-  "daysSinceCellDate": 1,
-  "effectiveDate": "2026-10-30T01:29:03.073772Z",
+  "daysSinceCellDate": 2,
+  "effectiveDate": "2026-10-30T23:37:22.062104Z",
   "effectiveType": "content_verified",
   "daysSinceUpdate": 0,
   "isStale": false,
@@ -15,5 +15,10 @@
   "lastItemNo": "2667",
   "lastItemCode": "DMEP1040406000-0524",
   "sheetUrl": "https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801",
-  "syncTimestamp": "2026-10-30T01:29:03.073784Z"
+  "nearExpiryGid": "2052140349",
+  "nearExpirySheetUrl": "https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=2052140349#gid=2052140349",
+  "nearExpiryAsOfDate": "as of October 06, 2026",
+  "nearExpiryFingerprint": "55_38098_c1836070",
+  "totalNearExpiring": 55,
+  "syncTimestamp": "2026-10-30T23:37:22.062104Z"
 }

@@ -3361,6 +3361,144 @@
     .spinning {
       animation: spinIcon 0.8s linear infinite;
     }
+
+    /* ===== NEAR EXPIRING DRUGS MODULE STYLES ===== */
+    .ne-tier-banner-row td {
+      padding: 10px 16px !important;
+      font-weight: 800;
+      font-size: 12.5px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: center;
+      border-top: 2px solid var(--border-lit);
+      border-bottom: 2px solid var(--border-lit);
+    }
+
+    .ne-tier-banner-3m td {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.38), rgba(239, 68, 68, 0.25));
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    [data-theme="light"] .ne-tier-banner-3m td {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #dc2626;
+    }
+
+    .ne-tier-banner-6m td {
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.22), rgba(245, 158, 11, 0.34), rgba(245, 158, 11, 0.22));
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+
+    [data-theme="light"] .ne-tier-banner-6m td {
+      background: #f59e0b;
+      color: #ffffff;
+      border-color: #d97706;
+    }
+
+    .ne-tier-banner-9m td {
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.20), rgba(59, 130, 246, 0.32), rgba(59, 130, 246, 0.20));
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, 0.45);
+    }
+
+    [data-theme="light"] .ne-tier-banner-9m td {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #1d4ed8;
+    }
+
+    .ne-tier-banner-risk td {
+      background: linear-gradient(90deg, rgba(236, 72, 153, 0.24), rgba(239, 68, 68, 0.36), rgba(236, 72, 153, 0.24));
+      color: #fbcfe8;
+      border-color: rgba(236, 72, 153, 0.55);
+    }
+
+    [data-theme="light"] .ne-tier-banner-risk td {
+      background: #db2777;
+      color: #ffffff;
+      border-color: #be185d;
+    }
+
+    .ne-tier-banner-donation td {
+      background: linear-gradient(90deg, rgba(168, 85, 247, 0.24), rgba(139, 92, 246, 0.36), rgba(168, 85, 247, 0.24));
+      color: #e9d5ff;
+      border-color: rgba(168, 85, 247, 0.55);
+    }
+
+    [data-theme="light"] .ne-tier-banner-donation td {
+      background: #9333ea;
+      color: #ffffff;
+      border-color: #7e22ce;
+    }
+
+    .ne-tier-banner-status td {
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.20), rgba(6, 182, 212, 0.32), rgba(6, 182, 212, 0.20));
+      color: #a5f3fc;
+      border-color: rgba(6, 182, 212, 0.45);
+    }
+
+    [data-theme="light"] .ne-tier-banner-status td {
+      background: #0891b2;
+      color: #ffffff;
+      border-color: #0e7490;
+    }
+
+    .ne-filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-lit);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .ne-filter-pill:hover {
+      color: var(--text-main);
+      border-color: var(--accent);
+    }
+
+    .ne-filter-pill.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .ne-dept-chip {
+      display: inline-block;
+      padding: 2px 7px;
+      margin: 2px 3px 2px 0;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 600;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-lit);
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    .ne-loc-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--accent);
+      margin-top: 3px;
+      margin-left: 3px;
+    }
   </style>
 </head>
 
@@ -3399,6 +3537,10 @@
           <div class="nav-item" data-section="reorder" onclick="showSection('reorder',this)" id="nav-reorder">
             <span class="nav-icon">🔄</span> Reordering
             <span class="nav-badge" id="reorder-badge">0</span>
+          </div>
+          <div class="nav-item" data-section="near-expiry" onclick="showSection('near-expiry',this)" id="nav-near-expiry">
+            <span class="nav-icon">⏳</span> Near Expiry
+            <span class="nav-badge" id="near-expiry-badge" style="background:rgba(239,68,68,0.18); color:#ef4444;">0</span>
           </div>
           <div class="nav-item" data-section="locator" onclick="showSection('locator',this)">
             <span class="nav-icon">🗺️</span> Locator
@@ -3443,7 +3585,8 @@
             <span id="sheet-status-text">Checking Sheet...</span>
           </div>
           <button class="topbar-sync-btn" id="topbar-sync-btn" onclick="retryLoadInventory()"
-            title="Sync live data from Google Sheet" type="button" style="display:inline-flex; align-items:center; gap:5px; background:var(--accent-glow); border:1px solid var(--accent); color:var(--accent); font-size:12px; font-weight:600; padding:6px 12px; border-radius:20px; cursor:pointer; transition:all 0.2s ease;">
+            title="Sync live data from Google Sheet" type="button"
+            style="display:inline-flex; align-items:center; gap:5px; background:var(--accent-glow); border:1px solid var(--accent); color:var(--accent); font-size:12px; font-weight:600; padding:6px 12px; border-radius:20px; cursor:pointer; transition:all 0.2s ease;">
             <span id="topbar-sync-icon">🔄</span>
             <span id="topbar-sync-text">Sync Live</span>
           </button>
@@ -3566,6 +3709,13 @@
                   <div class="kpi-icon">📋</div>
                   <div class="kpi-value" id="kpi-pending">—</div>
                   <div class="kpi-label">Pending PO / CO Orders</div>
+                </div>
+                <div class="kpi-card" data-kpi="nearexpiry" style="--kpi-color:#ec4899"
+                  onclick="filterDashboardTable('nearexpiry', this)"
+                  title="Click to preview Near Expiring Drugs (3–9 months) or open the Near Expiry module">
+                  <div class="kpi-icon">⏳</div>
+                  <div class="kpi-value" id="kpi-nearexpiry">—</div>
+                  <div class="kpi-label">Near Expiring Drugs</div>
                 </div>
               </div>
 
@@ -3746,6 +3896,132 @@
                   <div class="pagination" id="reorder-pagination">
                     <div id="reorder-page-info">—</div>
                     <div class="page-btns" id="reorder-page-btns"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ===== NEAR EXPIRING DRUGS SECTION ===== -->
+              <div class="section" id="sec-near-expiry">
+                <div class="section-header flex items-center justify-between" style="flex-wrap:wrap; gap:12px;">
+                  <div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <h2 style="margin:0;">Near Expiring Drugs</h2>
+                      <span class="badge badge-warning" id="ne-as-of-badge" style="font-size:11.5px; padding:4px 10px;">as of October 06, 2026</span>
+                      <span class="badge badge-success" id="ne-sync-status-badge" style="font-size:11px; padding:4px 10px;">🟢 Live Synced</span>
+                    </div>
+                    <p style="margin-top:4px;">Real-time monitoring of near-expiry batches (3, 6 &amp; 9 months), consumption impact dates, requesting end-users, and disposition status</p>
+                  </div>
+                  <div class="flex items-center gap-2" style="flex-wrap:wrap;">
+                    <a id="ne-sheet-link"
+                      href="https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=2052140349#gid=2052140349"
+                      target="_blank" rel="noopener noreferrer"
+                      class="stale-btn stale-btn-secondary"
+                      style="padding:7px 13px; font-size:12px; text-decoration:none;">
+                      <span>↗</span> Open Near Expiry Sheet
+                    </a>
+                    <button type="button" class="stale-btn stale-btn-secondary" id="btn-sync-near-expiry"
+                      onclick="loadNearExpiringData(false, true)" style="padding:7px 13px; font-size:12px;">
+                      <span class="sync-icon" id="ne-sync-icon">🔄</span> Sync Live Tab
+                    </button>
+                    <button type="button" class="btn-export" onclick="exportNearExpiryCSV()">⬇ Export CSV</button>
+                  </div>
+                </div>
+
+                <!-- Near Expiry KPI Summary Cards -->
+                <div class="kpi-grid" id="ne-kpi-grid" style="margin-bottom:18px;">
+                  <div class="kpi-card active" data-ne-tier="ALL" style="--kpi-color:var(--accent)"
+                    onclick="setNearExpiryTierFilter('ALL', this)">
+                    <div class="kpi-icon">⏳</div>
+                    <div class="kpi-value" id="ne-kpi-total">—</div>
+                    <div class="kpi-label" id="ne-kpi-total-sub">Total Near-Expiring Batches</div>
+                  </div>
+                  <div class="kpi-card" data-ne-tier="3M" style="--kpi-color:var(--danger)"
+                    onclick="setNearExpiryTierFilter('3M', this)">
+                    <div class="kpi-icon">🔴</div>
+                    <div class="kpi-value" id="ne-kpi-3m">—</div>
+                    <div class="kpi-label" id="ne-kpi-3m-sub">Expiring Within 3 Months</div>
+                  </div>
+                  <div class="kpi-card" data-ne-tier="6M" style="--kpi-color:var(--warning)"
+                    onclick="setNearExpiryTierFilter('6M', this)">
+                    <div class="kpi-icon">🟠</div>
+                    <div class="kpi-value" id="ne-kpi-6m">—</div>
+                    <div class="kpi-label" id="ne-kpi-6m-sub">Expiring Within 6 Months</div>
+                  </div>
+                  <div class="kpi-card" data-ne-tier="9M" style="--kpi-color:var(--info)"
+                    onclick="setNearExpiryTierFilter('9M', this)">
+                    <div class="kpi-icon">🔵</div>
+                    <div class="kpi-value" id="ne-kpi-9m">—</div>
+                    <div class="kpi-label" id="ne-kpi-9m-sub">Expiring Within 9 Months</div>
+                  </div>
+                  <div class="kpi-card" data-ne-tier="RISK" style="--kpi-color:#ec4899"
+                    onclick="setNearExpiryQuickFilter('risk', this)"
+                    title="Batches where projected Stockout Impact Date is AFTER the Expiration Date (will expire before full consumption)">
+                    <div class="kpi-icon">⚠️</div>
+                    <div class="kpi-value" id="ne-kpi-risk">—</div>
+                    <div class="kpi-label" id="ne-kpi-risk-sub">Impact Date &gt; Expiry Risk</div>
+                  </div>
+                  <div class="kpi-card" data-ne-tier="DONATION" style="--kpi-color:var(--accent2)"
+                    onclick="setNearExpiryQuickFilter('donation', this)"
+                    title="Batches marked for donation or returned from E-cart">
+                    <div class="kpi-icon">🎁</div>
+                    <div class="kpi-value" id="ne-kpi-donation">—</div>
+                    <div class="kpi-label" id="ne-kpi-donation-sub">For Donation / Pull-Out</div>
+                  </div>
+                </div>
+
+                <!-- Near Expiry Table Card -->
+                <div class="table-card">
+                  <div class="table-toolbar" style="flex-wrap:wrap; gap:10px;">
+                    <div id="ne-tier-pills" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                      <button type="button" class="ne-filter-pill active" data-tier="ALL" onclick="setNearExpiryTierFilter('ALL')">All Horizon Tiers</button>
+                      <button type="button" class="ne-filter-pill" data-tier="3M" onclick="setNearExpiryTierFilter('3M')">🔴 Within 3 Months</button>
+                      <button type="button" class="ne-filter-pill" data-tier="6M" onclick="setNearExpiryTierFilter('6M')">🟠 Within 6 Months</button>
+                      <button type="button" class="ne-filter-pill" data-tier="9M" onclick="setNearExpiryTierFilter('9M')">🔵 Within 9 Months</button>
+                      <button type="button" class="ne-filter-pill" data-tier="RISK" onclick="setNearExpiryQuickFilter('risk')">⚠️ Exceeds Expiry</button>
+                      <button type="button" class="ne-filter-pill" data-tier="DONATION" onclick="setNearExpiryQuickFilter('donation')">🎁 For Donation</button>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:auto;">
+                      <div class="search-box" style="display:flex; min-width:220px; padding:5px 11px;">
+                        <span>🔍</span>
+                        <input type="text" id="ne-search-input" placeholder="Search drug, DCI, end-user, status…"
+                          oninput="filterNearExpiring()" />
+                      </div>
+                      <select class="filter-select" id="ne-filter-dept" onchange="filterNearExpiring()">
+                        <option value="">All Requesting End-Users</option>
+                      </select>
+                      <select class="filter-select" id="ne-filter-status" onchange="neQuickMode = this.value; filterNearExpiring();">
+                        <option value="">All Disposition Statuses</option>
+                        <option value="consume">💊 To Consume / Moving</option>
+                        <option value="donation">🎁 For Donation / E-Cart Return</option>
+                        <option value="confirm">🔍 For Confirmation</option>
+                        <option value="gl">📄 With Guarantee Letter (GL)</option>
+                        <option value="risk">⚠️ High Risk (Impact &gt; Expiry)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="table-container">
+                    <table class="data-table" id="ne-table">
+                      <thead>
+                        <tr>
+                          <th style="width:48px;" class="text-center">NO.</th>
+                          <th style="width:110px;" title="Hospital DCI / Item Code">ITEM CODE</th>
+                          <th style="width:82px;" class="text-center" title="Storage / Warehouse Pallet Location">LOC</th>
+                          <th title="Item description and inventory verification remarks">ITEM DESCRIPTION</th>
+                          <th class="num-cell" style="width:140px;" title="Total stocks on hand across Dispensing, Storage, and Warehouse">TOTAL STOCKS ON HAND</th>
+                          <th style="width:130px;" title="Batch expiration month and year">EXPIRATION DATE</th>
+                          <th style="width:135px;" title="Estimated date current stock will be depleted based on demand">IMPACT DATE</th>
+                          <th style="width:210px;" title="Hospital departments / wards requesting and consuming this medicine">REQUESTING END-USERS</th>
+                          <th style="width:190px;" title="Current action status, Guarantee Letter (GL), and supplier follow-up">STATUS</th>
+                        </tr>
+                      </thead>
+                      <tbody id="ne-tbody"></tbody>
+                    </table>
+                  </div>
+                  <div class="pagination" id="ne-pagination">
+                    <div id="ne-page-info">—</div>
+                    <div class="text-xs text-muted" id="ne-change-summary-text">Live content fingerprinting active</div>
                   </div>
                 </div>
               </div>
@@ -4348,52 +4624,99 @@
                 </div>
 
                 <!-- Live Synchronization Engine Card -->
-                <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:24px; box-shadow:var(--shadow-sm);">
-                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-lit);">
+                <div
+                  style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:24px; box-shadow:var(--shadow-sm);">
+                  <div
+                    style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border-lit);">
                     <div style="display:flex; align-items:center; gap:10px;">
                       <span style="font-size:24px;">🔄</span>
                       <div>
-                        <h3 style="font-size:16px; font-weight:700; color:var(--text-main); margin:0;">Live Google Sheet & Scheduled Synchronization</h3>
-                        <p style="font-size:12px; color:var(--text-muted); margin:3px 0 0 0;">Real-time sync, dynamic column detection, and automated scheduled pipelines</p>
+                        <h3 style="font-size:16px; font-weight:700; color:var(--text-main); margin:0;">Live Google Sheet
+                          & Scheduled Synchronization</h3>
+                        <p style="font-size:12px; color:var(--text-muted); margin:3px 0 0 0;">Real-time sync, dynamic
+                          column detection, and automated scheduled pipelines</p>
                       </div>
                     </div>
                     <div style="display:flex; gap:10px; align-items:center;">
-                      <button type="button" class="stale-btn stale-btn-secondary" onclick="retryLoadInventory()" style="padding:7px 14px; font-size:12px;">
+                      <button type="button" class="stale-btn stale-btn-secondary" onclick="retryLoadInventory()"
+                        style="padding:7px 14px; font-size:12px;">
                         <span>🔄</span> Sync Live Sheet Now
                       </button>
                     </div>
                   </div>
 
-                  <div style="grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); display:grid; gap:14px; margin-bottom:6px;">
-                    <div style="background:var(--bg-card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
-                      <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Connected Master Sheet</div>
+                  <div
+                    style="grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); display:grid; gap:14px; margin-bottom:6px;">
+                    <div
+                      style="background:var(--bg-card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+                      <div
+                        style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:6px;">
+                        Connected Master Sheet</div>
                       <div style="font-size:13px; font-weight:600; color:var(--text-main); word-break:break-all;">
                         ID: <code>1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM</code>
                       </div>
-                      <div style="font-size:12px; color:var(--accent); margin-top:4px;">Tab GID: 237243801 (Inventory Utilization Report)</div>
+                      <div style="font-size:12px; color:var(--accent); margin-top:4px;">Tab GID: 237243801 (Inventory
+                        Utilization Report)</div>
                       <div style="margin-top:10px;">
-                        <a href="https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801" target="_blank" rel="noopener noreferrer" style="font-size:12px; color:var(--accent); text-decoration:none; font-weight:600;">
+                        <a href="https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801"
+                          target="_blank" rel="noopener noreferrer"
+                          style="font-size:12px; color:var(--accent); text-decoration:none; font-weight:600;">
                           ↗ Open Master Sheet in New Tab
                         </a>
                       </div>
                     </div>
 
-                    <div style="background:var(--bg-card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
-                      <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Background Auto-Sync Interval</div>
+                    <div
+                      style="background:var(--bg-card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+                      <div
+                        style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:6px;">
+                        Near Expiring Drugs Tab</div>
+                      <div style="font-size:12px; color:var(--warning); font-weight:600;" id="setup-ne-gid-label">
+                        Tab GID: 2052140349 (NEAR EXPIRING DRUGS)
+                      </div>
+                      <div style="display:flex; gap:6px; margin-top:8px;">
+                        <input type="text" id="setup-ne-gid-input" class="form-input"
+                          placeholder="Paste Tab URL or GID (default: 2052140349)"
+                          style="padding:5px 9px; font-size:11.5px; flex:1;" />
+                        <button type="button" class="stale-btn stale-btn-secondary" onclick="saveNearExpiryTabConfig()"
+                          style="padding:5px 10px; font-size:11.5px;">Save Tab</button>
+                      </div>
+                      <div style="margin-top:8px;">
+                        <a id="setup-ne-open-link"
+                          href="https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=2052140349#gid=2052140349"
+                          target="_blank" rel="noopener noreferrer"
+                          style="font-size:12px; color:var(--accent); text-decoration:none; font-weight:600;">
+                          ↗ Open Near Expiry Tab in New Tab
+                        </a>
+                      </div>
+                    </div>
+
+                    <div
+                      style="background:var(--bg-card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+                      <div
+                        style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:6px;">
+                        Background Auto-Sync Interval</div>
                       <div style="display:flex; align-items:center; gap:8px;">
-                        <select id="auto-sync-interval-select" class="form-input" style="padding:6px 10px; font-size:12px; max-width:210px;" onchange="updateAutoSyncSetting(this.value)">
+                        <select id="auto-sync-interval-select" class="form-input"
+                          style="padding:6px 10px; font-size:12px; max-width:210px;"
+                          onchange="updateAutoSyncSetting(this.value)">
                           <option value="0">Disabled (Manual Only)</option>
                           <option value="15" selected>Every 15 Minutes (Recommended)</option>
                           <option value="30">Every 30 Minutes</option>
                           <option value="60">Every 1 Hour</option>
                         </select>
-                        <span id="auto-sync-status-badge" class="badge badge-success" style="font-size:11px;">Active</span>
+                        <span id="auto-sync-status-badge" class="badge badge-success"
+                          style="font-size:11px;">Active</span>
                       </div>
-                      <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">Silently checks Google Sheets for item additions or stock adjustments while you work.</div>
+                      <div style="font-size:11px; color:var(--text-muted); margin-top:8px;">Silently checks Google
+                        Sheets for item additions or stock adjustments while you work.</div>
                     </div>
 
-                    <div style="background:var(--bg-card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
-                      <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Automated Pipelines</div>
+                    <div
+                      style="background:var(--bg-card2); border:1px solid var(--border); border-radius:10px; padding:14px;">
+                      <div
+                        style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); margin-bottom:6px;">
+                        Automated Pipelines</div>
                       <div style="font-size:12px; color:var(--text-main); line-height:1.5;">
                         • <strong>GitHub Actions</strong>: Runs daily at 6:00 AM PHT (auto-commits & deploys)<br>
                         • <strong>1-Click Desktop Sync</strong>: Double-click <code>tools/sync_now.bat</code><br>
@@ -4688,6 +5011,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           <!-- Body Container -->
           <div style="flex:1; padding:24px; overflow-y:auto; display:flex; flex-direction:column; gap:20px;">
 
+            <!-- Near Expiring Batch Alert Box (shown dynamically when item has near-expiry batches) -->
+            <div id="item-modal-near-expiry-box" style="display:none; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.35); border-radius:14px; padding:14px 16px;">
+            </div>
+
             <!-- Section 1: Location Inventory Breakdown -->
             <div>
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
@@ -4956,7 +5283,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         const GOOGLE_SHEET_ID = '1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM';
         const GOOGLE_SHEET_GID = '237243801';
         const LIVE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/export?format=csv&gid=' + GOOGLE_SHEET_GID;
+        let NEAR_EXPIRY_SHEET_GID = localStorage.getItem('armmc_near_expiry_gid') || '2052140349';
+        function getNearExpiryCsvUrl() {
+          return 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/export?format=csv&gid=' + NEAR_EXPIRY_SHEET_GID + '&_t=' + Date.now();
+        }
+        function getNearExpirySheetEditUrl() {
+          return 'https://docs.google.com/spreadsheets/d/' + GOOGLE_SHEET_ID + '/edit?gid=' + NEAR_EXPIRY_SHEET_GID + '#gid=' + NEAR_EXPIRY_SHEET_GID;
+        }
         let lastSheetChanges = null;
+        let lastNearExpiryChanges = null;
+        let lastNearExpirySyncTime = 0;
 
         // ================================================================
         //  STATE & INITIALIZATION
@@ -4964,6 +5300,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         let currentUser = { email: 'pharmacy@armmc.gov.ph', role: 'Staff', name: 'ARMMC Pharmacy' };
         let allItems = [];
         let allReorders = [];
+        let allNearExpiring = [];
+        let nearExpiryAsOfDate = 'as of October 06, 2026';
+        let nearExpiryTiers = ['EXPIRING WITHIN 3 MONTHS', 'EXPIRING WITHIN 6 MONTHS', 'EXPIRING WITHIN 9 MONTHS'];
 
         let statusChart = null;
         let lastStatusCounts = null;
@@ -5015,6 +5354,15 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
             const configInput = document.getElementById('apps-script-url');
             if (configInput) configInput.value = APPS_SCRIPT_URL;
+
+            const neGidInput = document.getElementById('setup-ne-gid-input');
+            if (neGidInput) neGidInput.value = NEAR_EXPIRY_SHEET_GID;
+            const neGidLabel = document.getElementById('setup-ne-gid-label');
+            if (neGidLabel) neGidLabel.textContent = 'Tab GID: ' + NEAR_EXPIRY_SHEET_GID + ' (NEAR EXPIRING DRUGS)';
+            const neOpenLink = document.getElementById('setup-ne-open-link');
+            if (neOpenLink) neOpenLink.href = getNearExpirySheetEditUrl();
+            const neHeaderLink = document.getElementById('ne-sheet-link');
+            if (neHeaderLink) neHeaderLink.href = getNearExpirySheetEditUrl();
 
             loadData();
             initBackgroundSync();
@@ -5430,6 +5778,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               chDesc.innerHTML = html;
             } else {
               chDesc.innerHTML = 'All <strong>' + (allItems.length || 2665).toLocaleString() + ' items</strong> and stock counts match the latest verified inventory snapshot. Zero discrepancies detected.';
+            }
+
+            if (lastNearExpiryChanges) {
+              const neSummaryHtml = lastNearExpiryChanges.isChanged
+                ? '<div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border-lit);"><strong>⏳ Near Expiring Tab Updates:</strong> <span style="color:var(--warning); font-weight:600;">' + lastNearExpiryChanges.summary + '</span> (' + allNearExpiring.length + ' batches, ' + nearExpiryAsOfDate + ')</div>'
+                : '<div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border-lit);"><strong>⏳ Near Expiring Tab:</strong> Verified (' + allNearExpiring.length + ' batches, ' + nearExpiryAsOfDate + ' — matches live tab)</div>';
+              chDesc.innerHTML += neSummaryHtml;
             }
           }
 
@@ -6113,6 +6468,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 }
               }
             }
+            // Also silently check Near Expiring Drugs tab for any real-time modifications
+            await loadNearExpiringData(true, false);
           } catch (e) {
             // silent catch in background
           } finally {
@@ -6158,8 +6515,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 }
 
                 // Content-verified freshness: derive data age from actual content modifications, not Cell B2 date
-                const daysSinceContentChange = (changes && typeof changes.daysSinceDataChange === 'number') 
-                  ? changes.daysSinceDataChange 
+                const daysSinceContentChange = (changes && typeof changes.daysSinceDataChange === 'number')
+                  ? changes.daysSinceDataChange
                   : 0;
 
                 sheetMeta = {
@@ -6354,9 +6711,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }
 
           try { populateAnalyticsYearDropdown(); } catch (e) { console.warn('Year dropdown error:', e); }
+          try { await loadNearExpiringData(false, false); } catch (e) { console.warn('Near expiring load error:', e); }
           try { buildDashboard(); } catch (e) { console.warn('Dashboard build error:', e); }
           try { buildInventory(); } catch (e) { console.warn('Inventory build error:', e); }
           try { buildReorder(); } catch (e) { console.warn('Reorder build error:', e); }
+          try { buildNearExpiring(); } catch (e) { console.warn('Near expiring build error:', e); }
           try { buildAnalytics(); } catch (e) { console.warn('Analytics build error:', e); }
           try { buildCategoryFilter(); } catch (e) { console.warn('Category filter error:', e); }
           try { renderLocatorGrid(); } catch (e) { console.warn('Locator grid error:', e); }
@@ -6608,9 +6967,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           setTxt('kpi-ok', ok.toLocaleString());
           setTxt('kpi-overstock', overstock.toLocaleString());
           setTxt('kpi-pending', pending.toLocaleString());
+          setTxt('kpi-nearexpiry', (allNearExpiring ? allNearExpiring.length : 0).toLocaleString());
 
-          // Reorder badge
+          // Reorder & Near Expiry sidebar badges
           setTxt('reorder-badge', (outofstock + critical + warning).toString());
+          setTxt('near-expiry-badge', (allNearExpiring ? allNearExpiring.length : 0).toString());
 
           // Filter & populate summary table according to active KPI card selection
           filterDashboardTable(activeKpiFilter);
@@ -6667,6 +7028,35 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               filtered = allItems.filter(it => parseFloat(it.pending_po_co_qty || 0) > 0);
               title = '📋 Pending PO / CO Orders — ' + filtered.length + ' Items';
               break;
+            case 'nearexpiry': {
+              const neList = Array.isArray(allNearExpiring) ? allNearExpiring : [];
+              const titleEl = document.getElementById('urgent-table-title');
+              if (titleEl) {
+                titleEl.innerHTML = '⏳ Near Expiring Drugs (' + (nearExpiryAsOfDate || 'Live Sheet') + ') — ' + neList.length + ' Batches ' +
+                  '<button class="btn btn-secondary btn-sm" style="margin-left:10px; padding:3px 10px; font-size:11px;" onclick="showSection(\'near-expiry\', document.getElementById(\'nav-near-expiry\'))">Open Full Near Expiry View →</button>';
+              }
+              const tbody = document.getElementById('urgent-tbody');
+              if (tbody) {
+                tbody.innerHTML = neList.slice(0, 50).map(ne => {
+                  const tierBadge = ne.expiry_tier_months === 3
+                    ? '<span class="badge badge-critical text-xs">≤ 3 Mos (' + (ne.expiration_date || '—') + ')</span>'
+                    : ne.expiry_tier_months === 6
+                      ? '<span class="badge badge-warning text-xs">≤ 6 Mos (' + (ne.expiration_date || '—') + ')</span>'
+                      : '<span class="badge badge-accent text-xs">≤ 9 Mos (' + (ne.expiration_date || '—') + ')</span>';
+                  const clickCode = (ne.master_item_code || ne.dci_code || ne.item_code || ne.description || '').replace(/'/g, "\\'");
+                  return '<tr style="cursor:pointer;" onclick="openItemModal(\'' + clickCode + '\')" title="Click to view details for ' + (ne.description || ne.item_code) + '">' +
+                    '<td class="code"><span class="dci-badge">' + (ne.dci_code || ne.item_code || '—') + '</span></td>' +
+                    '<td><div style="font-weight:700; color:var(--text-primary);">' + (ne.description || '—') + '</div>' +
+                    '<div class="text-xs text-muted">End-users: ' + (ne.requesting_end_users || '—') + (ne.impact_date ? ' • Impact: ' + ne.impact_date : '') + '</div></td>' +
+                    '<td><div class="cat-truncate text-xs text-muted">' + (ne.status || ne.gl_note || '—') + '</div></td>' +
+                    '<td class="num-cell"><strong style="color:#f97316;">' + fmt(ne.total_qty) + '</strong></td>' +
+                    '<td class="text-center">' + tierBadge + '</td>' +
+                    '<td class="num-cell"><span class="text-xs text-muted">Disp: ' + fmt(ne.dispensing_qty) + ' | Stor: ' + fmt(ne.storage_qty) + ' | Whse: ' + fmt(ne.warehouse_qty) + '</span></td>' +
+                    '</tr>';
+                }).join('') || '<tr><td colspan="6" class="empty-state"><div class="empty-icon">⏳</div><p>No near-expiring drug records loaded.</p></td></tr>';
+              }
+              return;
+            }
             case 'all':
             default:
               filtered = allItems;
@@ -7033,6 +7423,970 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           }).join('') || '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✅</div><p>No items need reordering right now.</p></div></td></tr>';
 
           renderPagination('reorder', reordFiltered.length, reordPage, REORDER_PAGE_SIZE);
+        }
+
+        // ================================================================
+        //  NEAR EXPIRING DRUGS ENGINE (LIVE SYNC, DYNAMIC PARSER & UI)
+        // ================================================================
+        const NEAR_EXPIRY_SNAPSHOT_KEY = 'armmc_near_expiry_snapshot_v1';
+        let neTierFilter = 'ALL';
+        let neQuickMode = '';
+        let neFiltered = [];
+
+        function detectNearExpiryColumns(rows) {
+          const cols = {
+            no: 0,
+            code: 1,
+            desc: 2,
+            total_qty: 3,
+            exp_date: 4,
+            dispensing_qty: 6,
+            storage_qty: 7,
+            warehouse_qty: 8,
+            location_total: 9,
+            audit_note: 10,
+            impact_date: 11,
+            end_users: 12,
+            status: 13,
+            gl_note: 14,
+            followup_note: 15,
+            extra_note: 16
+          };
+
+          for (let r = 0; r < Math.min(rows.length, 6); r++) {
+            const row = rows[r] || [];
+            const rowUpper = row.map(c => String(c || '').trim().toUpperCase());
+            if (rowUpper.some(c => c.includes('ITEM DESCRIPTION')) || rowUpper.some(c => c.includes('EXPIRATION DATE'))) {
+              rowUpper.forEach((cell, idx) => {
+                if (!cell) return;
+                if (cell === 'NO.' || cell === 'NO') cols.no = idx;
+                else if (cell.includes('ITEM CODE') || cell.includes('DCI CODE')) cols.code = idx;
+                else if (cell.includes('ITEM DESCRIPTION') || cell.includes('DESCRIPTION')) cols.desc = idx;
+                else if (cell.includes('TOTAL STOCKS')) cols.total_qty = idx;
+                else if (cell.includes('EXPIRATION DATE')) cols.exp_date = idx;
+                else if (cell.includes('DISPENSING')) cols.dispensing_qty = idx;
+                else if (cell.includes('STORAGE')) cols.storage_qty = idx;
+                else if (cell.includes('WAREHOUSE')) cols.warehouse_qty = idx;
+                else if (cell === 'TOTAL' && idx > cols.exp_date) cols.location_total = idx;
+                else if (cell.includes('IMPACT DATE')) cols.impact_date = idx;
+                else if (cell.includes('REQUESTING') || cell.includes('END-USER') || cell.includes('END USER')) cols.end_users = idx;
+                else if (cell === 'STATUS' || cell.includes('STATUS')) cols.status = idx;
+              });
+              break;
+            }
+          }
+          return cols;
+        }
+
+        function parseNearExpiringFromCSV(csvText) {
+          const rows = parseCSV(csvText);
+          if (!rows || rows.length < 3) return { asOfDate: '', items: [], tiers: {} };
+
+          let asOfDate = '';
+          for (let r = 0; r < Math.min(rows.length, 4); r++) {
+            for (let c = 0; c < (rows[r] || []).length; c++) {
+              const cellStr = String(rows[r][c] || '').trim();
+              if (cellStr.toLowerCase().includes('as of')) {
+                asOfDate = cellStr;
+                break;
+              }
+            }
+            if (asOfDate) break;
+          }
+
+          const cols = detectNearExpiryColumns(rows);
+
+          // Build masterlist lookup by DCI code and Item code
+          const dciMap = {};
+          const itemCodeMap = {};
+          (allItems || []).forEach(it => {
+            if (it.dci_code) dciMap[String(it.dci_code).trim().toUpperCase()] = it;
+            if (it.item_code) itemCodeMap[String(it.item_code).trim().toUpperCase()] = it;
+          });
+
+          let currentTierLabel = 'EXPIRING WITHIN 3 MONTHS';
+          let currentTierMonths = 3;
+          const items = [];
+          const tiers = { 3: 0, 6: 0, 9: 0 };
+
+          const getCell = (row, idx) => (idx >= 0 && idx < row.length) ? String(row[idx] || '').trim() : '';
+          const getNum = (row, idx) => {
+            const raw = getCell(row, idx).replace(/[₱,\s]/g, '');
+            const n = parseFloat(raw);
+            return isNaN(n) ? 0 : n;
+          };
+
+          for (let r = 0; r < rows.length; r++) {
+            const row = rows[r] || [];
+            if (!row.some(c => String(c || '').trim())) continue;
+
+            const joinedUpper = row.map(c => String(c || '').trim().toUpperCase()).join(' ');
+            if (joinedUpper.includes('EXPIRING WITHIN')) {
+              const m = joinedUpper.match(/EXPIRING\s+WITHIN\s+(\d+)\s+MONTHS?/);
+              if (m) {
+                currentTierMonths = parseInt(m[1], 10);
+                currentTierLabel = 'EXPIRING WITHIN ' + currentTierMonths + ' MONTHS';
+                if (tiers[currentTierMonths] === undefined) tiers[currentTierMonths] = 0;
+              }
+              continue;
+            }
+
+            if (r < 4) continue;
+            const desc = getCell(row, cols.desc);
+            const code = getCell(row, cols.code);
+            if (!desc) continue;
+            if (desc.toUpperCase().includes('ITEM DESCRIPTION') || code.toUpperCase().includes('ITEM CODE')) continue;
+
+            const expDate = getCell(row, cols.exp_date);
+            let totalQty = getNum(row, cols.total_qty);
+            const dispQty = getNum(row, cols.dispensing_qty);
+            const storQty = getNum(row, cols.storage_qty);
+            const whseQty = getNum(row, cols.warehouse_qty);
+            const locTotal = getNum(row, cols.location_total) || (dispQty + storQty + whseQty);
+
+            if (!code && !expDate && totalQty <= 0 && locTotal <= 0) continue;
+            if (totalQty <= 0 && locTotal > 0) totalQty = locTotal;
+
+            const auditNote = getCell(row, cols.audit_note);
+            const impactDate = getCell(row, cols.impact_date);
+            const endUsers = getCell(row, cols.end_users);
+            const rawStatus = getCell(row, cols.status);
+            const glNote = getCell(row, cols.gl_note);
+            const followupNote = getCell(row, cols.followup_note);
+            const extraNote = getCell(row, cols.extra_note);
+            const noStr = getCell(row, cols.no);
+
+            const codeUpper = code.toUpperCase();
+            const master = dciMap[codeUpper] || itemCodeMap[codeUpper] || null;
+            const unitCost = master ? (parseFloat(master.unit_cost) || parseFloat(master.acquisition_price) || parseFloat(master.selling_price) || 0) : 0;
+
+            tiers[currentTierMonths] = (tiers[currentTierMonths] || 0) + 1;
+
+            items.push({
+              row_id: r + 1,
+              no: noStr ? (isNaN(Number(noStr)) ? noStr : Number(noStr)) : null,
+              item_code: code,
+              dci_code: (code && codeUpper !== 'DONATION') ? code : (master ? (master.dci_code || '') : ''),
+              master_item_code: master ? (master.item_code || '') : '',
+              pharmacy_category: codeUpper === 'DONATION' ? 'Donation' : (master ? (master.pharmacy_category || '') : ''),
+              description: desc,
+              total_qty: totalQty,
+              expiration_date: expDate,
+              expiry_tier: currentTierLabel,
+              expiry_tier_months: currentTierMonths,
+              dispensing_qty: dispQty,
+              storage_qty: storQty,
+              warehouse_qty: whseQty,
+              location_total_qty: locTotal,
+              audit_note: auditNote,
+              impact_date: impactDate,
+              requesting_end_users: endUsers,
+              status: rawStatus,
+              gl_note: glNote,
+              followup_note: followupNote,
+              extra_note: extraNote,
+              unit_cost: Math.round(unitCost * 100) / 100,
+              estimated_value_php: Math.round(totalQty * unitCost * 100) / 100
+            });
+          }
+
+          return { asOfDate, items, tiers };
+        }
+
+        function enrichNearExpiringWithMasterlist(items) {
+          if (!Array.isArray(items) || !Array.isArray(allItems) || allItems.length === 0) return items;
+          const dciMap = {};
+          const itemCodeMap = {};
+          allItems.forEach(it => {
+            if (it.dci_code) dciMap[String(it.dci_code).trim().toUpperCase()] = it;
+            if (it.item_code) itemCodeMap[String(it.item_code).trim().toUpperCase()] = it;
+          });
+
+          return items.map(ne => {
+            const codeUpper = String(ne.item_code || ne.dci_code || '').trim().toUpperCase();
+            const master = dciMap[codeUpper] || itemCodeMap[codeUpper] || null;
+            if (!master) return ne;
+            const unitCost = parseFloat(master.unit_cost) || parseFloat(master.acquisition_price) || parseFloat(master.selling_price) || ne.unit_cost || 0;
+            const totalQty = parseFloat(ne.total_qty) || 0;
+            return {
+              ...ne,
+              master_item_code: ne.master_item_code || master.item_code || '',
+              pharmacy_category: ne.pharmacy_category || master.pharmacy_category || '',
+              unit_cost: Math.round(unitCost * 100) / 100,
+              estimated_value_php: Math.round(totalQty * unitCost * 100) / 100
+            };
+          });
+        }
+
+        function computeNearExpiryFingerprint(items, asOfDate) {
+          if (!Array.isArray(items) || items.length === 0) return '0_0';
+          let totalStock = 0;
+          const sigParts = [String(asOfDate || '')];
+          items.forEach(it => {
+            const q = Math.round(parseFloat(it.total_qty) || 0);
+            totalStock += q;
+            sigParts.push([
+              it.item_code || '',
+              it.description || '',
+              q,
+              it.expiration_date || '',
+              it.expiry_tier_months || '',
+              it.impact_date || '',
+              it.status || '',
+              it.requesting_end_users || '',
+              it.gl_note || ''
+            ].join(':'));
+          });
+          // Simple deterministic hash
+          const str = sigParts.join('|');
+          let hash = 2166136261;
+          for (let i = 0; i < str.length; i++) {
+            hash ^= str.charCodeAt(i);
+            hash = Math.imul(hash, 16777619);
+          }
+          return items.length + '_' + totalStock + '_' + (hash >>> 0).toString(16);
+        }
+
+        function detectNearExpiryChanges(newItems, newAsOfDate) {
+          const newFp = computeNearExpiryFingerprint(newItems, newAsOfDate);
+          let prev = null;
+          try {
+            const raw = localStorage.getItem(NEAR_EXPIRY_SNAPSHOT_KEY);
+            if (raw) prev = JSON.parse(raw);
+          } catch (e) { }
+
+          const makeBatchKey = (it, idx) => (it.item_code || it.description || 'ROW') + '__' + (it.expiration_date || idx);
+          const curMap = {};
+          newItems.forEach((it, idx) => {
+            curMap[makeBatchKey(it, idx)] = {
+              code: it.item_code || '',
+              desc: it.description || '',
+              qty: parseFloat(it.total_qty) || 0,
+              status: it.status || '',
+              exp: it.expiration_date || ''
+            };
+          });
+
+          let result = {
+            isChanged: false,
+            fingerprint: newFp,
+            summary: 'No changes since last check',
+            addedCount: 0,
+            removedCount: 0,
+            qtyChangedCount: 0,
+            statusChangedCount: 0
+          };
+
+          if (prev && prev.fingerprint && prev.fingerprint !== newFp && prev.items) {
+            const prevMap = prev.items;
+            let added = 0, removed = 0, qtyChanged = 0, statusChanged = 0;
+            Object.keys(curMap).forEach(k => {
+              if (!prevMap[k]) added++;
+              else {
+                if (prevMap[k].qty !== curMap[k].qty) qtyChanged++;
+                if (prevMap[k].status !== curMap[k].status) statusChanged++;
+              }
+            });
+            Object.keys(prevMap).forEach(k => {
+              if (!curMap[k]) removed++;
+            });
+
+            const parts = [];
+            if (added > 0) parts.push('+' + added + ' new batch' + (added > 1 ? 'es' : ''));
+            if (removed > 0) parts.push('-' + removed + ' removed');
+            if (qtyChanged > 0) parts.push(qtyChanged + ' stock qty updated');
+            if (statusChanged > 0) parts.push(statusChanged + ' status updated');
+            if (prev.asOfDate && prev.asOfDate !== newAsOfDate) parts.push('Header date → ' + newAsOfDate);
+
+            result = {
+              isChanged: parts.length > 0,
+              fingerprint: newFp,
+              summary: parts.join(', ') || 'Sheet content updated',
+              addedCount: added,
+              removedCount: removed,
+              qtyChangedCount: qtyChanged,
+              statusChangedCount: statusChanged
+            };
+          }
+
+          try {
+            localStorage.setItem(NEAR_EXPIRY_SNAPSHOT_KEY, JSON.stringify({
+              fingerprint: newFp,
+              asOfDate: newAsOfDate,
+              savedAt: new Date().toISOString(),
+              items: curMap
+            }));
+          } catch (e) { }
+
+          lastNearExpiryChanges = result;
+          return result;
+        }
+
+        function parseExpiryEndOfMonth(expDateStr) {
+          if (!expDateStr) return null;
+          const clean = String(expDateStr).trim().toUpperCase();
+          const months = {
+            JANUARY: 0, JAN: 0,
+            FEBRUARY: 1, FEB: 1,
+            MARCH: 2, MAR: 2,
+            APRIL: 3, APR: 3,
+            MAY: 4,
+            JUNE: 5, JUN: 5,
+            JULY: 6, JUL: 6,
+            AUGUST: 7, AUG: 7,
+            SEPTEMBER: 8, SEP: 8, SEPT: 8,
+            OCTOBER: 9, OCT: 9,
+            NOVEMBER: 10, NOV: 10,
+            DECEMBER: 11, DEC: 11
+          };
+          const parts = clean.split(/[\s\-/]+/);
+          if (parts.length >= 2) {
+            const m = months[parts[0]];
+            let y = parseInt(parts[1], 10);
+            if (m !== undefined && !isNaN(y)) {
+              if (y < 100) y += 2000;
+              // Last day of that month
+              return new Date(y, m + 1, 0, 23, 59, 59);
+            }
+          }
+          const d = new Date(expDateStr);
+          return isNaN(d.getTime()) ? null : d;
+        }
+
+        function parseImpactDateObj(impactDateStr) {
+          if (!impactDateStr) return null;
+          const clean = String(impactDateStr).trim();
+          const mdy = clean.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+          if (mdy) {
+            const m = parseInt(mdy[1], 10) - 1;
+            const d = parseInt(mdy[2], 10);
+            let y = parseInt(mdy[3], 10);
+            if (y < 100) y += 2000;
+            return new Date(y, m, d);
+          }
+          const dt = new Date(clean);
+          return isNaN(dt.getTime()) ? null : dt;
+        }
+
+        function isImpactAfterExpiry(expDateStr, impactDateStr) {
+          const expEnd = parseExpiryEndOfMonth(expDateStr);
+          const impDate = parseImpactDateObj(impactDateStr);
+          if (!expEnd || !impDate) return false;
+          return impDate.getTime() > expEnd.getTime();
+        }
+
+        async function loadNearExpiringData(silent = false, userClicked = false) {
+          const syncBtn = document.getElementById('btn-sync-near-expiry');
+          if (userClicked && syncBtn) {
+            syncBtn.disabled = true;
+            const icon = syncBtn.querySelector('.sync-icon');
+            if (icon) icon.classList.add('spinning');
+            syncBtn.style.opacity = '0.85';
+          }
+
+          let loadedItems = [];
+          let loadedAsOf = '';
+          let loadedTiers = {};
+          let sourceType = '';
+
+          // 1. Live Google Sheet CSV Fetch (gid=2052140349 or configured GID)
+          try {
+            const res = await fetch(getNearExpiryCsvUrl(), { cache: 'no-store' });
+            if (res.ok) {
+              const csvText = await res.text();
+              if (csvText && !csvText.trim().startsWith('<!DOCTYPE') && !csvText.trim().startsWith('<html')) {
+                const parsed = parseNearExpiringFromCSV(csvText);
+                if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
+                  loadedItems = parsed.items;
+                  loadedAsOf = parsed.asOfDate;
+                  loadedTiers = parsed.tiers || {};
+                  sourceType = 'live_csv';
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Live Near Expiry CSV fetch fallback:', e);
+          }
+
+          // 2. Fallback to Apps Script (if live CSV blocked or tab GID rotated)
+          if (loadedItems.length === 0) {
+            try {
+              if (typeof google !== 'undefined' && google.script && google.script.run) {
+                const gsData = await gscriptCall('getNearExpiring');
+                if (gsData && Array.isArray(gsData.items) && gsData.items.length > 0) {
+                  loadedItems = gsData.items;
+                  loadedAsOf = gsData.asOfDate || '';
+                  loadedTiers = gsData.tiers || {};
+                  sourceType = 'apps_script';
+                }
+              } else if (APPS_SCRIPT_URL) {
+                const res = await fetch(APPS_SCRIPT_URL + '?action=getNearExpiring&_t=' + Date.now());
+                if (res.ok) {
+                  const gsData = await res.json();
+                  if (gsData && Array.isArray(gsData.items) && gsData.items.length > 0) {
+                    loadedItems = gsData.items;
+                    loadedAsOf = gsData.asOfDate || '';
+                    loadedTiers = gsData.tiers || {};
+                    sourceType = 'apps_script';
+                  }
+                }
+              }
+            } catch (e) {
+              console.warn('Apps Script getNearExpiring fallback:', e);
+            }
+          }
+
+          // 3. Fallback to bundled near_expiring.json
+          if (loadedItems.length === 0) {
+            try {
+              const res = await fetch('near_expiring.json?v=' + Date.now(), { cache: 'no-store' });
+              if (res.ok) {
+                const localData = await res.json();
+                if (localData && Array.isArray(localData.items)) {
+                  loadedItems = localData.items;
+                  loadedAsOf = localData.asOfDate || '';
+                  loadedTiers = localData.tiers || {};
+                  sourceType = 'local_json';
+                }
+              }
+            } catch (e) {
+              console.warn('Local near_expiring.json fallback error:', e);
+            }
+          }
+
+          if (loadedItems.length > 0) {
+            allNearExpiring = enrichNearExpiringWithMasterlist(loadedItems);
+            nearExpiryAsOfDate = loadedAsOf || nearExpiryAsOfDate || 'as of October 06, 2026';
+            nearExpiryTiers = loadedTiers;
+            lastNearExpirySyncTime = Date.now();
+
+            const changeInfo = detectNearExpiryChanges(allNearExpiring, nearExpiryAsOfDate);
+
+            const statusBadge = document.getElementById('ne-sync-status-badge');
+            if (statusBadge) {
+              const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              if (sourceType === 'live_csv' || sourceType === 'apps_script') {
+                statusBadge.style.display = 'inline-flex';
+                statusBadge.textContent = changeInfo.isChanged
+                  ? '🔔 Updated Live (' + changeInfo.summary + ')'
+                  : '🟢 Live Synced (' + timeStr + ')';
+              } else {
+                statusBadge.style.display = 'inline-flex';
+                statusBadge.textContent = '📦 Snapshot (' + allNearExpiring.length + ' batches)';
+              }
+            }
+
+            buildNearExpiring();
+
+            // Update dashboard KPI card if present
+            const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setTxt('kpi-nearexpiry', allNearExpiring.length);
+            const ne3mCount = allNearExpiring.filter(it => Number(it.expiry_tier_months) === 3).length;
+            setTxt('kpi-nearexpiry-sub', ne3mCount > 0 ? (ne3mCount + ' Within 3 Mos • ' + allNearExpiring.length + ' Total') : 'Expiring Within 3–9 Mos');
+
+            if (userClicked) {
+              showToast('Near Expiring Drugs synced (' + allNearExpiring.length + ' batches ' + nearExpiryAsOfDate + ') ✓', 'success');
+            } else if (silent && changeInfo.isChanged) {
+              showToast('⏳ Near Expiring Sheet Updated: ' + changeInfo.summary, 'info');
+            }
+          } else if (userClicked) {
+            showToast('Could not load Near Expiring Drugs data.', 'error');
+          }
+
+          if (userClicked && syncBtn) {
+            syncBtn.disabled = false;
+            const icon = syncBtn.querySelector('.sync-icon');
+            if (icon) icon.classList.remove('spinning');
+            syncBtn.style.opacity = '1';
+          }
+        }
+
+        function categorizeNearExpiryStatus(statusStr) {
+          const s = String(statusStr || '').trim().toLowerCase();
+          if (!s) return 'unassigned';
+          if (s.includes('donat')) return 'donation';
+          if (s.includes('consum')) return 'consume';
+          if (s.includes('moving')) return 'moving';
+          if (s.includes('confirm')) return 'confirm';
+          return 'other';
+        }
+
+        function renderNearExpiryStatusBadge(statusStr, glNote, followupNote, extraNote) {
+          const raw = String(statusStr || '').trim();
+          const cat = categorizeNearExpiryStatus(raw);
+          let badgeHtml = '';
+          if (cat === 'donation') {
+            badgeHtml = '<span class="badge text-xs" style="background:rgba(168,85,247,0.16); color:#c084fc; border:1px solid rgba(168,85,247,0.35); font-weight:700;">🎁 ' + raw + '</span>';
+          } else if (cat === 'consume') {
+            badgeHtml = '<span class="badge text-xs" style="background:rgba(6,182,212,0.16); color:#22d3ee; border:1px solid rgba(6,182,212,0.35); font-weight:700;">💊 ' + raw + '</span>';
+          } else if (cat === 'moving') {
+            badgeHtml = '<span class="badge badge-ok text-xs">📈 ' + raw + '</span>';
+          } else if (cat === 'confirm') {
+            badgeHtml = '<span class="badge badge-warning text-xs">⏳ ' + raw + '</span>';
+          } else if (raw) {
+            badgeHtml = '<span class="badge badge-muted text-xs">' + raw + '</span>';
+          } else {
+            badgeHtml = '<span class="text-xs text-muted">—</span>';
+          }
+
+          const notes = [glNote, followupNote, extraNote].filter(Boolean);
+          if (notes.length > 0) {
+            badgeHtml += '<div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:4px; justify-content:center;">' +
+              notes.map(n => '<span class="ne-dept-chip" style="background:rgba(245,158,11,0.12); border-color:rgba(245,158,11,0.3); color:var(--warning);">📋 ' + n + '</span>').join('') +
+              '</div>';
+          }
+          return badgeHtml;
+        }
+
+        function getItemTierMonths(it) {
+          if (!it) return 3;
+          if (it.expiry_tier_months != null && !isNaN(Number(it.expiry_tier_months))) {
+            return Number(it.expiry_tier_months);
+          }
+          const tStr = String(it.expiry_tier || '').toUpperCase();
+          const m = tStr.match(/(\d+)/);
+          if (m) return parseInt(m[1], 10);
+          return 3;
+        }
+
+        function normalizeTierFilterValue(tier) {
+          const raw = String(tier || 'ALL').trim().toUpperCase();
+          if (raw === 'ALL' || raw === '') return 'ALL';
+          if (raw === '3' || raw === '3M' || raw.includes('3')) return '3M';
+          if (raw === '6' || raw === '6M' || raw.includes('6')) return '6M';
+          if (raw === '9' || raw === '9M' || raw.includes('9')) return '9M';
+          return raw;
+        }
+
+        function buildNearExpiring() {
+          const items = enrichNearExpiringWithMasterlist(Array.isArray(allNearExpiring) ? allNearExpiring : []);
+          allNearExpiring = items;
+
+          const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+          // Update sidebar badge
+          const navBadge = document.getElementById('near-expiry-badge');
+          if (navBadge) {
+            navBadge.textContent = items.length;
+            navBadge.style.display = items.length > 0 ? 'inline-block' : 'none';
+          }
+
+          // Update As-Of Date & Sheet links
+          if (nearExpiryAsOfDate) {
+            setTxt('ne-as-of-badge', '📅 ' + nearExpiryAsOfDate);
+          }
+          const sheetLink = document.getElementById('ne-sheet-link');
+          if (sheetLink) sheetLink.href = getNearExpirySheetEditUrl();
+          const setupLink = document.getElementById('setup-ne-open-link');
+          if (setupLink) setupLink.href = getNearExpirySheetEditUrl();
+          const setupGidLbl = document.getElementById('setup-ne-gid-label');
+          if (setupGidLbl) setupGidLbl.textContent = 'gid=' + NEAR_EXPIRY_SHEET_GID;
+
+          // Compute KPI metrics
+          let count3m = 0, qty3m = 0;
+          let count6m = 0, qty6m = 0;
+          let count9m = 0, qty9m = 0;
+          let totalQtyAll = 0, totalValAll = 0;
+          let countDonation = 0, qtyDonation = 0;
+          let countRisk = 0, qtyRisk = 0;
+
+          const deptSet = new Set();
+
+          items.forEach(it => {
+            const q = parseFloat(it.total_qty) || 0;
+            const v = parseFloat(it.estimated_value_php) || 0;
+            const m = getItemTierMonths(it);
+            it.expiry_tier_months = m;
+            totalQtyAll += q;
+            totalValAll += v;
+
+            if (m === 3) { count3m++; qty3m += q; }
+            else if (m === 6) { count6m++; qty6m += q; }
+            else if (m === 9) { count9m++; qty9m += q; }
+            else { count9m++; qty9m += q; }
+
+            if (categorizeNearExpiryStatus(it.status) === 'donation') {
+              countDonation++;
+              qtyDonation += q;
+            }
+
+            if (isImpactAfterExpiry(it.expiration_date, it.impact_date)) {
+              countRisk++;
+              qtyRisk += q;
+            }
+
+            if (it.requesting_end_users) {
+              String(it.requesting_end_users)
+                .split(/[\/,;]+/)
+                .map(s => s.trim().toUpperCase())
+                .filter(Boolean)
+                .forEach(d => deptSet.add(d));
+            }
+          });
+
+          // Populate all 6 Near Expiry KPI cards
+          setTxt('ne-kpi-total', items.length.toLocaleString());
+          setTxt('ne-kpi-total-sub', fmt(totalQtyAll) + ' Total Units' + (totalValAll > 0 ? ' • ₱' + Math.round(totalValAll).toLocaleString('en-PH') : ''));
+          setTxt('ne-kpi-total-qty', fmt(totalQtyAll));
+          setTxt('ne-kpi-total-val', totalValAll > 0
+            ? 'Est. Value: ₱' + totalValAll.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            : items.length + ' Active Batches');
+
+          setTxt('ne-kpi-3m', count3m.toLocaleString());
+          setTxt('ne-kpi-3m-sub', 'Expiring Within 3 Months (' + fmt(qty3m) + ' u)');
+          setTxt('ne-kpi-3m-qty', fmt(qty3m) + ' Total Units');
+
+          setTxt('ne-kpi-6m', count6m.toLocaleString());
+          setTxt('ne-kpi-6m-sub', 'Expiring Within 6 Months (' + fmt(qty6m) + ' u)');
+          setTxt('ne-kpi-6m-qty', fmt(qty6m) + ' Total Units');
+
+          setTxt('ne-kpi-9m', count9m.toLocaleString());
+          setTxt('ne-kpi-9m-sub', 'Expiring Within 9 Months (' + fmt(qty9m) + ' u)');
+          setTxt('ne-kpi-9m-qty', fmt(qty9m) + ' Total Units');
+
+          setTxt('ne-kpi-risk', countRisk.toLocaleString());
+          setTxt('ne-kpi-risk-sub', countRisk > 0 ? (fmt(qtyRisk) + ' Units Exceed Expiry') : 'Impact Date > Expiry Risk');
+
+          setTxt('ne-kpi-donation', countDonation.toLocaleString());
+          setTxt('ne-kpi-donation-sub', fmt(qtyDonation) + ' Units Flagged');
+
+          setTxt('ne-pill-count-all', items.length);
+          setTxt('ne-pill-count-3', count3m);
+          setTxt('ne-pill-count-6', count6m);
+          setTxt('ne-pill-count-9', count9m);
+
+          // Populate End-User Department dropdown preserving current selection
+          const deptSelect = document.getElementById('ne-filter-dept');
+          if (deptSelect) {
+            const prevVal = deptSelect.value;
+            const sortedDepts = Array.from(deptSet).sort();
+            deptSelect.innerHTML = '<option value="">All Requesting End-Users</option>' +
+              sortedDepts.map(d => '<option value="' + d + '">' + d + '</option>').join('');
+            if (prevVal && sortedDepts.includes(prevVal)) deptSelect.value = prevVal;
+          }
+
+          filterNearExpiring();
+        }
+
+        function setNearExpiryTierFilter(tier, btnEl) {
+          neTierFilter = normalizeTierFilterValue(tier);
+          neQuickMode = '';
+          const statusSel = document.getElementById('ne-filter-status');
+          if (statusSel) {
+            statusSel.value = '';
+          }
+
+          document.querySelectorAll('#ne-tier-pills .ne-filter-pill').forEach(b => {
+            const bTier = normalizeTierFilterValue(b.getAttribute('data-tier'));
+            b.classList.toggle('active', bTier === neTierFilter);
+          });
+          document.querySelectorAll('#ne-kpi-grid .kpi-card').forEach(c => c.classList.remove('active'));
+          if (btnEl && btnEl.classList.contains('kpi-card')) {
+            btnEl.classList.add('active');
+          } else {
+            const kpiMatch = document.querySelector('#ne-kpi-grid .kpi-card[data-ne-tier="' + neTierFilter + '"]');
+            if (kpiMatch) kpiMatch.classList.add('active');
+          }
+          filterNearExpiring();
+        }
+
+        function setNearExpiryQuickFilter(mode, cardEl) {
+          neQuickMode = String(mode || '').toLowerCase();
+          neTierFilter = 'ALL';
+          const pillKey = neQuickMode === 'risk' ? 'RISK' : (neQuickMode === 'donation' ? 'DONATION' : 'ALL');
+
+          document.querySelectorAll('#ne-tier-pills .ne-filter-pill').forEach(b => {
+            const bTier = String(b.getAttribute('data-tier') || '').toUpperCase();
+            b.classList.toggle('active', bTier === pillKey);
+          });
+          document.querySelectorAll('#ne-kpi-grid .kpi-card').forEach(c => c.classList.remove('active'));
+          if (cardEl && cardEl.classList.contains('kpi-card')) {
+            cardEl.classList.add('active');
+          } else {
+            const kpiMatch = document.querySelector('#ne-kpi-grid .kpi-card[data-ne-tier="' + pillKey + '"]');
+            if (kpiMatch) kpiMatch.classList.add('active');
+          }
+
+          const statusSel = document.getElementById('ne-filter-status');
+          if (statusSel) {
+            if (neQuickMode === 'donation') statusSel.value = 'donation';
+            else if (neQuickMode === 'risk') statusSel.value = 'risk';
+            else statusSel.value = '';
+          }
+          filterNearExpiring();
+        }
+
+        function filterNearExpiring() {
+          const q = (document.getElementById('ne-search-input')?.value || '').trim().toLowerCase();
+          const dept = (document.getElementById('ne-filter-dept')?.value || '').trim().toUpperCase();
+          const statFilter = (document.getElementById('ne-filter-status')?.value || neQuickMode || '').trim().toLowerCase();
+          const normTier = normalizeTierFilterValue(neTierFilter);
+
+          // Keep pills & KPI card highlight synced if user changes #ne-filter-status dropdown directly
+          if (statFilter === 'risk' || statFilter === 'donation') {
+            const activeKey = statFilter.toUpperCase();
+            document.querySelectorAll('#ne-tier-pills .ne-filter-pill').forEach(b => {
+              b.classList.toggle('active', String(b.getAttribute('data-tier') || '').toUpperCase() === activeKey);
+            });
+            document.querySelectorAll('#ne-kpi-grid .kpi-card').forEach(c => {
+              c.classList.toggle('active', String(c.getAttribute('data-ne-tier') || '').toUpperCase() === activeKey);
+            });
+          }
+
+          neFiltered = (allNearExpiring || []).filter(it => {
+            const itemMonths = getItemTierMonths(it);
+            if (normTier === '3M' && itemMonths !== 3) return false;
+            if (normTier === '6M' && itemMonths !== 6) return false;
+            if (normTier === '9M' && itemMonths !== 9) return false;
+
+            if (dept) {
+              const depts = String(it.requesting_end_users || '')
+                .split(/[\/,;]+/)
+                .map(s => s.trim().toUpperCase());
+              if (!depts.includes(dept)) return false;
+            }
+
+            if (statFilter) {
+              const cat = categorizeNearExpiryStatus(it.status);
+              if (statFilter === 'consume') {
+                if (cat !== 'consume' && cat !== 'moving') return false;
+              } else if (statFilter === 'moving') {
+                if (cat !== 'moving') return false;
+              } else if (statFilter === 'donation') {
+                if (cat !== 'donation') return false;
+              } else if (statFilter === 'confirm') {
+                if (cat !== 'confirm') return false;
+              } else if (statFilter === 'gl') {
+                const hasGl = Boolean(it.gl_note && String(it.gl_note).trim()) || String(it.status || '').toLowerCase().includes('gl');
+                if (!hasGl) return false;
+              } else if (statFilter === 'risk') {
+                if (!isImpactAfterExpiry(it.expiration_date, it.impact_date)) return false;
+              } else if (statFilter === 'unassigned') {
+                if (cat !== 'unassigned') return false;
+              }
+            }
+
+            if (q) {
+              const hay = [
+                it.item_code,
+                it.dci_code,
+                it.master_item_code,
+                it.description,
+                it.expiration_date,
+                it.impact_date,
+                it.requesting_end_users,
+                it.status,
+                it.audit_note,
+                it.gl_note,
+                it.followup_note,
+                it.extra_note
+              ].filter(Boolean).join(' ').toLowerCase();
+              if (!hay.includes(q)) return false;
+            }
+            return true;
+          });
+
+          renderNearExpiringTable();
+        }
+
+        function renderNearExpiringTable() {
+          const tbody = document.getElementById('ne-tbody');
+          const pageInfo = document.getElementById('ne-page-info');
+          if (!tbody) return;
+
+          if (!neFiltered || neFiltered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">⏳</div><p>No near-expiring drug batches match your current filters.</p></div></td></tr>';
+            if (pageInfo) pageInfo.textContent = 'Showing 0 of ' + (allNearExpiring ? allNearExpiring.length : 0) + ' batches';
+            return;
+          }
+
+          const statFilter = (document.getElementById('ne-filter-status')?.value || neQuickMode || '').trim().toLowerCase();
+          const normTier = normalizeTierFilterValue(neTierFilter);
+          let html = '';
+
+          // If a Disposition / Risk filter is active (e.g. Impact Date > Expiry Risk or For Donation),
+          // render a single dedicated summary banner at the top matching the selected filter & total count
+          const isSpecialFilterActive = Boolean(statFilter) && normTier === 'ALL';
+          if (isSpecialFilterActive) {
+            const totalUnitsFiltered = neFiltered.reduce((s, x) => s + (parseFloat(x.total_qty) || 0), 0);
+            const count3 = neFiltered.filter(x => getItemTierMonths(x) === 3).length;
+            const count6 = neFiltered.filter(x => getItemTierMonths(x) === 6).length;
+            const count9 = neFiltered.filter(x => getItemTierMonths(x) === 9).length;
+            const breakdownParts = [];
+            if (count3 > 0) breakdownParts.push(count3 + ' in ≤3M');
+            if (count6 > 0) breakdownParts.push(count6 + ' in ≤6M');
+            if (count9 > 0) breakdownParts.push(count9 + ' in ≤9M');
+            const breakdownText = breakdownParts.length > 0 ? ' [' + breakdownParts.join(' • ') + ']' : '';
+
+            let bannerTitle = 'FILTERED NEAR-EXPIRY BATCHES';
+            let bannerCls = 'ne-tier-banner-status';
+            if (statFilter === 'risk') {
+              bannerTitle = '⚠️ IMPACT DATE > EXPIRY RISK (EXCEEDS EXPIRY)';
+              bannerCls = 'ne-tier-banner-risk';
+            } else if (statFilter === 'donation') {
+              bannerTitle = '🎁 FLAGGED FOR DONATION / E-CART RETURN';
+              bannerCls = 'ne-tier-banner-donation';
+            } else if (statFilter === 'consume' || statFilter === 'moving') {
+              bannerTitle = '💊 TO CONSUME / MOVING BATCHES';
+            } else if (statFilter === 'confirm') {
+              bannerTitle = '🔍 FOR CONFIRMATION BATCHES';
+            } else if (statFilter === 'gl') {
+              bannerTitle = '📄 WITH GUARANTEE LETTER (GL)';
+            }
+
+            html += '<tr class="ne-tier-banner-row ' + bannerCls + '">' +
+              '<td colspan="9">' + bannerTitle + ' — ' +
+              neFiltered.length + ' Batch' + (neFiltered.length > 1 ? 'es' : '') + ' (' + fmt(totalUnitsFiltered) + ' Total Units)' + breakdownText + '</td>' +
+              '</tr>';
+          }
+
+          let lastTierMonths = null;
+
+          neFiltered.forEach((it) => {
+            const tierMonths = getItemTierMonths(it);
+            if (!isSpecialFilterActive && tierMonths !== lastTierMonths) {
+              lastTierMonths = tierMonths;
+              const tierCount = neFiltered.filter(x => getItemTierMonths(x) === tierMonths).length;
+              const tierQty = neFiltered.filter(x => getItemTierMonths(x) === tierMonths)
+                .reduce((s, x) => s + (parseFloat(x.total_qty) || 0), 0);
+              const bannerCls = tierMonths === 3 ? 'ne-tier-banner-3m' : (tierMonths === 6 ? 'ne-tier-banner-6m' : 'ne-tier-banner-9m');
+              const icon = tierMonths === 3 ? '🚨' : (tierMonths === 6 ? '⚠️' : '📅');
+              html += '<tr class="ne-tier-banner-row ' + bannerCls + '">' +
+                '<td colspan="9">' + icon + ' EXPIRING WITHIN ' + tierMonths + ' MONTHS — ' +
+                tierCount + ' Batch' + (tierCount > 1 ? 'es' : '') + ' (' + fmt(tierQty) + ' Total Units)</td>' +
+                '</tr>';
+            }
+
+            const disp = parseFloat(it.dispensing_qty) || 0;
+            const stor = parseFloat(it.storage_qty) || 0;
+            const whse = parseFloat(it.warehouse_qty) || 0;
+            const totalQty = parseFloat(it.total_qty) || 0;
+
+            const locParts = [];
+            if (disp > 0) locParts.push('<span class="ne-loc-mini" title="Dispensing Area"><span class="loc-lbl">Disp:</span><span class="loc-val" style="color:#06b6d4;">' + fmt(disp) + '</span></span>');
+            if (stor > 0) locParts.push('<span class="ne-loc-mini" title="Pharmacy Storage"><span class="loc-lbl">Stor:</span><span class="loc-val" style="color:#10b981;">' + fmt(stor) + '</span></span>');
+            if (whse > 0) locParts.push('<span class="ne-loc-mini" title="Warehouse"><span class="loc-lbl">Whse:</span><span class="loc-val" style="color:#f59e0b;">' + fmt(whse) + '</span></span>');
+            if (it.audit_note) {
+              locParts.push('<span class="ne-loc-mini" style="border-color:rgba(245,158,11,0.35); color:var(--warning);" title="Audit Note">📝 ' + it.audit_note + '</span>');
+            }
+
+            const expBadgeCls = tierMonths === 3 ? 'badge-critical' : (tierMonths === 6 ? 'badge-warning' : 'badge-accent');
+            const tierSubLabel = isSpecialFilterActive
+              ? '<div style="font-size:10px; font-weight:700; margin-top:3px; color:' + (tierMonths === 3 ? '#f87171' : (tierMonths === 6 ? '#fbbf24' : '#60a5fa')) + ';">Within ' + tierMonths + ' Months</div>'
+              : '';
+            const impactRisk = isImpactAfterExpiry(it.expiration_date, it.impact_date);
+            const impactHtml = it.impact_date
+              ? (impactRisk
+                ? '<div style="font-weight:700; color:var(--danger);" title="Impact Date is AFTER Expiration Date — risk of expiry before full consumption">⚠️ ' + it.impact_date + '</div><div style="font-size:10px; color:var(--danger); font-weight:600;">Exceeds Expiry</div>'
+                : '<span style="font-weight:600; color:var(--text-secondary);">' + it.impact_date + '</span>')
+              : '<span class="text-muted">—</span>';
+
+            const deptChips = it.requesting_end_users
+              ? String(it.requesting_end_users).split(/[\/,;]+/).map(d => d.trim()).filter(Boolean)
+                .map(d => '<span class="ne-dept-chip">' + d + '</span>').join('')
+              : '<span class="text-xs text-muted">—</span>';
+
+            const clickKey = (it.master_item_code || it.dci_code || it.item_code || it.description || '').replace(/'/g, "\\'");
+            const codeDisplay = it.item_code || it.dci_code || '—';
+            const isDonationCode = String(codeDisplay).toUpperCase() === 'DONATION';
+            const codeBadge = isDonationCode
+              ? '<span class="badge badge-purple text-xs">🎁 DONATION</span>'
+              : '<span class="dci-badge">' + codeDisplay + '</span>';
+
+            const palletLookupKey = it.master_item_code || it.item_code || it.dci_code || '';
+            const locBadgeHtml = typeof locationBadge === 'function' ? locationBadge(palletLookupKey) : '<span class="text-muted">—</span>';
+
+            html += '<tr style="cursor:pointer;" onclick="openItemModal(\'' + clickKey + '\')" title="Click to inspect full inventory & batch details for ' + (it.description || '').replace(/"/g, '&quot;') + '">' +
+              '<td class="text-center text-muted" style="font-weight:600;">' + (it.no !== null && it.no !== undefined ? it.no : '•') + '</td>' +
+              '<td class="code">' + codeBadge + '</td>' +
+              '<td class="text-center" onclick="event.stopPropagation();">' + locBadgeHtml + '</td>' +
+              '<td style="white-space:normal; min-width:230px;">' +
+              '<div style="font-weight:700; color:var(--text-primary); line-height:1.35;">' + (it.description || '—') + '</div>' +
+              '<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; align-items:center;">' + locParts.join('') +
+              (it.estimated_value_php > 0 ? '<span class="text-xs text-muted" style="margin-left:4px;">• Est. Value: <strong style="color:var(--text-secondary);">₱' + it.estimated_value_php.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</strong></span>' : '') +
+              '</div>' +
+              '</td>' +
+              '<td class="num-cell"><strong style="font-size:14px; color:var(--text-primary);">' + fmt(totalQty) + '</strong></td>' +
+              '<td class="text-center"><span class="badge ' + expBadgeCls + ' text-xs" style="font-weight:700;">' + (it.expiration_date || '—') + '</span>' + tierSubLabel + '</td>' +
+              '<td class="text-center">' + impactHtml + '</td>' +
+              '<td style="white-space:normal; max-width:240px;">' + deptChips + '</td>' +
+              '<td class="text-center" style="white-space:normal;">' + renderNearExpiryStatusBadge(it.status, it.gl_note, it.followup_note, it.extra_note) + '</td>' +
+              '</tr>';
+          });
+
+          tbody.innerHTML = html;
+          if (pageInfo) {
+            pageInfo.textContent = 'Showing ' + neFiltered.length + ' of ' + (allNearExpiring ? allNearExpiring.length : 0) + ' near-expiring drug batches (' + (nearExpiryAsOfDate || 'Live Sheet') + ')';
+          }
+        }
+
+        function saveNearExpiryTabConfig() {
+          const inp = document.getElementById('setup-ne-gid-input');
+          if (!inp) return;
+          const raw = inp.value.trim();
+          if (!raw) {
+            showToast('Please paste a Google Sheet tab link or GID.', 'error');
+            return;
+          }
+          let gid = raw;
+          const m = raw.match(/gid=(\d+)/);
+          if (m) gid = m[1];
+          else if (!/^\d+$/.test(raw)) {
+            showToast('Could not find a numeric GID in that input. Example: 2052140349', 'error');
+            return;
+          }
+          NEAR_EXPIRY_SHEET_GID = gid;
+          localStorage.setItem('pharma_near_expiry_gid', gid);
+          const lbl = document.getElementById('setup-ne-gid-label');
+          if (lbl) lbl.textContent = 'gid=' + gid;
+          showToast('Near Expiring Tab GID updated to ' + gid + '. Syncing live data…', 'success');
+          loadNearExpiringData(false, true);
+        }
+
+        function exportNearExpiryCSV() {
+          const list = (neFiltered && neFiltered.length > 0) ? neFiltered : (allNearExpiring || []);
+          if (list.length === 0) {
+            showToast('No Near Expiring Drugs records to export.', 'error');
+            return;
+          }
+          const headers = [
+            'No.',
+            'Item / DCI Code',
+            'Item Description',
+            'Expiry Tier',
+            'Total Stocks On Hand (Qty)',
+            'Expiration Date',
+            'Dispensing Qty',
+            'Storage Qty',
+            'Warehouse Qty',
+            'Audit Note',
+            'Impact Date',
+            'Requesting End-Users',
+            'Status',
+            'GL Note',
+            'Follow-up Note',
+            'Estimated Value (PHP)'
+          ];
+          const rows = list.map(it => [
+            it.no != null ? it.no : '',
+            it.item_code || it.dci_code || '',
+            it.description || '',
+            it.expiry_tier || '',
+            it.total_qty || 0,
+            it.expiration_date || '',
+            it.dispensing_qty || 0,
+            it.storage_qty || 0,
+            it.warehouse_qty || 0,
+            it.audit_note || '',
+            it.impact_date || '',
+            it.requesting_end_users || '',
+            it.status || '',
+            it.gl_note || '',
+            it.followup_note || '',
+            it.estimated_value_php || 0
+          ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
+
+          downloadCSV([headers.join(','), ...rows].join('\n'), 'near_expiring_drugs_export.csv');
         }
 
         // ================================================================
@@ -8829,11 +10183,50 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
         function openItemModal(itemCode) {
           if (!itemCode) return;
           activeModalItemCode = String(itemCode).trim();
-          const item = allItems.find(it => String(it.item_code).trim() === activeModalItemCode);
+          const codeUpper = activeModalItemCode.toUpperCase();
+          let item = allItems.find(it =>
+            String(it.item_code || '').trim().toUpperCase() === codeUpper ||
+            String(it.dci_code || '').trim().toUpperCase() === codeUpper ||
+            String(it.description || '').trim().toUpperCase() === codeUpper
+          );
+
+          // Fallback for Near Expiring items without a master item_code (e.g., DONATION items)
+          if (!item && Array.isArray(allNearExpiring)) {
+            const neMatch = allNearExpiring.find(ne =>
+              String(ne.master_item_code || '').trim().toUpperCase() === codeUpper ||
+              String(ne.dci_code || '').trim().toUpperCase() === codeUpper ||
+              String(ne.item_code || '').trim().toUpperCase() === codeUpper ||
+              String(ne.description || '').trim().toUpperCase() === codeUpper
+            );
+            if (neMatch) {
+              item = {
+                item_code: neMatch.master_item_code || neMatch.item_code || 'DONATION',
+                dci_code: neMatch.dci_code || neMatch.item_code || 'DONATION',
+                description: neMatch.description || '—',
+                generic_name: neMatch.description || '—',
+                pharmacy_category: neMatch.pharmacy_category || 'Donation',
+                pharmacologic_category: 'Near Expiring Batch (' + (neMatch.expiry_tier || '') + ')',
+                dispensing_inventory_qty: neMatch.dispensing_qty || 0,
+                storage_inventory_qty: neMatch.storage_qty || 0,
+                warehouse_inventory_qty: neMatch.warehouse_qty || 0,
+                consignment_inventory_qty: 0,
+                total_inventory_qty: neMatch.total_qty || 0,
+                inventory_level_days: 0,
+                avg_monthly_consumption: 0,
+                avg_monthly_normalized_demand: 0,
+                unit_cost: neMatch.unit_cost || 0,
+                inventory_value_php: neMatch.estimated_value_php || 0,
+                date_of_impact: neMatch.impact_date || '',
+                pending_po_co_qty: 0
+              };
+            }
+          }
+
           if (!item) {
             showToast('Item details not found: ' + activeModalItemCode, 'error');
             return;
           }
+          activeModalItemCode = String(item.item_code || item.dci_code || activeModalItemCode).trim();
 
           const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
           const setHtml = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
@@ -8907,6 +10300,50 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           setTxt('item-modal-ending-epa', fmt(getItemEndingEpa(item)));
 
           setHtml('item-modal-pallet-badge', locationBadge(item.item_code));
+
+          // Populate Near Expiring Batches box if this item has near-expiring stock
+          const neBox = document.getElementById('item-modal-near-expiry-box');
+          const neListEl = document.getElementById('item-modal-near-expiry-list');
+          if (neBox && neListEl) {
+            const itemCodeUp = String(item.item_code || '').trim().toUpperCase();
+            const dciCodeUp = String(item.dci_code || '').trim().toUpperCase();
+            const descUp = String(item.description || '').trim().toUpperCase();
+            const matchingNe = (allNearExpiring || []).filter(ne => {
+              const neMasterUp = String(ne.master_item_code || '').trim().toUpperCase();
+              const neDciUp = String(ne.dci_code || '').trim().toUpperCase();
+              const neCodeUp = String(ne.item_code || '').trim().toUpperCase();
+              const neDescUp = String(ne.description || '').trim().toUpperCase();
+              if (itemCodeUp && itemCodeUp !== 'DONATION' && (neMasterUp === itemCodeUp || neCodeUp === itemCodeUp)) return true;
+              if (dciCodeUp && dciCodeUp !== 'DONATION' && (neDciUp === dciCodeUp || neCodeUp === dciCodeUp)) return true;
+              if (descUp && neDescUp === descUp) return true;
+              return false;
+            });
+
+            if (matchingNe.length > 0) {
+              neBox.style.display = 'block';
+              neListEl.innerHTML = matchingNe.map(ne => {
+                const tColor = ne.expiry_tier_months === 3 ? '#ef4444' : (ne.expiry_tier_months === 6 ? '#f59e0b' : '#06b6d4');
+                return '<div style="padding:8px 10px; border-radius:8px; background:var(--bg-secondary); border:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px;">' +
+                  '<div>' +
+                  '<span class="badge text-xs" style="background:' + tColor + '22; color:' + tColor + '; border:1px solid ' + tColor + '55; font-weight:700; margin-right:6px;">' + (ne.expiry_tier || 'NEAR EXPIRY') + '</span>' +
+                  '<strong style="font-size:13px; color:var(--text-primary);">Exp: ' + (ne.expiration_date || '—') + '</strong>' +
+                  (ne.impact_date ? ' <span class="text-xs text-muted">• Impact: ' + ne.impact_date + '</span>' : '') +
+                  '<div class="text-xs text-muted" style="margin-top:3px;">End-Users: <strong>' + (ne.requesting_end_users || '—') + '</strong>' +
+                  (ne.status ? ' • Status: <strong style="color:var(--warning);">' + ne.status + '</strong>' : '') +
+                  (ne.audit_note ? ' • Note: ' + ne.audit_note : '') +
+                  '</div>' +
+                  '</div>' +
+                  '<div style="text-align:right;">' +
+                  '<div style="font-size:15px; font-weight:800; color:#f97316;">' + fmt(ne.total_qty) + ' units</div>' +
+                  '<div class="text-xs text-muted">D: ' + fmt(ne.dispensing_qty) + ' | S: ' + fmt(ne.storage_qty) + ' | W: ' + fmt(ne.warehouse_qty) + '</div>' +
+                  '</div>' +
+                  '</div>';
+              }).join('');
+            } else {
+              neBox.style.display = 'none';
+              neListEl.innerHTML = '';
+            }
+          }
 
           const modal = document.getElementById('item-detail-modal');
           if (modal) {
@@ -9118,13 +10555,19 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const targetSec = document.getElementById('sec-' + id);
           if (targetSec) targetSec.classList.add('active');
           if (el) el.classList.add('active');
-          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', locator: (currentLocatorCategory === 'storage' ? 'Locator — Storage' : 'Locator — Warehouse'), analytics: 'Analytics', setup: 'Setup & Config' };
+          const titles = { dashboard: 'Dashboard', inventory: 'Inventory Masterlist', reorder: 'Reordering', 'near-expiry': 'Near Expiring Drugs', locator: (currentLocatorCategory === 'storage' ? 'Locator — Storage' : 'Locator — Warehouse'), analytics: 'Analytics', setup: 'Setup & Config' };
           const titleEl = document.getElementById('topbar-title');
           if (titleEl) titleEl.textContent = titles[id] || id;
           const searchBox = document.getElementById('global-search-box');
           if (searchBox) searchBox.style.display = (id === 'inventory') ? 'flex' : 'none';
           if (id === 'inventory') filterInventory();
           if (id === 'reorder') filterReorder();
+          if (id === 'near-expiry') {
+            filterNearExpiring();
+            if (Date.now() - lastNearExpirySyncTime > 120000 && typeof loadNearExpiringData === 'function') {
+              loadNearExpiringData(true, false);
+            }
+          }
           if (id === 'locator') {
             if (allLocatorItems.length === 0) loadLocatorData();
             const input = document.getElementById('locator-search-input') || document.getElementById('main-storage-locator-search-input');
