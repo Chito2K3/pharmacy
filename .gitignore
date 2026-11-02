@@ -23,3 +23,6 @@ yarn-error.log*
 scratch/
 *.tmp
 armmc_logo_b64.txt
+
+# Cloned reference repos
+Rawfile_with_APP/

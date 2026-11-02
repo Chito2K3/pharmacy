@@ -3594,6 +3594,28 @@
       border: 1px solid var(--border-lit);
       white-space: nowrap;
     }
+
+    .mov-area-chip-opd {
+      background: rgba(14, 165, 233, 0.12) !important;
+      border-color: rgba(14, 165, 233, 0.35) !important;
+    }
+
+    .mov-area-chip-ward {
+      background: rgba(99, 102, 241, 0.12) !important;
+      border-color: rgba(99, 102, 241, 0.35) !important;
+    }
+
+    .mov-area-chip-transfer {
+      background: rgba(245, 158, 11, 0.14) !important;
+      border-color: rgba(245, 158, 11, 0.4) !important;
+      color: #f59e0b !important;
+    }
+
+    .mov-area-chip-direct {
+      background: rgba(239, 68, 68, 0.12) !important;
+      border-color: rgba(239, 68, 68, 0.35) !important;
+      color: #ef4444 !important;
+    }
   </style>
 </head>
 
@@ -3633,13 +3655,16 @@
             <span class="nav-icon">🔄</span> Reordering
             <span class="nav-badge" id="reorder-badge">0</span>
           </div>
-          <div class="nav-item" data-section="near-expiry" onclick="showSection('near-expiry',this)" id="nav-near-expiry">
+          <div class="nav-item" data-section="near-expiry" onclick="showSection('near-expiry',this)"
+            id="nav-near-expiry">
             <span class="nav-icon">⏳</span> Near Expiry
-            <span class="nav-badge" id="near-expiry-badge" style="background:rgba(239,68,68,0.18); color:#ef4444;">0</span>
+            <span class="nav-badge" id="near-expiry-badge"
+              style="background:rgba(239,68,68,0.18); color:#ef4444;">0</span>
           </div>
           <div class="nav-item" data-section="movements" onclick="showSection('movements',this)" id="nav-movements">
             <span class="nav-icon">📋</span> Stock Movements
-            <span class="nav-badge" id="movements-badge" style="background:rgba(16,185,129,0.18); color:#10b981;">0</span>
+            <span class="nav-badge" id="movements-badge"
+              style="background:rgba(16,185,129,0.18); color:#10b981;">0</span>
           </div>
           <div class="nav-item" data-section="locator" onclick="showSection('locator',this)">
             <span class="nav-icon">🗺️</span> Locator
@@ -4005,16 +4030,18 @@
                   <div>
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                       <h2 style="margin:0;">Near Expiring Drugs</h2>
-                      <span class="badge badge-warning" id="ne-as-of-badge" style="font-size:11.5px; padding:4px 10px;">as of October 06, 2026</span>
-                      <span class="badge badge-success" id="ne-sync-status-badge" style="font-size:11px; padding:4px 10px;">🟢 Live Synced</span>
+                      <span class="badge badge-warning" id="ne-as-of-badge"
+                        style="font-size:11.5px; padding:4px 10px;">as of October 06, 2026</span>
+                      <span class="badge badge-success" id="ne-sync-status-badge"
+                        style="font-size:11px; padding:4px 10px;">🟢 Live Synced</span>
                     </div>
-                    <p style="margin-top:4px;">Real-time monitoring of near-expiry batches (3, 6 &amp; 9 months), consumption impact dates, requesting end-users, and disposition status</p>
+                    <p style="margin-top:4px;">Real-time monitoring of near-expiry batches (3, 6 &amp; 9 months),
+                      consumption impact dates, requesting end-users, and disposition status</p>
                   </div>
                   <div class="flex items-center gap-2" style="flex-wrap:wrap;">
                     <a id="ne-sheet-link"
                       href="https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=2052140349#gid=2052140349"
-                      target="_blank" rel="noopener noreferrer"
-                      class="stale-btn stale-btn-secondary"
+                      target="_blank" rel="noopener noreferrer" class="stale-btn stale-btn-secondary"
                       style="padding:7px 13px; font-size:12px; text-decoration:none;">
                       <span>↗</span> Open Near Expiry Sheet
                     </a>
@@ -4072,12 +4099,18 @@
                 <div class="table-card">
                   <div class="table-toolbar" style="flex-wrap:wrap; gap:10px;">
                     <div id="ne-tier-pills" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                      <button type="button" class="ne-filter-pill active" data-tier="ALL" onclick="setNearExpiryTierFilter('ALL')">All Horizon Tiers</button>
-                      <button type="button" class="ne-filter-pill" data-tier="3M" onclick="setNearExpiryTierFilter('3M')">🔴 Within 3 Months</button>
-                      <button type="button" class="ne-filter-pill" data-tier="6M" onclick="setNearExpiryTierFilter('6M')">🟠 Within 6 Months</button>
-                      <button type="button" class="ne-filter-pill" data-tier="9M" onclick="setNearExpiryTierFilter('9M')">🔵 Within 9 Months</button>
-                      <button type="button" class="ne-filter-pill" data-tier="RISK" onclick="setNearExpiryQuickFilter('risk')">⚠️ Exceeds Expiry</button>
-                      <button type="button" class="ne-filter-pill" data-tier="DONATION" onclick="setNearExpiryQuickFilter('donation')">🎁 For Donation</button>
+                      <button type="button" class="ne-filter-pill active" data-tier="ALL"
+                        onclick="setNearExpiryTierFilter('ALL')">All Horizon Tiers</button>
+                      <button type="button" class="ne-filter-pill" data-tier="3M"
+                        onclick="setNearExpiryTierFilter('3M')">🔴 Within 3 Months</button>
+                      <button type="button" class="ne-filter-pill" data-tier="6M"
+                        onclick="setNearExpiryTierFilter('6M')">🟠 Within 6 Months</button>
+                      <button type="button" class="ne-filter-pill" data-tier="9M"
+                        onclick="setNearExpiryTierFilter('9M')">🔵 Within 9 Months</button>
+                      <button type="button" class="ne-filter-pill" data-tier="RISK"
+                        onclick="setNearExpiryQuickFilter('risk')">⚠️ Exceeds Expiry</button>
+                      <button type="button" class="ne-filter-pill" data-tier="DONATION"
+                        onclick="setNearExpiryQuickFilter('donation')">🎁 For Donation</button>
                     </div>
 
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:auto;">
@@ -4089,7 +4122,8 @@
                       <select class="filter-select" id="ne-filter-dept" onchange="filterNearExpiring()">
                         <option value="">All Requesting End-Users</option>
                       </select>
-                      <select class="filter-select" id="ne-filter-status" onchange="neQuickMode = this.value; filterNearExpiring();">
+                      <select class="filter-select" id="ne-filter-status"
+                        onchange="neQuickMode = this.value; filterNearExpiring();">
                         <option value="">All Disposition Statuses</option>
                         <option value="consume">💊 To Consume / Moving</option>
                         <option value="donation">🎁 For Donation / E-Cart Return</option>
@@ -4106,13 +4140,20 @@
                         <tr>
                           <th style="width:48px;" class="text-center">NO.</th>
                           <th style="width:110px;" title="Hospital DCI / Item Code">ITEM CODE</th>
-                          <th style="width:82px;" class="text-center" title="Storage / Warehouse Pallet Location">LOC</th>
+                          <th style="width:82px;" class="text-center" title="Storage / Warehouse Pallet Location">LOC
+                          </th>
                           <th title="Item description and inventory verification remarks">ITEM DESCRIPTION</th>
-                          <th class="num-cell" style="width:140px;" title="Total stocks on hand across Dispensing, Storage, and Warehouse">TOTAL STOCKS ON HAND</th>
+                          <th class="num-cell" style="width:140px;"
+                            title="Total stocks on hand across Dispensing, Storage, and Warehouse">TOTAL STOCKS ON HAND
+                          </th>
                           <th style="width:130px;" title="Batch expiration month and year">EXPIRATION DATE</th>
-                          <th style="width:135px;" title="Estimated date current stock will be depleted based on demand">IMPACT DATE</th>
-                          <th style="width:210px;" title="Hospital departments / wards requesting and consuming this medicine">REQUESTING END-USERS</th>
-                          <th style="width:190px;" title="Current action status, Guarantee Letter (GL), and supplier follow-up">STATUS</th>
+                          <th style="width:135px;"
+                            title="Estimated date current stock will be depleted based on demand">IMPACT DATE</th>
+                          <th style="width:210px;"
+                            title="Hospital departments / wards requesting and consuming this medicine">REQUESTING
+                            END-USERS</th>
+                          <th style="width:190px;"
+                            title="Current action status, Guarantee Letter (GL), and supplier follow-up">STATUS</th>
                         </tr>
                       </thead>
                       <tbody id="ne-tbody"></tbody>
@@ -4131,25 +4172,32 @@
                   <div>
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                       <h2 style="margin:0;">Stock Movements &amp; Inventory Audit</h2>
-                      <span class="badge badge-accent" id="mov-baseline-badge" style="font-size:11.5px; padding:4px 10px;">🕒 Baseline: Verified Snapshot</span>
-                      <span class="badge badge-success" id="mov-sync-status-badge" style="font-size:11px; padding:4px 10px;">🟢 Real-Time Delta Audit Active</span>
+                      <span class="badge badge-accent" id="mov-baseline-badge"
+                        style="font-size:11.5px; padding:4px 10px;">🕒 Baseline: Verified Snapshot</span>
+                      <span class="badge badge-success" id="mov-sync-status-badge"
+                        style="font-size:11px; padding:4px 10px;">🟢 Real-Time Delta Audit Active</span>
                     </div>
-                    <p style="margin-top:4px;">Monitor restocked deliveries (+Qty), stock deductions/consumption (-Qty), area-by-area stock shifts (Dispensing, Storage, Warehouse, Consignment), and critical status transitions</p>
+                    <p style="margin-top:4px;">Monitor restocked deliveries (+Qty), stock deductions/consumption (-Qty),
+                      area-by-area stock shifts (Dispensing, Storage, Warehouse, Consignment), and critical status
+                      transitions</p>
                   </div>
                   <div class="flex items-center gap-2" style="flex-wrap:wrap;">
                     <select class="filter-select" id="mov-baseline-select" onchange="switchMovementBaseline(this.value)"
-                      style="font-weight:600; min-width:230px;" title="Choose which baseline snapshot to compare current live inventory against">
+                      style="font-weight:600; min-width:230px;"
+                      title="Choose which baseline snapshot to compare current live inventory against">
                       <option value="auto">📊 Best Available Audit Baseline (Auto)</option>
                       <option value="latest_log">🕒 Latest Detected Sheet Change Log</option>
                       <option value="pinned">📌 Pinned Checkpoint Baseline</option>
                       <option value="repo">📦 Master Repository Snapshot (Oct 2026)</option>
                     </select>
                     <button type="button" class="stale-btn stale-btn-secondary" onclick="pinCurrentStockBaseline()"
-                      style="padding:7px 13px; font-size:12px;" title="Save current live Google Sheet quantities as your new custom checkpoint to track all future restocks and deductions from this moment">
+                      style="padding:7px 13px; font-size:12px;"
+                      title="Save current live Google Sheet quantities as your new custom checkpoint to track all future restocks and deductions from this moment">
                       <span>📌</span> Pin Current Stock as Baseline
                     </button>
                     <button type="button" class="stale-btn stale-btn-secondary" onclick="printStockMovementReport()"
-                      style="padding:7px 13px; font-size:12px;" title="Generate a printable ARMMC Pharmacy Stock Movement & Audit Report">
+                      style="padding:7px 13px; font-size:12px;"
+                      title="Generate a printable ARMMC Pharmacy Stock Movement & Audit Report">
                       <span>🖨️</span> Print Audit Report
                     </button>
                     <button type="button" class="btn-export" onclick="exportStockMovementsCSV()">⬇ Export CSV</button>
@@ -4203,10 +4251,12 @@
 
                 <!-- 4 Physical Area Movement Breakdown Cards -->
                 <div class="mov-area-grid" id="mov-area-strip">
-                  <div class="mov-area-card" data-area="dispensing" onclick="toggleMovementAreaFilter('dispensing', this)"
+                  <div class="mov-area-card" data-area="dispensing"
+                    onclick="toggleMovementAreaFilter('dispensing', this)"
                     title="Click to filter items whose Dispensing Area stock (Column BA) changed">
                     <div class="flex items-center justify-between">
-                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">💊 Dispensing Area</span>
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">💊 Dispensing
+                        Area</span>
                       <span class="badge badge-accent text-xs" id="mov-area-disp-count">0 items</span>
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
@@ -4217,7 +4267,8 @@
                   <div class="mov-area-card" data-area="storage" onclick="toggleMovementAreaFilter('storage', this)"
                     title="Click to filter items whose Pharmacy Storage stock (Column BH) changed">
                     <div class="flex items-center justify-between">
-                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">📦 Pharmacy Storage</span>
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">📦 Pharmacy
+                        Storage</span>
                       <span class="badge badge-ok text-xs" id="mov-area-stor-count">0 items</span>
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
@@ -4236,7 +4287,8 @@
                       <span class="text-xs text-muted" id="mov-area-whse-sub">+0 in / -0 out</span>
                     </div>
                   </div>
-                  <div class="mov-area-card" data-area="consignment" onclick="toggleMovementAreaFilter('consignment', this)"
+                  <div class="mov-area-card" data-area="consignment"
+                    onclick="toggleMovementAreaFilter('consignment', this)"
                     title="Click to filter items whose Consignment stock (Column BV) changed">
                     <div class="flex items-center justify-between">
                       <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">🤝 Consignment</span>
@@ -4253,12 +4305,24 @@
                 <div class="table-card">
                   <div class="table-toolbar" style="flex-wrap:wrap; gap:10px;">
                     <div id="mov-filter-pills" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                      <button type="button" class="ne-filter-pill active" data-mov-pill="ALL" onclick="setMovementFilterMode('ALL')">All Movements</button>
-                      <button type="button" class="ne-filter-pill" data-mov-pill="RESTOCKED" onclick="setMovementFilterMode('RESTOCKED')">📥 Restocked (+)</button>
-                      <button type="button" class="ne-filter-pill" data-mov-pill="DEDUCTED" onclick="setMovementFilterMode('DEDUCTED')">📤 Deducted (-)</button>
-                      <button type="button" class="ne-filter-pill" data-mov-pill="CRITICAL_RISK" onclick="setMovementFilterMode('CRITICAL_RISK')">🚨 Critical / OOS Impact</button>
-                      <button type="button" class="ne-filter-pill" data-mov-pill="RECOVERED" onclick="setMovementFilterMode('RECOVERED')">✅ Replenished</button>
-                      <button type="button" class="ne-filter-pill" data-mov-pill="PO_CHANGED" onclick="setMovementFilterMode('PO_CHANGED')">📋 PO / Transfer</button>
+                      <button type="button" class="ne-filter-pill active" data-mov-pill="ALL"
+                        onclick="setMovementFilterMode('ALL')">All Movements <span class="badge text-xs" id="mov-pill-cnt-all">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="OPD_WALKIN"
+                        onclick="setMovementFilterMode('OPD_WALKIN')" title="Frontline Outpatient &amp; Walk-in Counter dispensing">🩺 OPD &amp; Walk-in <span class="badge text-xs badge-accent" id="mov-pill-cnt-opd">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="WARD_REQUISITION"
+                        onclick="setMovementFilterMode('WARD_REQUISITION')" title="Inpatient Ward requisitions issued from Pharmacy Storage">🏥 Ward Requisitions <span class="badge text-xs badge-ok" id="mov-pill-cnt-ward">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="INTERNAL_TRANSFER"
+                        onclick="setMovementFilterMode('INTERNAL_TRANSFER')" title="Pure room-to-room area relocations with zero net hospital inventory loss">⇄ Pure Transfers <span class="badge text-xs badge-purple" id="mov-pill-cnt-transfers">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="RESTOCKED"
+                        onclick="setMovementFilterMode('RESTOCKED')" title="Restocked deliveries and positive adjustments">📥 Restocked (+) <span class="badge text-xs badge-ok" id="mov-pill-cnt-restocked">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="DEDUCTED"
+                        onclick="setMovementFilterMode('DEDUCTED')" title="All stock deductions across hospital">📤 All Deductions (-) <span class="badge text-xs badge-danger" id="mov-pill-cnt-deducted">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="CRITICAL_RISK"
+                        onclick="setMovementFilterMode('CRITICAL_RISK')" title="Deductions resulting in Critical (&lt;30d) or OOS">🚨 Critical / OOS <span class="badge text-xs badge-warning" id="mov-pill-cnt-critical">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="RECOVERED"
+                        onclick="setMovementFilterMode('RECOVERED')" title="Replenished and status improved">✅ Replenished <span class="badge text-xs" id="mov-pill-cnt-recovered">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="PO_CHANGED"
+                        onclick="setMovementFilterMode('PO_CHANGED')" title="Pending Purchase Orders and Area Shifts">📋 PO Changed <span class="badge text-xs" id="mov-pill-cnt-po">0</span></button>
                     </div>
 
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:auto;">
@@ -4267,7 +4331,8 @@
                         <input type="text" id="mov-search-input" placeholder="Search medicine, DCI, item code…"
                           oninput="filterStockMovements()" />
                       </div>
-                      <select class="filter-select" id="mov-filter-area" onchange="onMovementAreaSelectChange(this.value)">
+                      <select class="filter-select" id="mov-filter-area"
+                        onchange="onMovementAreaSelectChange(this.value)">
                         <option value="">All Storage Areas</option>
                         <option value="dispensing">💊 Dispensing Area Changed</option>
                         <option value="storage">📦 Pharmacy Storage Changed</option>
@@ -4297,13 +4362,21 @@
                         <tr>
                           <th style="width:46px;" class="text-center">NO.</th>
                           <th style="width:115px;" title="DCI Code and Master Item Code">DCI / CODE</th>
-                          <th style="width:82px;" class="text-center" title="Storage / Warehouse Pallet Location">LOC</th>
+                          <th style="width:82px;" class="text-center" title="Storage / Warehouse Pallet Location">LOC
+                          </th>
                           <th title="Medicine description and pharmacy category">MEDICINE DESCRIPTION</th>
-                          <th class="text-center" style="width:140px;" title="Net stock movement direction and quantity variance">MOVEMENT (Δ QTY)</th>
-                          <th class="num-cell" style="width:155px;" title="Previous Baseline Stock vs. Current Live Stock">PREV → CURRENT QTY</th>
-                          <th style="width:210px;" title="Stock movement breakdown by hospital pharmacy area (Dispensing, Storage, Warehouse, Consignment)">AREA BREAKDOWN (Δ)</th>
-                          <th class="num-cell" style="width:130px;" title="Estimated Peso Valuation Change based on unit acquisition price">VALUE IMPACT (Δ ₱)</th>
-                          <th class="text-center" style="width:165px;" title="Previous vs. Current Stock Status and Days on Hand">STATUS &amp; DAYS</th>
+                          <th class="text-center" style="width:140px;"
+                            title="Net stock movement direction and quantity variance">MOVEMENT (Δ QTY)</th>
+                          <th class="num-cell" style="width:155px;"
+                            title="Previous Baseline Stock vs. Current Live Stock">PREV → CURRENT QTY</th>
+                          <th style="width:210px;"
+                            title="Stock movement breakdown by hospital pharmacy area (Dispensing, Storage, Warehouse, Consignment)">
+                            AREA BREAKDOWN (Δ)</th>
+                          <th class="num-cell" style="width:130px;"
+                            title="Estimated Peso Valuation Change based on unit acquisition price">VALUE IMPACT (Δ ₱)
+                          </th>
+                          <th class="text-center" style="width:165px;"
+                            title="Previous vs. Current Stock Status and Days on Hand">STATUS &amp; DAYS</th>
                         </tr>
                       </thead>
                       <tbody id="mov-tbody"></tbody>
@@ -5302,7 +5375,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           <div style="flex:1; padding:24px; overflow-y:auto; display:flex; flex-direction:column; gap:20px;">
 
             <!-- Near Expiring Batch Alert Box (shown dynamically when item has near-expiry batches) -->
-            <div id="item-modal-near-expiry-box" style="display:none; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.35); border-radius:14px; padding:14px 16px;">
+            <div id="item-modal-near-expiry-box"
+              style="display:none; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.35); border-radius:14px; padding:14px 16px;">
             </div>
 
             <!-- Section 1: Location Inventory Breakdown -->
@@ -6565,6 +6639,19 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                   pharmacy_category: it.pharmacy_category || '',
                   pharmacologic_category: it.pharmacologic_category || '',
                   movementType: 'added',
+                  channel: 'RESTOCKED',
+                  channelLabel: 'New Item Restocked',
+                  isPureTransfer: false,
+                  isOpdDispensed: false,
+                  isWardRequisition: false,
+                  isWhseWithdrawal: false,
+                  isConsWithdrawal: false,
+                  isRestocked: true,
+                  isDirectHospitalIssue: false,
+                  opdDispUnits: 0,
+                  wardReqUnits: 0,
+                  whseUnits: curWhse,
+                  consUnits: curCons,
                   prevStock: 0,
                   curStock: curStock,
                   diff: curStock,
@@ -6619,6 +6706,45 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 const areaTransferred = hasAreaDetail && (dispDiff !== 0 || storDiff !== 0 || whseDiff !== 0 || consDiff !== 0);
 
                 if (diff !== 0 || poDiff !== 0 || areaTransferred) {
+                  const isPureTransfer = (diff === 0 && areaTransferred);
+                  const isOpdDispensed = (dispDiff < 0);
+                  const isWardRequisition = (storDiff < 0);
+                  const isWhseWithdrawal = (whseDiff < 0);
+                  const isConsWithdrawal = (consDiff < 0);
+                  const isRestocked = (diff > 0);
+                  const isDirectHospitalIssue = (diff < 0 && (!hasAreaDetail || (dispDiff === 0 && storDiff === 0 && whseDiff === 0 && consDiff === 0)));
+
+                  let channel = 'OTHER';
+                  let channelLabel = 'Other Movement';
+                  if (isPureTransfer) {
+                    channel = 'INTERNAL_TRANSFER';
+                    channelLabel = 'Internal Transfer (Net 0)';
+                  } else if (isRestocked) {
+                    channel = 'RESTOCKED';
+                    channelLabel = 'Restocked / Delivery';
+                  } else if (isDirectHospitalIssue) {
+                    channel = 'DIRECT_HOSPITAL_ISSUE';
+                    channelLabel = 'Hospital-Wide Direct Issue';
+                  } else if (isOpdDispensed && isWardRequisition) {
+                    channel = 'MIXED_OPD_AND_WARD';
+                    channelLabel = 'OPD & Ward Issued';
+                  } else if (isOpdDispensed) {
+                    channel = 'OPD_WALKIN';
+                    channelLabel = 'OPD / Walk-in Dispensed';
+                  } else if (isWardRequisition) {
+                    channel = 'WARD_REQUISITION';
+                    channelLabel = 'Ward Requisition';
+                  } else if (isWhseWithdrawal) {
+                    channel = 'WHSE_WITHDRAWAL';
+                    channelLabel = 'Warehouse Issue';
+                  } else if (diff < 0) {
+                    channel = 'DEDUCTED';
+                    channelLabel = 'Stock Deducted';
+                  } else if (poDiff !== 0) {
+                    channel = 'PO_CHANGED';
+                    channelLabel = 'PO Updated';
+                  }
+
                   const rec = {
                     code: code,
                     item_code: it.item_code || code,
@@ -6627,6 +6753,19 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                     pharmacy_category: it.pharmacy_category || '',
                     pharmacologic_category: it.pharmacologic_category || '',
                     movementType: diff > 0 ? 'restocked' : (diff < 0 ? 'deducted' : (poDiff !== 0 ? 'po_changed' : 'transfer')),
+                    channel: channel,
+                    channelLabel: channelLabel,
+                    isPureTransfer: isPureTransfer,
+                    isOpdDispensed: isOpdDispensed,
+                    isWardRequisition: isWardRequisition,
+                    isWhseWithdrawal: isWhseWithdrawal,
+                    isConsWithdrawal: isConsWithdrawal,
+                    isRestocked: isRestocked,
+                    isDirectHospitalIssue: isDirectHospitalIssue,
+                    opdDispUnits: dispDiff < 0 ? Math.abs(dispDiff) : 0,
+                    wardReqUnits: storDiff < 0 ? Math.abs(storDiff) : 0,
+                    whseUnits: whseDiff,
+                    consUnits: consDiff,
                     prevStock: prevStock,
                     curStock: curStock,
                     diff: Math.abs(diff),
@@ -6668,7 +6807,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
         // Embedded Oct 30, 2026 pre-sync audit baseline (279 modified items: 9 restocked, 269 deducted, 1 transfer)
         // Guarantees Stock Movements & Audit works immediately inside Google Apps Script even after GitHub Actions overwrites main/items.json
-        const EMBEDDED_OCT30_BASELINE_DELTAS = {"DMR1040406000-0003":{"s":22674,"d":1411,"st":6263,"w":15000,"c":0,"po":54015,"days":73},"DMR1040406000-0591":{"s":116,"d":236,"st":-120,"w":0,"c":0,"po":16800,"days":1},"DMR1040406000-0499":{"s":247,"d":160,"st":87,"w":0,"c":0,"po":19400,"days":2},"DMR1040406000-0592":{"s":11991,"d":280,"st":3711,"w":8000,"c":0,"po":0,"days":369},"DMR1040406000-0006":{"s":9242,"d":99,"st":2143,"w":7000,"c":0,"po":10552,"days":146},"DMR1040406000-0556":{"s":48,"d":48,"st":0,"w":0,"c":0,"po":240,"days":77},"DMR1040406000-0007":{"s":3046,"d":79,"st":2967,"w":0,"c":0,"po":0,"days":158},"DMR1040406000-0010":{"s":508,"d":63,"st":545,"w":-100,"c":0,"po":2500,"days":37},"DMR1040406000-0009":{"s":9038,"d":538,"st":1300,"w":7200,"c":0,"po":21000,"days":52},"DMR1040406000-0018":{"s":408,"d":-22,"st":110,"w":320,"c":0,"po":1000,"days":23},"DMR1040406000-0020":{"s":1326,"d":30,"st":0,"w":1296,"c":0,"po":400,"days":281},"DMR1040406000-0023":{"s":-7,"d":-7,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0496":{"s":1259,"d":98,"st":1161,"w":0,"c":0,"po":0,"days":148},"DMR1040406000-0571":{"s":2551,"d":11,"st":70,"w":2470,"c":0,"po":0,"days":170},"DMR1040406000-0029":{"s":1857,"d":37,"st":110,"w":1710,"c":0,"po":2000,"days":285},"DMR1040406000-0035":{"s":80,"d":-4,"st":84,"w":0,"c":0,"po":500,"days":43},"DMR1040406000-0036":{"s":8371,"d":571,"st":7800,"w":0,"c":0,"po":70000,"days":14},"DMC1040406000-0036":{"s":28219,"d":8019,"st":0,"w":0,"c":20200,"po":0,"days":46},"DMC1040406000-0037":{"s":13979,"d":1379,"st":0,"w":0,"c":12600,"po":0,"days":38},"DMR1040406000-0037":{"s":2057,"d":2057,"st":0,"w":0,"c":0,"po":75000,"days":6},"DMR1040406000-0040":{"s":3508,"d":308,"st":3200,"w":0,"c":0,"po":0,"days":123},"DMR1040406000-0605":{"s":231,"d":11,"st":220,"w":0,"c":0,"po":0,"days":166},"DMR1040406000-0043":{"s":2874,"d":794,"st":0,"w":2080,"c":0,"po":0,"days":85},"DMR1040406000-0044":{"s":1134,"d":1304,"st":330,"w":-500,"c":0,"po":0,"days":129},"DMR1040406000-0045":{"s":6570,"d":320,"st":1250,"w":5000,"c":0,"po":7100,"days":365},"DMR1040406000-0046":{"s":3412,"d":132,"st":280,"w":3000,"c":0,"po":0,"days":176},"DMR1040406000-0047":{"s":1189,"d":239,"st":500,"w":450,"c":0,"po":0,"days":47},"DMR1040406000-0048":{"s":18432,"d":182,"st":6250,"w":12000,"c":0,"po":14000,"days":70},"DMR1040406000-0053":{"s":4104,"d":4,"st":2100,"w":2000,"c":0,"po":2000,"days":203},"DMC1040406000-0054":{"s":-194,"d":-194,"st":0,"w":0,"c":0,"po":0,"days":-1},"DMR1040406000-0054":{"s":23015,"d":2715,"st":20300,"w":0,"c":0,"po":25000,"days":85},"DMR1040406000-0056":{"s":7208,"d":1108,"st":6100,"w":0,"c":0,"po":0,"days":20},"DMC1040406000-0056":{"s":-2,"d":-2,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0059":{"s":245,"d":245,"st":0,"w":0,"c":0,"po":53000,"days":1},"DMC1040406000-0059":{"s":23777,"d":5977,"st":0,"w":0,"c":17800,"po":0,"days":76},"DMR1040406000-0060":{"s":-158,"d":-158,"st":0,"w":0,"c":0,"po":8000,"days":-3},"DMR1040406000-0061":{"s":1358,"d":158,"st":200,"w":1000,"c":0,"po":0,"days":329},"DMR1040406000-0062":{"s":836,"d":56,"st":130,"w":650,"c":0,"po":1200,"days":86},"DMR1040406000-0065":{"s":1098,"d":528,"st":270,"w":300,"c":0,"po":7600,"days":37},"DMR1040406000-0064":{"s":356,"d":956,"st":360,"w":-960,"c":0,"po":4000,"days":9},"DMC1040406000-0491":{"s":1366,"d":166,"st":0,"w":0,"c":1200,"po":0,"days":33},"DMEP1040406000-714":{"s":11,"d":11,"st":0,"w":0,"c":0,"po":0,"days":1},"DMC1040406000-0067":{"s":630,"d":130,"st":0,"w":0,"c":500,"po":0,"days":96},"DMR1040406000-0071":{"s":971,"d":971,"st":0,"w":0,"c":0,"po":5190,"days":56},"DMR1040406000-0072":{"s":-41,"d":-41,"st":0,"w":0,"c":0,"po":10500,"days":-1},"DMC1040406000-0073":{"s":2345,"d":1345,"st":0,"w":0,"c":1000,"po":0,"days":58},"DMR1040406000-0076":{"s":2260,"d":60,"st":1200,"w":1000,"c":0,"po":2500,"days":161},"DMR1040406000-0077":{"s":800,"d":0,"st":800,"w":0,"c":0,"po":600,"days":154},"DMR1040406000-0078":{"s":1845,"d":845,"st":1000,"w":0,"c":0,"po":2200,"days":54},"DMR1040406000-0623":{"s":52,"d":8,"st":44,"w":0,"c":0,"po":0,"days":114},"DMR1040406000-0082":{"s":2256,"d":-119,"st":2375,"w":0,"c":0,"po":0,"days":99},"DMR1040406000-0085":{"s":411,"d":411,"st":0,"w":0,"c":0,"po":1000,"days":57},"DMR1040406000-0084":{"s":2926,"d":806,"st":2120,"w":0,"c":0,"po":0,"days":353},"DMC1040406000-0087":{"s":628,"d":628,"st":0,"w":0,"c":0,"po":0,"days":2355},"DMR1040406000-0087":{"s":511,"d":311,"st":200,"w":0,"c":0,"po":0,"days":72},"DMR1040406000-0089":{"s":4765,"d":4665,"st":100,"w":0,"c":0,"po":37000,"days":11},"DMR1040406000-0090":{"s":1489,"d":589,"st":0,"w":900,"c":0,"po":0,"days":114},"DMR1040406000-0538":{"s":-158,"d":-158,"st":0,"w":0,"c":0,"po":0,"days":-90},"DMR1040406000-0093":{"s":118,"d":118,"st":0,"w":0,"c":0,"po":0,"days":14},"DMR1040406000-0561":{"s":260,"d":100,"st":60,"w":100,"c":0,"po":100,"days":111},"DMR1040406000-0096":{"s":314,"d":24,"st":90,"w":200,"c":0,"po":600,"days":91},"DMR1040406000-0100":{"s":3898,"d":2298,"st":1600,"w":0,"c":0,"po":0,"days":67},"DMC1040406000-0101":{"s":41706,"d":9506,"st":0,"w":0,"c":32200,"po":0,"days":59},"DMR1040406000-0105":{"s":922,"d":562,"st":0,"w":360,"c":0,"po":4500,"days":57},"DMR1040406000-0106":{"s":1225,"d":-375,"st":0,"w":1600,"c":0,"po":0,"days":249},"DMR1040406000-0516":{"s":18,"d":18,"st":0,"w":0,"c":0,"po":0,"days":3},"DMR1040406000-0107":{"s":240,"d":240,"st":0,"w":0,"c":0,"po":0,"days":140},"DMR1040406000-0109":{"s":989,"d":139,"st":350,"w":500,"c":0,"po":0,"days":145},"DMR1040406000-0110":{"s":13956,"d":-44,"st":0,"w":14000,"c":0,"po":20000,"days":62},"DMR1040406000-0112":{"s":1831,"d":31,"st":200,"w":1600,"c":0,"po":3480,"days":71},"DMR1040406000-0517":{"s":1951,"d":257,"st":0,"w":1694,"c":0,"po":1400,"days":218},"DMEP10406000-0749":{"s":5,"d":5,"st":0,"w":0,"c":0,"po":0,"days":2},"DMR1040406000-0113":{"s":19093,"d":1093,"st":450,"w":17550,"c":0,"po":25000,"days":121},"DMC1040406000-0116":{"s":9982,"d":1482,"st":0,"w":-10000,"c":18500,"po":0,"days":65},"DMR1040406000-0116":{"s":22026,"d":2626,"st":2400,"w":17000,"c":0,"po":0,"days":143},"DMR1040406000-0118":{"s":2549,"d":949,"st":0,"w":1600,"c":0,"po":0,"days":58},"DMR1040406000-0117":{"s":6621,"d":621,"st":400,"w":5600,"c":0,"po":0,"days":216},"DMR1040406000-0119":{"s":-514,"d":-514,"st":0,"w":0,"c":0,"po":35000,"days":-3},"DMC1040406000-0119":{"s":458,"d":458,"st":0,"w":0,"c":0,"po":0,"days":3},"DMR1040406000-0121":{"s":3318,"d":3318,"st":0,"w":0,"c":0,"po":0,"days":41},"DMR1040406000-0128":{"s":1769,"d":281,"st":0,"w":1488,"c":0,"po":2000,"days":140},"DMR1040406000-0131":{"s":5607,"d":407,"st":5200,"w":0,"c":0,"po":0,"days":104},"DMR1040406000-0132":{"s":1106,"d":386,"st":80,"w":640,"c":0,"po":5000,"days":38},"DMR1040406000-0140":{"s":11483,"d":183,"st":7300,"w":4000,"c":0,"po":2000,"days":123},"DMR1040406000-0141":{"s":2799,"d":2074,"st":725,"w":0,"c":0,"po":0,"days":168},"DMR1040406000-0142":{"s":5536,"d":236,"st":500,"w":4800,"c":0,"po":3000,"days":181},"DMC1040406000-0145":{"s":177,"d":177,"st":0,"w":0,"c":0,"po":0,"days":101},"DMC1040406000-0146":{"s":37888,"d":288,"st":1800,"w":0,"c":35800,"po":0,"days":85},"DMR1040406000-0146":{"s":132,"d":-368,"st":500,"w":0,"c":0,"po":80000,"days":0},"DMR1040406000-0154":{"s":170,"d":70,"st":0,"w":100,"c":0,"po":0,"days":86},"DMR1040406000-0155":{"s":2714,"d":2714,"st":0,"w":0,"c":0,"po":23000,"days":13},"DMR1040406000-0158":{"s":551,"d":31,"st":0,"w":520,"c":0,"po":0,"days":156},"DMR1040406000-0163":{"s":2205,"d":105,"st":2100,"w":0,"c":0,"po":3000,"days":96},"DMR1040406000-0166":{"s":568,"d":-32,"st":600,"w":0,"c":0,"po":0,"days":114},"DMR1040406000-0661":{"s":49,"d":49,"st":0,"w":0,"c":0,"po":0,"days":37},"DMC1040406000-0610":{"s":18599,"d":3339,"st":0,"w":0,"c":15260,"po":0,"days":65},"DMR1040406000-0664":{"s":4494,"d":2394,"st":2100,"w":0,"c":0,"po":30030,"days":16},"DMR1040406000-0169":{"s":4820,"d":1620,"st":0,"w":3200,"c":0,"po":5000,"days":72},"DMR1040406000-0177":{"s":51,"d":4,"st":47,"w":0,"c":0,"po":0,"days":656},"DMC1040406000-0180":{"s":361,"d":361,"st":0,"w":0,"c":0,"po":0,"days":637},"DMDON1040406000-0128":{"s":9290,"d":290,"st":-500,"w":9500,"c":0,"po":0,"days":198},"DMR1040406000-0181":{"s":3472,"d":-128,"st":1700,"w":1900,"c":0,"po":7500,"days":74},"DMDON104046000-183":{"s":-6,"d":-6,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0525":{"s":216,"d":6,"st":210,"w":0,"c":0,"po":0,"days":270},"DMR1040406000-0188":{"s":512,"d":282,"st":230,"w":0,"c":0,"po":300,"days":105},"DMC1040406000-0195":{"s":5991,"d":-9,"st":0,"w":-6000,"c":12000,"po":0,"days":74},"DMR1040406000-0197":{"s":2631,"d":361,"st":270,"w":2000,"c":0,"po":1300,"days":221},"DMC1040406000-0201":{"s":2096,"d":1096,"st":0,"w":0,"c":1000,"po":0,"days":55},"DMR1040406000-0855":{"s":480,"d":-70,"st":550,"w":0,"c":0,"po":0,"days":98},"DMR1040406000-0203":{"s":12132,"d":1332,"st":3600,"w":7200,"c":0,"po":15000,"days":103},"DMR1040406000-0205":{"s":178,"d":12,"st":166,"w":0,"c":0,"po":800,"days":38},"DMR1040406000-0673":{"s":4727,"d":7797,"st":-5710,"w":2640,"c":0,"po":5000,"days":26},"DMR1040406000-0206":{"s":8,"d":8,"st":0,"w":0,"c":0,"po":0,"days":7},"DMR1040406000-0210":{"s":5,"d":5,"st":0,"w":0,"c":0,"po":0,"days":3},"DMR1040406000-0213":{"s":2277,"d":147,"st":2130,"w":0,"c":0,"po":5500,"days":101},"DMEP1040406000-0214":{"s":-21,"d":-21,"st":0,"w":0,"c":0,"po":0,"days":-3},"DMR1040406000-0215":{"s":4067,"d":567,"st":3500,"w":0,"c":0,"po":0,"days":13},"DMC1040406000-0215":{"s":14969,"d":1969,"st":0,"w":0,"c":13000,"po":0,"days":46},"DMEP1040406000-0216":{"s":-4,"d":-4,"st":0,"w":0,"c":0,"po":0,"days":-12},"DMR1040406000-0682":{"s":3675,"d":-225,"st":3020,"w":880,"c":0,"po":0,"days":557},"DMR1040406000-0844":{"s":2528,"d":228,"st":100,"w":2200,"c":0,"po":0,"days":758},"DMC000449":{"s":4294,"d":1004,"st":0,"w":0,"c":3290,"po":0,"days":0},"DMR1040406000-0221":{"s":494,"d":194,"st":0,"w":300,"c":0,"po":1000,"days":188},"DMR1040406000-0521":{"s":86,"d":5,"st":81,"w":0,"c":0,"po":0,"days":63},"DMR1040406000-0230":{"s":19790,"d":190,"st":7000,"w":12600,"c":0,"po":23000,"days":167},"DMC1040406000-0232":{"s":1513,"d":13,"st":0,"w":0,"c":1500,"po":0,"days":104},"DMR1040406000-0233":{"s":984,"d":734,"st":250,"w":0,"c":0,"po":1600,"days":29},"DMR1040406000-0483":{"s":50,"d":50,"st":0,"w":0,"c":0,"po":0,"days":9},"DMR1040406000-0236":{"s":3958,"d":758,"st":0,"w":3200,"c":0,"po":6300,"days":172},"DMC000518":{"s":810,"d":1410,"st":0,"w":0,"c":-600,"po":0,"days":0},"DMC1040406000-0237":{"s":2490,"d":90,"st":0,"w":0,"c":2400,"po":0,"days":1072},"DMR1040406000-0002":{"s":4480,"d":-80,"st":240,"w":4320,"c":0,"po":5000,"days":93},"DMR1040406000-0544":{"s":1207,"d":-193,"st":0,"w":1400,"c":0,"po":0,"days":168},"DMR1040406000-0244":{"s":3405,"d":55,"st":850,"w":2500,"c":0,"po":9300,"days":103},"DMR1040406000-0245":{"s":2044,"d":174,"st":170,"w":1700,"c":0,"po":0,"days":122},"DMR1040406000-0247":{"s":795,"d":95,"st":700,"w":0,"c":0,"po":0,"days":53},"DMR1040406000-0250":{"s":433,"d":433,"st":0,"w":0,"c":0,"po":0,"days":17},"DMC1040406000-0250":{"s":580,"d":-20,"st":0,"w":0,"c":600,"po":0,"days":23},"DMR1040406000-0249":{"s":8538,"d":2538,"st":0,"w":6000,"c":0,"po":4700,"days":405},"DMR1040406000-0590":{"s":4248,"d":4108,"st":140,"w":0,"c":0,"po":7000,"days":35},"DMR1040406000-0493":{"s":65,"d":-70,"st":15,"w":120,"c":0,"po":110,"days":29},"DMR1040406000-0707":{"s":649,"d":-273,"st":922,"w":0,"c":0,"po":0,"days":107},"DMR1040406000-0260":{"s":331,"d":87,"st":244,"w":0,"c":0,"po":0,"days":125},"DMR1040406000-0528":{"s":1087,"d":247,"st":0,"w":840,"c":0,"po":600,"days":178},"DMR1040406000-0266":{"s":2910,"d":-90,"st":3000,"w":0,"c":0,"po":57100,"days":12},"DMC1040406000-0266":{"s":13292,"d":1292,"st":0,"w":0,"c":12000,"po":0,"days":53},"DMR1040406000-0267":{"s":444,"d":144,"st":300,"w":0,"c":0,"po":7500,"days":9},"DMC1040406000-0267":{"s":1505,"d":405,"st":0,"w":0,"c":1100,"po":0,"days":32},"DMR1040406000-0530":{"s":926,"d":46,"st":280,"w":600,"c":0,"po":2700,"days":66},"DMC1040406000-0272":{"s":1666,"d":1666,"st":0,"w":0,"c":0,"po":0,"days":1079},"DMR1040406000-0276":{"s":1055,"d":35,"st":1020,"w":0,"c":0,"po":0,"days":365},"DMR1040406000-0277":{"s":9546,"d":546,"st":0,"w":9000,"c":0,"po":21500,"days":143},"DMR1040406000-0278":{"s":25954,"d":138,"st":5816,"w":20000,"c":0,"po":7200,"days":296},"DMR1040406000-0279":{"s":503,"d":203,"st":100,"w":200,"c":0,"po":7300,"days":19},"DMR1040406000-0482":{"s":38661,"d":3461,"st":35200,"w":0,"c":0,"po":0,"days":190},"DMCSP1040406000-011":{"s":40560,"d":2430,"st":38130,"w":0,"c":0,"po":0,"days":199},"DMR1040406000-0494":{"s":137,"d":37,"st":0,"w":100,"c":0,"po":100,"days":125},"DMR1040406000-0733":{"s":3251,"d":391,"st":580,"w":2280,"c":0,"po":0,"days":84},"DMR1040406000-0732":{"s":914,"d":-1,"st":15,"w":900,"c":0,"po":0,"days":339},"DMR1040406000-0861":{"s":222,"d":142,"st":100,"w":-20,"c":0,"po":100,"days":41},"DMR1040406000-0285":{"s":877,"d":22,"st":355,"w":500,"c":0,"po":600,"days":161},"DMR1040406000-0282":{"s":626,"d":26,"st":0,"w":600,"c":0,"po":0,"days":122},"DMR1040406000-0283":{"s":622,"d":22,"st":0,"w":600,"c":0,"po":0,"days":140},"DMC1040406000-0286":{"s":1802,"d":1802,"st":0,"w":0,"c":0,"po":0,"days":304},"DMR1040406000-0289":{"s":3984,"d":264,"st":60,"w":3660,"c":0,"po":3530,"days":169},"DMC1040406000-0291":{"s":591,"d":591,"st":0,"w":0,"c":0,"po":0,"days":106},"DMR1040406000-0292":{"s":658,"d":658,"st":0,"w":0,"c":0,"po":0,"days":45},"DMC1040406000-0294":{"s":12349,"d":4349,"st":0,"w":0,"c":8000,"po":0,"days":90},"DMR1040406000-0296":{"s":863,"d":863,"st":0,"w":0,"c":0,"po":110000,"days":2},"DMC1040406000-0295":{"s":16105,"d":7105,"st":0,"w":0,"c":9000,"po":0,"days":29},"DMR1040406000-0297":{"s":-137,"d":-137,"st":0,"w":0,"c":0,"po":0,"days":-40},"DMR1040406000-0298":{"s":3044,"d":664,"st":60,"w":2320,"c":0,"po":7000,"days":174},"DMR1040406000-0299":{"s":2668,"d":44,"st":2624,"w":0,"c":0,"po":6000,"days":114},"DMR1040406000-0302":{"s":14344,"d":344,"st":14000,"w":0,"c":0,"po":7000,"days":120},"DMR1040406000-0305":{"s":49,"d":-151,"st":0,"w":200,"c":0,"po":0,"days":1},"DMR1040406000-0307":{"s":24827,"d":407,"st":24420,"w":0,"c":0,"po":130000,"days":34},"DMC1040406000-0306":{"s":6738,"d":6738,"st":0,"w":0,"c":0,"po":0,"days":9},"DMR1040406000-0520":{"s":414,"d":214,"st":200,"w":0,"c":0,"po":0,"days":12},"DMR1040406000-0310":{"s":2943,"d":153,"st":400,"w":2390,"c":0,"po":0,"days":255},"DMC1040406000-0310":{"s":200,"d":200,"st":0,"w":0,"c":0,"po":0,"days":900},"DMR1040406000-0316":{"s":72,"d":22,"st":50,"w":0,"c":0,"po":0,"days":114},"DMR1040406000-0318":{"s":5263,"d":1063,"st":1000,"w":3200,"c":0,"po":14000,"days":91},"DMR1040406000-0320":{"s":-2,"d":-2,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0322":{"s":10400,"d":200,"st":0,"w":10200,"c":0,"po":13700,"days":148},"DMR1040406000-0548":{"s":2939,"d":39,"st":2900,"w":0,"c":0,"po":2000,"days":125},"DMR1040406000-0330":{"s":2291,"d":91,"st":2200,"w":0,"c":0,"po":0,"days":160},"DMR1040406000-0332":{"s":3188,"d":-13,"st":3201,"w":0,"c":0,"po":20000,"days":10},"DMC1040406000-0331":{"s":14508,"d":3008,"st":0,"w":0,"c":11500,"po":0,"days":44},"DMR1040406000-0334":{"s":476,"d":5,"st":80,"w":391,"c":0,"po":0,"days":202},"DMR1040406000-0545":{"s":659,"d":11,"st":0,"w":648,"c":0,"po":2000,"days":79},"DMR1040406000-0335":{"s":489,"d":49,"st":494,"w":-54,"c":0,"po":3200,"days":23},"DMR1040406000-0336":{"s":694,"d":94,"st":600,"w":0,"c":0,"po":500,"days":162},"DMR1040406000-0339":{"s":1808,"d":8,"st":0,"w":1800,"c":0,"po":0,"days":852},"DMR1040406000-0340":{"s":2431,"d":361,"st":150,"w":1920,"c":0,"po":19000,"days":31},"DMR1040406000-0348":{"s":4521,"d":21,"st":0,"w":4500,"c":0,"po":17000,"days":63},"DMR1040406000-0358":{"s":-19,"d":-19,"st":0,"w":0,"c":0,"po":30000,"days":0},"DMC1040406000-0356":{"s":1795,"d":1795,"st":0,"w":0,"c":0,"po":0,"days":10},"DMR1040406000-0359":{"s":25037,"d":537,"st":100,"w":24400,"c":0,"po":60000,"days":78},"DMR1040406000-0354":{"s":3109,"d":909,"st":2201,"w":-1,"c":0,"po":6000,"days":75},"DMR1040406000-0363":{"s":160,"d":-20,"st":180,"w":0,"c":0,"po":1300,"days":11},"DMR1040406000-0366":{"s":3394,"d":894,"st":0,"w":2500,"c":0,"po":5200,"days":167},"DMR1040406000-0783":{"s":459,"d":59,"st":0,"w":400,"c":0,"po":0,"days":198},"DMR1040406000-0369":{"s":10264,"d":64,"st":1700,"w":8500,"c":0,"po":0,"days":157},"DMR1040406000-0786":{"s":35,"d":35,"st":0,"w":0,"c":0,"po":110,"days":6},"DMR1040406000-0372":{"s":6178,"d":-222,"st":0,"w":6400,"c":0,"po":51000,"days":45},"DMR1040406000-0375":{"s":24358,"d":-1942,"st":2300,"w":24000,"c":0,"po":67000,"days":82},"DMR1040406000-0378":{"s":3125,"d":3125,"st":0,"w":0,"c":0,"po":15000,"days":15},"DMR1040406000-0379":{"s":198,"d":198,"st":0,"w":0,"c":0,"po":100,"days":57},"DMR1040406000-0380":{"s":1836,"d":936,"st":0,"w":900,"c":0,"po":0,"days":182},"DMR1040406000-0381":{"s":1541,"d":341,"st":0,"w":1200,"c":0,"po":3000,"days":120},"DMR1040406000-0391":{"s":29449,"d":3449,"st":2000,"w":24000,"c":0,"po":4000,"days":388},"DMR1040406000-0393":{"s":9238,"d":238,"st":-200,"w":9200,"c":0,"po":0,"days":177},"DMR1040406000-0394":{"s":16680,"d":730,"st":670,"w":15280,"c":0,"po":44000,"days":95},"DMR1040406000-0740":{"s":892,"d":472,"st":420,"w":0,"c":0,"po":1970,"days":48},"DMR1040406000-0395":{"s":1704,"d":264,"st":240,"w":1200,"c":0,"po":6000,"days":40},"DMR1040406000-0396":{"s":36093,"d":2768,"st":1925,"w":31400,"c":0,"po":15000,"days":309},"DMC1040406000-0394":{"s":0,"d":0,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR1040406000-0398":{"s":3313,"d":-467,"st":1440,"w":2340,"c":0,"po":10000,"days":294},"DMEP1040406000-0403":{"s":-85,"d":-85,"st":0,"w":0,"c":0,"po":0,"days":-3},"DMC1040406000-0399":{"s":42,"d":2,"st":0,"w":0,"c":40,"po":0,"days":0},"DMC1040406000-0401":{"s":722,"d":722,"st":0,"w":0,"c":0,"po":0,"days":121},"DMR1040406000-0405":{"s":3476,"d":576,"st":0,"w":2900,"c":0,"po":0,"days":113},"DMR1040406000-0406":{"s":4094,"d":194,"st":3900,"w":0,"c":0,"po":4500,"days":118},"DMR1040406000-0407":{"s":-54,"d":-82,"st":28,"w":0,"c":0,"po":0,"days":-4},"DMR1040406000-0412":{"s":1094,"d":1044,"st":50,"w":0,"c":0,"po":0,"days":29},"DMR1040406000-0259":{"s":-129,"d":-89,"st":-40,"w":0,"c":0,"po":2000,"days":-14},"DMR1040406000-0504":{"s":150,"d":50,"st":100,"w":0,"c":0,"po":450,"days":61},"DMR1040406000-0414":{"s":982,"d":982,"st":0,"w":0,"c":0,"po":0,"days":39},"DMR1040406000-0578":{"s":18,"d":-21,"st":39,"w":0,"c":0,"po":50,"days":30},"DMR1040406000-0580":{"s":81,"d":7,"st":74,"w":0,"c":0,"po":150,"days":101},"DMR1040406000-0416":{"s":1072,"d":408,"st":664,"w":0,"c":0,"po":1000,"days":59},"DMR1040406000-0567":{"s":923,"d":18,"st":545,"w":360,"c":0,"po":0,"days":561},"DMR1040406000-0417":{"s":637,"d":637,"st":0,"w":0,"c":0,"po":90000,"days":2},"DMC1040406000-0414":{"s":15994,"d":4734,"st":0,"w":0,"c":11260,"po":0,"days":41},"DMR1040406000-0418":{"s":13271,"d":171,"st":13100,"w":0,"c":0,"po":90000,"days":24},"DMC1040406000-0415":{"s":14570,"d":4080,"st":0,"w":0,"c":10490,"po":0,"days":26},"DMR1040406000-0495":{"s":-26,"d":-26,"st":0,"w":0,"c":0,"po":3192,"days":-1},"DMR1040406000-0498":{"s":655,"d":67,"st":588,"w":0,"c":0,"po":6384,"days":58},"DMR1040406000-0492":{"s":678,"d":90,"st":588,"w":0,"c":0,"po":6972,"days":13},"DMR1040406000-0419":{"s":23523,"d":2523,"st":0,"w":21000,"c":0,"po":25000,"days":116},"DMC1040406000-0416":{"s":-2,"d":-2,"st":0,"w":0,"c":0,"po":0,"days":0},"DMC1040406000-0418":{"s":2560,"d":560,"st":0,"w":0,"c":2000,"po":0,"days":33},"DMR1040406000-0579":{"s":9509,"d":7859,"st":1650,"w":0,"c":0,"po":120000,"days":10},"DMC1040406000-0490":{"s":9076,"d":3076,"st":0,"w":-9270,"c":15270,"po":0,"days":10},"DMR1040406000-0424":{"s":934,"d":104,"st":0,"w":830,"c":0,"po":0,"days":28020},"DMR1040406000-0425":{"s":313,"d":19,"st":294,"w":0,"c":0,"po":0,"days":335},"DMR1040406000-0735":{"s":4667,"d":1167,"st":0,"w":3500,"c":0,"po":3000,"days":83},"DMR1040406000-0431":{"s":12380,"d":2780,"st":9600,"w":0,"c":0,"po":93000,"days":20},"DMR1040406000-0432":{"s":284,"d":84,"st":200,"w":0,"c":0,"po":100,"days":26},"DMC1040406000-0430":{"s":286,"d":196,"st":0,"w":0,"c":90,"po":0,"days":13},"DMR1040406000-0433":{"s":-85,"d":-344,"st":259,"w":0,"c":0,"po":1100,"days":-4},"DMR1040406000-0435":{"s":3006,"d":-264,"st":3270,"w":0,"c":0,"po":34540,"days":18},"DMR1040406000-0436":{"s":748,"d":-1352,"st":2100,"w":0,"c":0,"po":1500,"days":25},"DMC1040406000-0433":{"s":0,"d":0,"st":0,"w":0,"c":0,"po":0,"days":0},"DMR040406000-0796":{"s":2361,"d":211,"st":2150,"w":0,"c":0,"po":0,"days":47},"DMR040406000-0795":{"s":175,"d":175,"st":0,"w":0,"c":0,"po":2700,"days":12},"DMR1040406000-0726":{"s":551,"d":151,"st":400,"w":0,"c":0,"po":700,"days":50},"DMCSP104040600-010":{"s":10710,"d":1470,"st":9240,"w":0,"c":0,"po":0,"days":95},"DMC1040406000-0438":{"s":3829,"d":29,"st":0,"w":0,"c":3800,"po":0,"days":0},"DMC1040406000-0440":{"s":22623,"d":3723,"st":0,"w":0,"c":18900,"po":0,"days":90},"DMC1040406000-0441":{"s":8895,"d":8915,"st":0,"w":0,"c":-20,"po":0,"days":86},"DMR1040406000-0445":{"s":-5,"d":-5,"st":0,"w":0,"c":0,"po":0,"days":-150},"DMR1040406000-0446":{"s":22882,"d":662,"st":19270,"w":2950,"c":0,"po":0,"days":190},"DMR1040406000-0454":{"s":17759,"d":-241,"st":18000,"w":0,"c":0,"po":19000,"days":440},"DMR1040406000-0455":{"s":2689,"d":890,"st":1299,"w":500,"c":0,"po":0,"days":23},"DMR1040406000-0456":{"s":4688,"d":538,"st":2150,"w":2000,"c":0,"po":21500,"days":25},"DMC1040406000-0454":{"s":1268,"d":768,"st":0,"w":0,"c":500,"po":0,"days":57},"DMR1040406000-0537":{"s":445,"d":11,"st":184,"w":250,"c":0,"po":0,"days":35},"DMC1040406000-0455":{"s":11424,"d":1944,"st":0,"w":0,"c":9480,"po":0,"days":35},"DMR1040406000-0466":{"s":-480,"d":-480,"st":0,"w":0,"c":0,"po":8500,"days":-7},"DMC1040406000-0463":{"s":11554,"d":574,"st":0,"w":0,"c":10980,"po":0,"days":169},"DMR1040406000-0467":{"s":587,"d":-613,"st":1200,"w":0,"c":0,"po":20000,"days":5},"DMC1040406000-0464":{"s":25669,"d":619,"st":0,"w":15000,"c":10050,"po":0,"days":210},"DMR1040406000-0554":{"s":1090,"d":1090,"st":0,"w":0,"c":0,"po":0,"days":23},"DMR1040406000-0469":{"s":2206,"d":6,"st":2000,"w":200,"c":0,"po":1000,"days":70},"DMR1040406000-0474":{"s":3812,"d":2212,"st":1600,"w":0,"c":0,"po":0,"days":354},"DMR1040406000-0473":{"s":-883,"d":-1883,"st":1000,"w":0,"c":0,"po":130000,"days":-1},"DMC1040406000-0470":{"s":40443,"d":12543,"st":0,"w":0,"c":27900,"po":0,"days":54},"DMC1040406000-0475":{"s":38,"d":18,"st":0,"w":0,"c":20,"po":0,"days":46}};
+        const EMBEDDED_OCT30_BASELINE_DELTAS = { "DMR1040406000-0003": { "s": 22674, "d": 1411, "st": 6263, "w": 15000, "c": 0, "po": 54015, "days": 73 }, "DMR1040406000-0591": { "s": 116, "d": 236, "st": -120, "w": 0, "c": 0, "po": 16800, "days": 1 }, "DMR1040406000-0499": { "s": 247, "d": 160, "st": 87, "w": 0, "c": 0, "po": 19400, "days": 2 }, "DMR1040406000-0592": { "s": 11991, "d": 280, "st": 3711, "w": 8000, "c": 0, "po": 0, "days": 369 }, "DMR1040406000-0006": { "s": 9242, "d": 99, "st": 2143, "w": 7000, "c": 0, "po": 10552, "days": 146 }, "DMR1040406000-0556": { "s": 48, "d": 48, "st": 0, "w": 0, "c": 0, "po": 240, "days": 77 }, "DMR1040406000-0007": { "s": 3046, "d": 79, "st": 2967, "w": 0, "c": 0, "po": 0, "days": 158 }, "DMR1040406000-0010": { "s": 508, "d": 63, "st": 545, "w": -100, "c": 0, "po": 2500, "days": 37 }, "DMR1040406000-0009": { "s": 9038, "d": 538, "st": 1300, "w": 7200, "c": 0, "po": 21000, "days": 52 }, "DMR1040406000-0018": { "s": 408, "d": -22, "st": 110, "w": 320, "c": 0, "po": 1000, "days": 23 }, "DMR1040406000-0020": { "s": 1326, "d": 30, "st": 0, "w": 1296, "c": 0, "po": 400, "days": 281 }, "DMR1040406000-0023": { "s": -7, "d": -7, "st": 0, "w": 0, "c": 0, "po": 0, "days": 0 }, "DMR1040406000-0496": { "s": 1259, "d": 98, "st": 1161, "w": 0, "c": 0, "po": 0, "days": 148 }, "DMR1040406000-0571": { "s": 2551, "d": 11, "st": 70, "w": 2470, "c": 0, "po": 0, "days": 170 }, "DMR1040406000-0029": { "s": 1857, "d": 37, "st": 110, "w": 1710, "c": 0, "po": 2000, "days": 285 }, "DMR1040406000-0035": { "s": 80, "d": -4, "st": 84, "w": 0, "c": 0, "po": 500, "days": 43 }, "DMR1040406000-0036": { "s": 8371, "d": 571, "st": 7800, "w": 0, "c": 0, "po": 70000, "days": 14 }, "DMC1040406000-0036": { "s": 28219, "d": 8019, "st": 0, "w": 0, "c": 20200, "po": 0, "days": 46 }, "DMC1040406000-0037": { "s": 13979, "d": 1379, "st": 0, "w": 0, "c": 12600, "po": 0, "days": 38 }, "DMR1040406000-0037": { "s": 2057, "d": 2057, "st": 0, "w": 0, "c": 0, "po": 75000, "days": 6 }, "DMR1040406000-0040": { "s": 3508, "d": 308, "st": 3200, "w": 0, "c": 0, "po": 0, "days": 123 }, "DMR1040406000-0605": { "s": 231, "d": 11, "st": 220, "w": 0, "c": 0, "po": 0, "days": 166 }, "DMR1040406000-0043": { "s": 2874, "d": 794, "st": 0, "w": 2080, "c": 0, "po": 0, "days": 85 }, "DMR1040406000-0044": { "s": 1134, "d": 1304, "st": 330, "w": -500, "c": 0, "po": 0, "days": 129 }, "DMR1040406000-0045": { "s": 6570, "d": 320, "st": 1250, "w": 5000, "c": 0, "po": 7100, "days": 365 }, "DMR1040406000-0046": { "s": 3412, "d": 132, "st": 280, "w": 3000, "c": 0, "po": 0, "days": 176 }, "DMR1040406000-0047": { "s": 1189, "d": 239, "st": 500, "w": 450, "c": 0, "po": 0, "days": 47 }, "DMR1040406000-0048": { "s": 18432, "d": 182, "st": 6250, "w": 12000, "c": 0, "po": 14000, "days": 70 }, "DMR1040406000-0053": { "s": 4104, "d": 4, "st": 2100, "w": 2000, "c": 0, "po": 2000, "days": 203 }, "DMC1040406000-0054": { "s": -194, "d": -194, "st": 0, "w": 0, "c": 0, "po": 0, "days": -1 }, "DMR1040406000-0054": { "s": 23015, "d": 2715, "st": 20300, "w": 0, "c": 0, "po": 25000, "days": 85 }, "DMR1040406000-0056": { "s": 7208, "d": 1108, "st": 6100, "w": 0, "c": 0, "po": 0, "days": 20 }, "DMC1040406000-0056": { "s": -2, "d": -2, "st": 0, "w": 0, "c": 0, "po": 0, "days": 0 }, "DMR1040406000-0059": { "s": 245, "d": 245, "st": 0, "w": 0, "c": 0, "po": 53000, "days": 1 }, "DMC1040406000-0059": { "s": 23777, "d": 5977, "st": 0, "w": 0, "c": 17800, "po": 0, "days": 76 }, "DMR1040406000-0060": { "s": -158, "d": -158, "st": 0, "w": 0, "c": 0, "po": 8000, "days": -3 }, "DMR1040406000-0061": { "s": 1358, "d": 158, "st": 200, "w": 1000, "c": 0, "po": 0, "days": 329 }, "DMR1040406000-0062": { "s": 836, "d": 56, "st": 130, "w": 650, "c": 0, "po": 1200, "days": 86 }, "DMR1040406000-0065": { "s": 1098, "d": 528, "st": 270, "w": 300, "c": 0, "po": 7600, "days": 37 }, "DMR1040406000-0064": { "s": 356, "d": 956, "st": 360, "w": -960, "c": 0, "po": 4000, "days": 9 }, "DMC1040406000-0491": { "s": 1366, "d": 166, "st": 0, "w": 0, "c": 1200, "po": 0, "days": 33 }, "DMEP1040406000-714": { "s": 11, "d": 11, "st": 0, "w": 0, "c": 0, "po": 0, "days": 1 }, "DMC1040406000-0067": { "s": 630, "d": 130, "st": 0, "w": 0, "c": 500, "po": 0, "days": 96 }, "DMR1040406000-0071": { "s": 971, "d": 971, "st": 0, "w": 0, "c": 0, "po": 5190, "days": 56 }, "DMR1040406000-0072": { "s": -41, "d": -41, "st": 0, "w": 0, "c": 0, "po": 10500, "days": -1 }, "DMC1040406000-0073": { "s": 2345, "d": 1345, "st": 0, "w": 0, "c": 1000, "po": 0, "days": 58 }, "DMR1040406000-0076": { "s": 2260, "d": 60, "st": 1200, "w": 1000, "c": 0, "po": 2500, "days": 161 }, "DMR1040406000-0077": { "s": 800, "d": 0, "st": 800, "w": 0, "c": 0, "po": 600, "days": 154 }, "DMR1040406000-0078": { "s": 1845, "d": 845, "st": 1000, "w": 0, "c": 0, "po": 2200, "days": 54 }, "DMR1040406000-0623": { "s": 52, "d": 8, "st": 44, "w": 0, "c": 0, "po": 0, "days": 114 }, "DMR1040406000-0082": { "s": 2256, "d": -119, "st": 2375, "w": 0, "c": 0, "po": 0, "days": 99 }, "DMR1040406000-0085": { "s": 411, "d": 411, "st": 0, "w": 0, "c": 0, "po": 1000, "days": 57 }, "DMR1040406000-0084": { "s": 2926, "d": 806, "st": 2120, "w": 0, "c": 0, "po": 0, "days": 353 }, "DMC1040406000-0087": { "s": 628, "d": 628, "st": 0, "w": 0, "c": 0, "po": 0, "days": 2355 }, "DMR1040406000-0087": { "s": 511, "d": 311, "st": 200, "w": 0, "c": 0, "po": 0, "days": 72 }, "DMR1040406000-0089": { "s": 4765, "d": 4665, "st": 100, "w": 0, "c": 0, "po": 37000, "days": 11 }, "DMR1040406000-0090": { "s": 1489, "d": 589, "st": 0, "w": 900, "c": 0, "po": 0, "days": 114 }, "DMR1040406000-0538": { "s": -158, "d": -158, "st": 0, "w": 0, "c": 0, "po": 0, "days": -90 }, "DMR1040406000-0093": { "s": 118, "d": 118, "st": 0, "w": 0, "c": 0, "po": 0, "days": 14 }, "DMR1040406000-0561": { "s": 260, "d": 100, "st": 60, "w": 100, "c": 0, "po": 100, "days": 111 }, "DMR1040406000-0096": { "s": 314, "d": 24, "st": 90, "w": 200, "c": 0, "po": 600, "days": 91 }, "DMR1040406000-0100": { "s": 3898, "d": 2298, "st": 1600, "w": 0, "c": 0, "po": 0, "days": 67 }, "DMC1040406000-0101": { "s": 41706, "d": 9506, "st": 0, "w": 0, "c": 32200, "po": 0, "days": 59 }, "DMR1040406000-0105": { "s": 922, "d": 562, "st": 0, "w": 360, "c": 0, "po": 4500, "days": 57 }, "DMR1040406000-0106": { "s": 1225, "d": -375, "st": 0, "w": 1600, "c": 0, "po": 0, "days": 249 }, "DMR1040406000-0516": { "s": 18, "d": 18, "st": 0, "w": 0, "c": 0, "po": 0, "days": 3 }, "DMR1040406000-0107": { "s": 240, "d": 240, "st": 0, "w": 0, "c": 0, "po": 0, "days": 140 }, "DMR1040406000-0109": { "s": 989, "d": 139, "st": 350, "w": 500, "c": 0, "po": 0, "days": 145 }, "DMR1040406000-0110": { "s": 13956, "d": -44, "st": 0, "w": 14000, "c": 0, "po": 20000, "days": 62 }, "DMR1040406000-0112": { "s": 1831, "d": 31, "st": 200, "w": 1600, "c": 0, "po": 3480, "days": 71 }, "DMR1040406000-0517": { "s": 1951, "d": 257, "st": 0, "w": 1694, "c": 0, "po": 1400, "days": 218 }, "DMEP10406000-0749": { "s": 5, "d": 5, "st": 0, "w": 0, "c": 0, "po": 0, "days": 2 }, "DMR1040406000-0113": { "s": 19093, "d": 1093, "st": 450, "w": 17550, "c": 0, "po": 25000, "days": 121 }, "DMC1040406000-0116": { "s": 9982, "d": 1482, "st": 0, "w": -10000, "c": 18500, "po": 0, "days": 65 }, "DMR1040406000-0116": { "s": 22026, "d": 2626, "st": 2400, "w": 17000, "c": 0, "po": 0, "days": 143 }, "DMR1040406000-0118": { "s": 2549, "d": 949, "st": 0, "w": 1600, "c": 0, "po": 0, "days": 58 }, "DMR1040406000-0117": { "s": 6621, "d": 621, "st": 400, "w": 5600, "c": 0, "po": 0, "days": 216 }, "DMR1040406000-0119": { "s": -514, "d": -514, "st": 0, "w": 0, "c": 0, "po": 35000, "days": -3 }, "DMC1040406000-0119": { "s": 458, "d": 458, "st": 0, "w": 0, "c": 0, "po": 0, "days": 3 }, "DMR1040406000-0121": { "s": 3318, "d": 3318, "st": 0, "w": 0, "c": 0, "po": 0, "days": 41 }, "DMR1040406000-0128": { "s": 1769, "d": 281, "st": 0, "w": 1488, "c": 0, "po": 2000, "days": 140 }, "DMR1040406000-0131": { "s": 5607, "d": 407, "st": 5200, "w": 0, "c": 0, "po": 0, "days": 104 }, "DMR1040406000-0132": { "s": 1106, "d": 386, "st": 80, "w": 640, "c": 0, "po": 5000, "days": 38 }, "DMR1040406000-0140": { "s": 11483, "d": 183, "st": 7300, "w": 4000, "c": 0, "po": 2000, "days": 123 }, "DMR1040406000-0141": { "s": 2799, "d": 2074, "st": 725, "w": 0, "c": 0, "po": 0, "days": 168 }, "DMR1040406000-0142": { "s": 5536, "d": 236, "st": 500, "w": 4800, "c": 0, "po": 3000, "days": 181 }, "DMC1040406000-0145": { "s": 177, "d": 177, "st": 0, "w": 0, "c": 0, "po": 0, "days": 101 }, "DMC1040406000-0146": { "s": 37888, "d": 288, "st": 1800, "w": 0, "c": 35800, "po": 0, "days": 85 }, "DMR1040406000-0146": { "s": 132, "d": -368, "st": 500, "w": 0, "c": 0, "po": 80000, "days": 0 }, "DMR1040406000-0154": { "s": 170, "d": 70, "st": 0, "w": 100, "c": 0, "po": 0, "days": 86 }, "DMR1040406000-0155": { "s": 2714, "d": 2714, "st": 0, "w": 0, "c": 0, "po": 23000, "days": 13 }, "DMR1040406000-0158": { "s": 551, "d": 31, "st": 0, "w": 520, "c": 0, "po": 0, "days": 156 }, "DMR1040406000-0163": { "s": 2205, "d": 105, "st": 2100, "w": 0, "c": 0, "po": 3000, "days": 96 }, "DMR1040406000-0166": { "s": 568, "d": -32, "st": 600, "w": 0, "c": 0, "po": 0, "days": 114 }, "DMR1040406000-0661": { "s": 49, "d": 49, "st": 0, "w": 0, "c": 0, "po": 0, "days": 37 }, "DMC1040406000-0610": { "s": 18599, "d": 3339, "st": 0, "w": 0, "c": 15260, "po": 0, "days": 65 }, "DMR1040406000-0664": { "s": 4494, "d": 2394, "st": 2100, "w": 0, "c": 0, "po": 30030, "days": 16 }, "DMR1040406000-0169": { "s": 4820, "d": 1620, "st": 0, "w": 3200, "c": 0, "po": 5000, "days": 72 }, "DMR1040406000-0177": { "s": 51, "d": 4, "st": 47, "w": 0, "c": 0, "po": 0, "days": 656 }, "DMC1040406000-0180": { "s": 361, "d": 361, "st": 0, "w": 0, "c": 0, "po": 0, "days": 637 }, "DMDON1040406000-0128": { "s": 9290, "d": 290, "st": -500, "w": 9500, "c": 0, "po": 0, "days": 198 }, "DMR1040406000-0181": { "s": 3472, "d": -128, "st": 1700, "w": 1900, "c": 0, "po": 7500, "days": 74 }, "DMDON104046000-183": { "s": -6, "d": -6, "st": 0, "w": 0, "c": 0, "po": 0, "days": 0 }, "DMR1040406000-0525": { "s": 216, "d": 6, "st": 210, "w": 0, "c": 0, "po": 0, "days": 270 }, "DMR1040406000-0188": { "s": 512, "d": 282, "st": 230, "w": 0, "c": 0, "po": 300, "days": 105 }, "DMC1040406000-0195": { "s": 5991, "d": -9, "st": 0, "w": -6000, "c": 12000, "po": 0, "days": 74 }, "DMR1040406000-0197": { "s": 2631, "d": 361, "st": 270, "w": 2000, "c": 0, "po": 1300, "days": 221 }, "DMC1040406000-0201": { "s": 2096, "d": 1096, "st": 0, "w": 0, "c": 1000, "po": 0, "days": 55 }, "DMR1040406000-0855": { "s": 480, "d": -70, "st": 550, "w": 0, "c": 0, "po": 0, "days": 98 }, "DMR1040406000-0203": { "s": 12132, "d": 1332, "st": 3600, "w": 7200, "c": 0, "po": 15000, "days": 103 }, "DMR1040406000-0205": { "s": 178, "d": 12, "st": 166, "w": 0, "c": 0, "po": 800, "days": 38 }, "DMR1040406000-0673": { "s": 4727, "d": 7797, "st": -5710, "w": 2640, "c": 0, "po": 5000, "days": 26 }, "DMR1040406000-0206": { "s": 8, "d": 8, "st": 0, "w": 0, "c": 0, "po": 0, "days": 7 }, "DMR1040406000-0210": { "s": 5, "d": 5, "st": 0, "w": 0, "c": 0, "po": 0, "days": 3 }, "DMR1040406000-0213": { "s": 2277, "d": 147, "st": 2130, "w": 0, "c": 0, "po": 5500, "days": 101 }, "DMEP1040406000-0214": { "s": -21, "d": -21, "st": 0, "w": 0, "c": 0, "po": 0, "days": -3 }, "DMR1040406000-0215": { "s": 4067, "d": 567, "st": 3500, "w": 0, "c": 0, "po": 0, "days": 13 }, "DMC1040406000-0215": { "s": 14969, "d": 1969, "st": 0, "w": 0, "c": 13000, "po": 0, "days": 46 }, "DMEP1040406000-0216": { "s": -4, "d": -4, "st": 0, "w": 0, "c": 0, "po": 0, "days": -12 }, "DMR1040406000-0682": { "s": 3675, "d": -225, "st": 3020, "w": 880, "c": 0, "po": 0, "days": 557 }, "DMR1040406000-0844": { "s": 2528, "d": 228, "st": 100, "w": 2200, "c": 0, "po": 0, "days": 758 }, "DMC000449": { "s": 4294, "d": 1004, "st": 0, "w": 0, "c": 3290, "po": 0, "days": 0 }, "DMR1040406000-0221": { "s": 494, "d": 194, "st": 0, "w": 300, "c": 0, "po": 1000, "days": 188 }, "DMR1040406000-0521": { "s": 86, "d": 5, "st": 81, "w": 0, "c": 0, "po": 0, "days": 63 }, "DMR1040406000-0230": { "s": 19790, "d": 190, "st": 7000, "w": 12600, "c": 0, "po": 23000, "days": 167 }, "DMC1040406000-0232": { "s": 1513, "d": 13, "st": 0, "w": 0, "c": 1500, "po": 0, "days": 104 }, "DMR1040406000-0233": { "s": 984, "d": 734, "st": 250, "w": 0, "c": 0, "po": 1600, "days": 29 }, "DMR1040406000-0483": { "s": 50, "d": 50, "st": 0, "w": 0, "c": 0, "po": 0, "days": 9 }, "DMR1040406000-0236": { "s": 3958, "d": 758, "st": 0, "w": 3200, "c": 0, "po": 6300, "days": 172 }, "DMC000518": { "s": 810, "d": 1410, "st": 0, "w": 0, "c": -600, "po": 0, "days": 0 }, "DMC1040406000-0237": { "s": 2490, "d": 90, "st": 0, "w": 0, "c": 2400, "po": 0, "days": 1072 }, "DMR1040406000-0002": { "s": 4480, "d": -80, "st": 240, "w": 4320, "c": 0, "po": 5000, "days": 93 }, "DMR1040406000-0544": { "s": 1207, "d": -193, "st": 0, "w": 1400, "c": 0, "po": 0, "days": 168 }, "DMR1040406000-0244": { "s": 3405, "d": 55, "st": 850, "w": 2500, "c": 0, "po": 9300, "days": 103 }, "DMR1040406000-0245": { "s": 2044, "d": 174, "st": 170, "w": 1700, "c": 0, "po": 0, "days": 122 }, "DMR1040406000-0247": { "s": 795, "d": 95, "st": 700, "w": 0, "c": 0, "po": 0, "days": 53 }, "DMR1040406000-0250": { "s": 433, "d": 433, "st": 0, "w": 0, "c": 0, "po": 0, "days": 17 }, "DMC1040406000-0250": { "s": 580, "d": -20, "st": 0, "w": 0, "c": 600, "po": 0, "days": 23 }, "DMR1040406000-0249": { "s": 8538, "d": 2538, "st": 0, "w": 6000, "c": 0, "po": 4700, "days": 405 }, "DMR1040406000-0590": { "s": 4248, "d": 4108, "st": 140, "w": 0, "c": 0, "po": 7000, "days": 35 }, "DMR1040406000-0493": { "s": 65, "d": -70, "st": 15, "w": 120, "c": 0, "po": 110, "days": 29 }, "DMR1040406000-0707": { "s": 649, "d": -273, "st": 922, "w": 0, "c": 0, "po": 0, "days": 107 }, "DMR1040406000-0260": { "s": 331, "d": 87, "st": 244, "w": 0, "c": 0, "po": 0, "days": 125 }, "DMR1040406000-0528": { "s": 1087, "d": 247, "st": 0, "w": 840, "c": 0, "po": 600, "days": 178 }, "DMR1040406000-0266": { "s": 2910, "d": -90, "st": 3000, "w": 0, "c": 0, "po": 57100, "days": 12 }, "DMC1040406000-0266": { "s": 13292, "d": 1292, "st": 0, "w": 0, "c": 12000, "po": 0, "days": 53 }, "DMR1040406000-0267": { "s": 444, "d": 144, "st": 300, "w": 0, "c": 0, "po": 7500, "days": 9 }, "DMC1040406000-0267": { "s": 1505, "d": 405, "st": 0, "w": 0, "c": 1100, "po": 0, "days": 32 }, "DMR1040406000-0530": { "s": 926, "d": 46, "st": 280, "w": 600, "c": 0, "po": 2700, "days": 66 }, "DMC1040406000-0272": { "s": 1666, "d": 1666, "st": 0, "w": 0, "c": 0, "po": 0, "days": 1079 }, "DMR1040406000-0276": { "s": 1055, "d": 35, "st": 1020, "w": 0, "c": 0, "po": 0, "days": 365 }, "DMR1040406000-0277": { "s": 9546, "d": 546, "st": 0, "w": 9000, "c": 0, "po": 21500, "days": 143 }, "DMR1040406000-0278": { "s": 25954, "d": 138, "st": 5816, "w": 20000, "c": 0, "po": 7200, "days": 296 }, "DMR1040406000-0279": { "s": 503, "d": 203, "st": 100, "w": 200, "c": 0, "po": 7300, "days": 19 }, "DMR1040406000-0482": { "s": 38661, "d": 3461, "st": 35200, "w": 0, "c": 0, "po": 0, "days": 190 }, "DMCSP1040406000-011": { "s": 40560, "d": 2430, "st": 38130, "w": 0, "c": 0, "po": 0, "days": 199 }, "DMR1040406000-0494": { "s": 137, "d": 37, "st": 0, "w": 100, "c": 0, "po": 100, "days": 125 }, "DMR1040406000-0733": { "s": 3251, "d": 391, "st": 580, "w": 2280, "c": 0, "po": 0, "days": 84 }, "DMR1040406000-0732": { "s": 914, "d": -1, "st": 15, "w": 900, "c": 0, "po": 0, "days": 339 }, "DMR1040406000-0861": { "s": 222, "d": 142, "st": 100, "w": -20, "c": 0, "po": 100, "days": 41 }, "DMR1040406000-0285": { "s": 877, "d": 22, "st": 355, "w": 500, "c": 0, "po": 600, "days": 161 }, "DMR1040406000-0282": { "s": 626, "d": 26, "st": 0, "w": 600, "c": 0, "po": 0, "days": 122 }, "DMR1040406000-0283": { "s": 622, "d": 22, "st": 0, "w": 600, "c": 0, "po": 0, "days": 140 }, "DMC1040406000-0286": { "s": 1802, "d": 1802, "st": 0, "w": 0, "c": 0, "po": 0, "days": 304 }, "DMR1040406000-0289": { "s": 3984, "d": 264, "st": 60, "w": 3660, "c": 0, "po": 3530, "days": 169 }, "DMC1040406000-0291": { "s": 591, "d": 591, "st": 0, "w": 0, "c": 0, "po": 0, "days": 106 }, "DMR1040406000-0292": { "s": 658, "d": 658, "st": 0, "w": 0, "c": 0, "po": 0, "days": 45 }, "DMC1040406000-0294": { "s": 12349, "d": 4349, "st": 0, "w": 0, "c": 8000, "po": 0, "days": 90 }, "DMR1040406000-0296": { "s": 863, "d": 863, "st": 0, "w": 0, "c": 0, "po": 110000, "days": 2 }, "DMC1040406000-0295": { "s": 16105, "d": 7105, "st": 0, "w": 0, "c": 9000, "po": 0, "days": 29 }, "DMR1040406000-0297": { "s": -137, "d": -137, "st": 0, "w": 0, "c": 0, "po": 0, "days": -40 }, "DMR1040406000-0298": { "s": 3044, "d": 664, "st": 60, "w": 2320, "c": 0, "po": 7000, "days": 174 }, "DMR1040406000-0299": { "s": 2668, "d": 44, "st": 2624, "w": 0, "c": 0, "po": 6000, "days": 114 }, "DMR1040406000-0302": { "s": 14344, "d": 344, "st": 14000, "w": 0, "c": 0, "po": 7000, "days": 120 }, "DMR1040406000-0305": { "s": 49, "d": -151, "st": 0, "w": 200, "c": 0, "po": 0, "days": 1 }, "DMR1040406000-0307": { "s": 24827, "d": 407, "st": 24420, "w": 0, "c": 0, "po": 130000, "days": 34 }, "DMC1040406000-0306": { "s": 6738, "d": 6738, "st": 0, "w": 0, "c": 0, "po": 0, "days": 9 }, "DMR1040406000-0520": { "s": 414, "d": 214, "st": 200, "w": 0, "c": 0, "po": 0, "days": 12 }, "DMR1040406000-0310": { "s": 2943, "d": 153, "st": 400, "w": 2390, "c": 0, "po": 0, "days": 255 }, "DMC1040406000-0310": { "s": 200, "d": 200, "st": 0, "w": 0, "c": 0, "po": 0, "days": 900 }, "DMR1040406000-0316": { "s": 72, "d": 22, "st": 50, "w": 0, "c": 0, "po": 0, "days": 114 }, "DMR1040406000-0318": { "s": 5263, "d": 1063, "st": 1000, "w": 3200, "c": 0, "po": 14000, "days": 91 }, "DMR1040406000-0320": { "s": -2, "d": -2, "st": 0, "w": 0, "c": 0, "po": 0, "days": 0 }, "DMR1040406000-0322": { "s": 10400, "d": 200, "st": 0, "w": 10200, "c": 0, "po": 13700, "days": 148 }, "DMR1040406000-0548": { "s": 2939, "d": 39, "st": 2900, "w": 0, "c": 0, "po": 2000, "days": 125 }, "DMR1040406000-0330": { "s": 2291, "d": 91, "st": 2200, "w": 0, "c": 0, "po": 0, "days": 160 }, "DMR1040406000-0332": { "s": 3188, "d": -13, "st": 3201, "w": 0, "c": 0, "po": 20000, "days": 10 }, "DMC1040406000-0331": { "s": 14508, "d": 3008, "st": 0, "w": 0, "c": 11500, "po": 0, "days": 44 }, "DMR1040406000-0334": { "s": 476, "d": 5, "st": 80, "w": 391, "c": 0, "po": 0, "days": 202 }, "DMR1040406000-0545": { "s": 659, "d": 11, "st": 0, "w": 648, "c": 0, "po": 2000, "days": 79 }, "DMR1040406000-0335": { "s": 489, "d": 49, "st": 494, "w": -54, "c": 0, "po": 3200, "days": 23 }, "DMR1040406000-0336": { "s": 694, "d": 94, "st": 600, "w": 0, "c": 0, "po": 500, "days": 162 }, "DMR1040406000-0339": { "s": 1808, "d": 8, "st": 0, "w": 1800, "c": 0, "po": 0, "days": 852 }, "DMR1040406000-0340": { "s": 2431, "d": 361, "st": 150, "w": 1920, "c": 0, "po": 19000, "days": 31 }, "DMR1040406000-0348": { "s": 4521, "d": 21, "st": 0, "w": 4500, "c": 0, "po": 17000, "days": 63 }, "DMR1040406000-0358": { "s": -19, "d": -19, "st": 0, "w": 0, "c": 0, "po": 30000, "days": 0 }, "DMC1040406000-0356": { "s": 1795, "d": 1795, "st": 0, "w": 0, "c": 0, "po": 0, "days": 10 }, "DMR1040406000-0359": { "s": 25037, "d": 537, "st": 100, "w": 24400, "c": 0, "po": 60000, "days": 78 }, "DMR1040406000-0354": { "s": 3109, "d": 909, "st": 2201, "w": -1, "c": 0, "po": 6000, "days": 75 }, "DMR1040406000-0363": { "s": 160, "d": -20, "st": 180, "w": 0, "c": 0, "po": 1300, "days": 11 }, "DMR1040406000-0366": { "s": 3394, "d": 894, "st": 0, "w": 2500, "c": 0, "po": 5200, "days": 167 }, "DMR1040406000-0783": { "s": 459, "d": 59, "st": 0, "w": 400, "c": 0, "po": 0, "days": 198 }, "DMR1040406000-0369": { "s": 10264, "d": 64, "st": 1700, "w": 8500, "c": 0, "po": 0, "days": 157 }, "DMR1040406000-0786": { "s": 35, "d": 35, "st": 0, "w": 0, "c": 0, "po": 110, "days": 6 }, "DMR1040406000-0372": { "s": 6178, "d": -222, "st": 0, "w": 6400, "c": 0, "po": 51000, "days": 45 }, "DMR1040406000-0375": { "s": 24358, "d": -1942, "st": 2300, "w": 24000, "c": 0, "po": 67000, "days": 82 }, "DMR1040406000-0378": { "s": 3125, "d": 3125, "st": 0, "w": 0, "c": 0, "po": 15000, "days": 15 }, "DMR1040406000-0379": { "s": 198, "d": 198, "st": 0, "w": 0, "c": 0, "po": 100, "days": 57 }, "DMR1040406000-0380": { "s": 1836, "d": 936, "st": 0, "w": 900, "c": 0, "po": 0, "days": 182 }, "DMR1040406000-0381": { "s": 1541, "d": 341, "st": 0, "w": 1200, "c": 0, "po": 3000, "days": 120 }, "DMR1040406000-0391": { "s": 29449, "d": 3449, "st": 2000, "w": 24000, "c": 0, "po": 4000, "days": 388 }, "DMR1040406000-0393": { "s": 9238, "d": 238, "st": -200, "w": 9200, "c": 0, "po": 0, "days": 177 }, "DMR1040406000-0394": { "s": 16680, "d": 730, "st": 670, "w": 15280, "c": 0, "po": 44000, "days": 95 }, "DMR1040406000-0740": { "s": 892, "d": 472, "st": 420, "w": 0, "c": 0, "po": 1970, "days": 48 }, "DMR1040406000-0395": { "s": 1704, "d": 264, "st": 240, "w": 1200, "c": 0, "po": 6000, "days": 40 }, "DMR1040406000-0396": { "s": 36093, "d": 2768, "st": 1925, "w": 31400, "c": 0, "po": 15000, "days": 309 }, "DMC1040406000-0394": { "s": 0, "d": 0, "st": 0, "w": 0, "c": 0, "po": 0, "days": 0 }, "DMR1040406000-0398": { "s": 3313, "d": -467, "st": 1440, "w": 2340, "c": 0, "po": 10000, "days": 294 }, "DMEP1040406000-0403": { "s": -85, "d": -85, "st": 0, "w": 0, "c": 0, "po": 0, "days": -3 }, "DMC1040406000-0399": { "s": 42, "d": 2, "st": 0, "w": 0, "c": 40, "po": 0, "days": 0 }, "DMC1040406000-0401": { "s": 722, "d": 722, "st": 0, "w": 0, "c": 0, "po": 0, "days": 121 }, "DMR1040406000-0405": { "s": 3476, "d": 576, "st": 0, "w": 2900, "c": 0, "po": 0, "days": 113 }, "DMR1040406000-0406": { "s": 4094, "d": 194, "st": 3900, "w": 0, "c": 0, "po": 4500, "days": 118 }, "DMR1040406000-0407": { "s": -54, "d": -82, "st": 28, "w": 0, "c": 0, "po": 0, "days": -4 }, "DMR1040406000-0412": { "s": 1094, "d": 1044, "st": 50, "w": 0, "c": 0, "po": 0, "days": 29 }, "DMR1040406000-0259": { "s": -129, "d": -89, "st": -40, "w": 0, "c": 0, "po": 2000, "days": -14 }, "DMR1040406000-0504": { "s": 150, "d": 50, "st": 100, "w": 0, "c": 0, "po": 450, "days": 61 }, "DMR1040406000-0414": { "s": 982, "d": 982, "st": 0, "w": 0, "c": 0, "po": 0, "days": 39 }, "DMR1040406000-0578": { "s": 18, "d": -21, "st": 39, "w": 0, "c": 0, "po": 50, "days": 30 }, "DMR1040406000-0580": { "s": 81, "d": 7, "st": 74, "w": 0, "c": 0, "po": 150, "days": 101 }, "DMR1040406000-0416": { "s": 1072, "d": 408, "st": 664, "w": 0, "c": 0, "po": 1000, "days": 59 }, "DMR1040406000-0567": { "s": 923, "d": 18, "st": 545, "w": 360, "c": 0, "po": 0, "days": 561 }, "DMR1040406000-0417": { "s": 637, "d": 637, "st": 0, "w": 0, "c": 0, "po": 90000, "days": 2 }, "DMC1040406000-0414": { "s": 15994, "d": 4734, "st": 0, "w": 0, "c": 11260, "po": 0, "days": 41 }, "DMR1040406000-0418": { "s": 13271, "d": 171, "st": 13100, "w": 0, "c": 0, "po": 90000, "days": 24 }, "DMC1040406000-0415": { "s": 14570, "d": 4080, "st": 0, "w": 0, "c": 10490, "po": 0, "days": 26 }, "DMR1040406000-0495": { "s": -26, "d": -26, "st": 0, "w": 0, "c": 0, "po": 3192, "days": -1 }, "DMR1040406000-0498": { "s": 655, "d": 67, "st": 588, "w": 0, "c": 0, "po": 6384, "days": 58 }, "DMR1040406000-0492": { "s": 678, "d": 90, "st": 588, "w": 0, "c": 0, "po": 6972, "days": 13 }, "DMR1040406000-0419": { "s": 23523, "d": 2523, "st": 0, "w": 21000, "c": 0, "po": 25000, "days": 116 }, "DMC1040406000-0416": { "s": -2, "d": -2, "st": 0, "w": 0, "c": 0, "po": 0, "days": 0 }, "DMC1040406000-0418": { "s": 2560, "d": 560, "st": 0, "w": 0, "c": 2000, "po": 0, "days": 33 }, "DMR1040406000-0579": { "s": 9509, "d": 7859, "st": 1650, "w": 0, "c": 0, "po": 120000, "days": 10 }, "DMC1040406000-0490": { "s": 9076, "d": 3076, "st": 0, "w": -9270, "c": 15270, "po": 0, "days": 10 }, "DMR1040406000-0424": { "s": 934, "d": 104, "st": 0, "w": 830, "c": 0, "po": 0, "days": 28020 }, "DMR1040406000-0425": { "s": 313, "d": 19, "st": 294, "w": 0, "c": 0, "po": 0, "days": 335 }, "DMR1040406000-0735": { "s": 4667, "d": 1167, "st": 0, "w": 3500, "c": 0, "po": 3000, "days": 83 }, "DMR1040406000-0431": { "s": 12380, "d": 2780, "st": 9600, "w": 0, "c": 0, "po": 93000, "days": 20 }, "DMR1040406000-0432": { "s": 284, "d": 84, "st": 200, "w": 0, "c": 0, "po": 100, "days": 26 }, "DMC1040406000-0430": { "s": 286, "d": 196, "st": 0, "w": 0, "c": 90, "po": 0, "days": 13 }, "DMR1040406000-0433": { "s": -85, "d": -344, "st": 259, "w": 0, "c": 0, "po": 1100, "days": -4 }, "DMR1040406000-0435": { "s": 3006, "d": -264, "st": 3270, "w": 0, "c": 0, "po": 34540, "days": 18 }, "DMR1040406000-0436": { "s": 748, "d": -1352, "st": 2100, "w": 0, "c": 0, "po": 1500, "days": 25 }, "DMC1040406000-0433": { "s": 0, "d": 0, "st": 0, "w": 0, "c": 0, "po": 0, "days": 0 }, "DMR040406000-0796": { "s": 2361, "d": 211, "st": 2150, "w": 0, "c": 0, "po": 0, "days": 47 }, "DMR040406000-0795": { "s": 175, "d": 175, "st": 0, "w": 0, "c": 0, "po": 2700, "days": 12 }, "DMR1040406000-0726": { "s": 551, "d": 151, "st": 400, "w": 0, "c": 0, "po": 700, "days": 50 }, "DMCSP104040600-010": { "s": 10710, "d": 1470, "st": 9240, "w": 0, "c": 0, "po": 0, "days": 95 }, "DMC1040406000-0438": { "s": 3829, "d": 29, "st": 0, "w": 0, "c": 3800, "po": 0, "days": 0 }, "DMC1040406000-0440": { "s": 22623, "d": 3723, "st": 0, "w": 0, "c": 18900, "po": 0, "days": 90 }, "DMC1040406000-0441": { "s": 8895, "d": 8915, "st": 0, "w": 0, "c": -20, "po": 0, "days": 86 }, "DMR1040406000-0445": { "s": -5, "d": -5, "st": 0, "w": 0, "c": 0, "po": 0, "days": -150 }, "DMR1040406000-0446": { "s": 22882, "d": 662, "st": 19270, "w": 2950, "c": 0, "po": 0, "days": 190 }, "DMR1040406000-0454": { "s": 17759, "d": -241, "st": 18000, "w": 0, "c": 0, "po": 19000, "days": 440 }, "DMR1040406000-0455": { "s": 2689, "d": 890, "st": 1299, "w": 500, "c": 0, "po": 0, "days": 23 }, "DMR1040406000-0456": { "s": 4688, "d": 538, "st": 2150, "w": 2000, "c": 0, "po": 21500, "days": 25 }, "DMC1040406000-0454": { "s": 1268, "d": 768, "st": 0, "w": 0, "c": 500, "po": 0, "days": 57 }, "DMR1040406000-0537": { "s": 445, "d": 11, "st": 184, "w": 250, "c": 0, "po": 0, "days": 35 }, "DMC1040406000-0455": { "s": 11424, "d": 1944, "st": 0, "w": 0, "c": 9480, "po": 0, "days": 35 }, "DMR1040406000-0466": { "s": -480, "d": -480, "st": 0, "w": 0, "c": 0, "po": 8500, "days": -7 }, "DMC1040406000-0463": { "s": 11554, "d": 574, "st": 0, "w": 0, "c": 10980, "po": 0, "days": 169 }, "DMR1040406000-0467": { "s": 587, "d": -613, "st": 1200, "w": 0, "c": 0, "po": 20000, "days": 5 }, "DMC1040406000-0464": { "s": 25669, "d": 619, "st": 0, "w": 15000, "c": 10050, "po": 0, "days": 210 }, "DMR1040406000-0554": { "s": 1090, "d": 1090, "st": 0, "w": 0, "c": 0, "po": 0, "days": 23 }, "DMR1040406000-0469": { "s": 2206, "d": 6, "st": 2000, "w": 200, "c": 0, "po": 1000, "days": 70 }, "DMR1040406000-0474": { "s": 3812, "d": 2212, "st": 1600, "w": 0, "c": 0, "po": 0, "days": 354 }, "DMR1040406000-0473": { "s": -883, "d": -1883, "st": 1000, "w": 0, "c": 0, "po": 130000, "days": -1 }, "DMC1040406000-0470": { "s": 40443, "d": 12543, "st": 0, "w": 0, "c": 27900, "po": 0, "days": 54 }, "DMC1040406000-0475": { "s": 38, "d": 18, "st": 0, "w": 0, "c": 20, "po": 0, "days": 46 } };
 
         function ensureEmbeddedRepoBaseline(items) {
           if (!Array.isArray(items) || items.length === 0) return window.REPO_BASELINE_MAP || null;
@@ -8896,6 +9035,25 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           return 2;
         }
 
+        function getRequestingEndUsers(code, dci) {
+          if (!Array.isArray(allNearExpiring) || allNearExpiring.length === 0) return [];
+          const cNorm = String(code || '').trim().toUpperCase();
+          const dNorm = String(dci || '').trim().toUpperCase();
+          const depts = new Set();
+          allNearExpiring.forEach(ne => {
+            const neCode = String(ne.item_code || '').trim().toUpperCase();
+            const neDci = String(ne.dci_code || '').trim().toUpperCase();
+            const isMatch = (cNorm && (neCode === cNorm || neDci === cNorm)) || (dNorm && (neCode === dNorm || neDci === dNorm));
+            if (isMatch && ne.requesting_end_users) {
+              String(ne.requesting_end_users).split(/[,;/]+/).forEach(d => {
+                const t = d.trim();
+                if (t && t !== '-' && t !== 'N/A' && t !== 'NONE') depts.add(t);
+              });
+            }
+          });
+          return Array.from(depts);
+        }
+
         function isItemCriticalRiskShift(rec) {
           if (!rec) return false;
           if (rec.netDiff < 0 && isCriticalOrOOSStatus(rec.curStatus)) return true;
@@ -9037,6 +9195,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           let criticalShiftCount = 0, criticalShiftUnits = 0;
           let recoveredCount = 0, recoveredUnits = 0;
           let poOrTransferCount = 0;
+          let opdDispCount = 0;
+          let wardReqCount = 0;
+          let pureTransferCount = 0;
 
           // Area metrics
           const areaStats = {
@@ -9057,6 +9218,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               deductedVal += Math.abs(rec.valImpact || 0);
             }
 
+            if (rec.isOpdDispensed) opdDispCount++;
+            if (rec.isWardRequisition) wardReqCount++;
+            if (rec.isPureTransfer) pureTransferCount++;
+
             if (isItemCriticalRiskShift(rec)) {
               criticalShiftCount++;
               criticalShiftUnits += Math.abs(rec.netDiff);
@@ -9065,7 +9230,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               recoveredCount++;
               recoveredUnits += Math.max(0, rec.netDiff);
             }
-            if (rec.poDiff !== 0 || rec.movementType === 'po_changed' || rec.movementType === 'transfer') {
+            if (rec.poDiff !== 0 || rec.movementType === 'po_changed' || rec.movementType === 'transfer' || rec.isPureTransfer) {
               poOrTransferCount++;
             }
 
@@ -9115,6 +9280,17 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           setTxt('mov-kpi-po', poOrTransferCount.toLocaleString());
           setTxt('mov-kpi-po-sub', poOrTransferCount > 0 ? (poOrTransferCount + ' PO / Area Transfers') : 'PO / Area Transfer Updates');
+
+          // Update Toolbar Filter Pill Live Counters
+          setTxt('mov-pill-cnt-all', allStockMovements.length.toLocaleString());
+          setTxt('mov-pill-cnt-opd', opdDispCount.toLocaleString());
+          setTxt('mov-pill-cnt-ward', wardReqCount.toLocaleString());
+          setTxt('mov-pill-cnt-transfers', pureTransferCount.toLocaleString());
+          setTxt('mov-pill-cnt-restocked', restockedCount.toLocaleString());
+          setTxt('mov-pill-cnt-deducted', deductedCount.toLocaleString());
+          setTxt('mov-pill-cnt-critical', criticalShiftCount.toLocaleString());
+          setTxt('mov-pill-cnt-recovered', recoveredCount.toLocaleString());
+          setTxt('mov-pill-cnt-po', poOrTransferCount.toLocaleString());
 
           // Populate 4 Area Cards
           const updateAreaCard = (prefix, st) => {
@@ -9187,9 +9363,12 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           movFiltered = (allStockMovements || []).filter(rec => {
             if (movFilterMode === 'RESTOCKED' && rec.netDiff <= 0) return false;
             if (movFilterMode === 'DEDUCTED' && rec.netDiff >= 0) return false;
+            if (movFilterMode === 'OPD_WALKIN' && !rec.isOpdDispensed) return false;
+            if (movFilterMode === 'WARD_REQUISITION' && !rec.isWardRequisition) return false;
+            if (movFilterMode === 'INTERNAL_TRANSFER' && !rec.isPureTransfer) return false;
             if (movFilterMode === 'CRITICAL_RISK' && !isItemCriticalRiskShift(rec)) return false;
             if (movFilterMode === 'RECOVERED' && !isItemRecoveredShift(rec)) return false;
-            if (movFilterMode === 'PO_CHANGED' && rec.poDiff === 0 && rec.movementType !== 'po_changed' && rec.movementType !== 'transfer') return false;
+            if (movFilterMode === 'PO_CHANGED' && rec.poDiff === 0 && !rec.isPureTransfer && rec.movementType !== 'po_changed' && rec.movementType !== 'transfer') return false;
 
             if (movAreaFilter === 'dispensing' && rec.dispDiff === 0) return false;
             if (movAreaFilter === 'storage' && rec.storDiff === 0) return false;
@@ -9257,7 +9436,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           // Build a top summary banner matching the active filter
           let bannerTitle = '📊 ALL DETECTED STOCK MOVEMENTS';
           let bannerCls = 'ne-tier-banner-9m';
-          if (movFilterMode === 'RESTOCKED') {
+          if (movFilterMode === 'OPD_WALKIN') {
+            bannerTitle = '🩺 OPD & WALK-IN COUNTER DISPENSING (FRONTLINE DISPENSING DELTAS)';
+            bannerCls = 'ne-tier-banner-status';
+          } else if (movFilterMode === 'WARD_REQUISITION') {
+            bannerTitle = '🏥 WARD & INPATIENT REQUISITIONS (PHARMACY STORAGE ISSUANCE)';
+            bannerCls = 'ne-tier-banner-6m';
+          } else if (movFilterMode === 'INTERNAL_TRANSFER') {
+            bannerTitle = '⇄ PURE INTERNAL AREA TRANSFERS (ROOM-TO-ROOM • NET ZERO VARIANCE)';
+            bannerCls = 'ne-tier-banner-donation';
+          } else if (movFilterMode === 'RESTOCKED') {
             bannerTitle = '📥 RESTOCKED / REPLENISHED MEDICINES (+QTY)';
             bannerCls = 'ne-tier-banner-status';
           } else if (movFilterMode === 'DEDUCTED') {
@@ -9320,28 +9508,90 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               : (rec.curStock > 0 ? '+100.0' : '0.0');
             const pctStr = (rec.netDiff > 0 && !String(pctDiff).startsWith('+')) ? ('+' + pctDiff + '%') : (pctDiff + '%');
 
-            // Area breakdown chips
-            const areaChips = [];
-            const fmtAreaChip = (label, diffVal, curVal, color) => {
-              if (diffVal === 0) return '';
-              const s = diffVal > 0 ? '+' : '';
-              const dColor = diffVal > 0 ? '#10b981' : '#ef4444';
-              return '<span class="mov-area-chip" title="' + label + ' changed by ' + s + fmt(diffVal) + ' (Now: ' + fmt(curVal) + ')">' +
-                '<span style="color:var(--text-muted);">' + label + ':</span>' +
-                '<strong style="color:' + dColor + ';">' + s + fmt(diffVal) + '</strong>' +
-                '</span>';
-            };
+            // Clinical channel badge
+            let channelBadgeHtml = '';
+            if (rec.isPureTransfer) {
+              channelBadgeHtml = '<span class="badge badge-purple text-xs" style="font-size:9.5px; font-weight:700;">⇄ Pure Transfer (Net 0)</span>';
+            } else if (rec.isDirectHospitalIssue) {
+              channelBadgeHtml = '<span class="badge badge-danger text-xs" style="font-size:9.5px; font-weight:700;">🏥 Direct Central Issue</span>';
+            } else if (rec.isOpdDispensed && rec.isWardRequisition) {
+              channelBadgeHtml = '<span class="badge badge-accent text-xs" style="font-size:9.5px; font-weight:700;">🩺 OPD + 🏥 Ward</span>';
+            } else if (rec.isOpdDispensed) {
+              channelBadgeHtml = '<span class="badge badge-accent text-xs" style="font-size:9.5px; font-weight:700;">🩺 Outpatient Counter</span>';
+            } else if (rec.isWardRequisition) {
+              channelBadgeHtml = '<span class="badge badge-ok text-xs" style="font-size:9.5px; font-weight:700;">🏥 Ward Requisition</span>';
+            } else if (rec.isRestocked) {
+              channelBadgeHtml = '<span class="badge badge-ok text-xs" style="font-size:9.5px; font-weight:700;">📥 Restocked Delivery</span>';
+            }
 
-            if (rec.dispDiff !== 0) areaChips.push(fmtAreaChip('Disp', rec.dispDiff, rec.curDisp));
-            if (rec.storDiff !== 0) areaChips.push(fmtAreaChip('Stor', rec.storDiff, rec.curStor));
-            if (rec.whseDiff !== 0) areaChips.push(fmtAreaChip('Whse', rec.whseDiff, rec.curWhse));
-            if (rec.consDiff !== 0) areaChips.push(fmtAreaChip('Cons', rec.consDiff, rec.curCons));
+            // Phase 4: Requesting End-User Department micro-chips
+            let endUserHtml = '';
+            if (typeof getRequestingEndUsers === 'function') {
+              const depts = getRequestingEndUsers(rec.item_code || rec.code, rec.dci_code);
+              if (depts && depts.length > 0) {
+                endUserHtml = '<div style="margin-top:4px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">' +
+                  '<span style="font-size:10px; color:var(--text-muted); font-weight:600;">🏥 Requisitioning:</span>' +
+                  depts.slice(0, 3).map(d => '<span class="badge badge-purple" style="font-size:9.5px; padding:1px 5px; font-weight:600;" title="Hospital ward/unit requisitioning this item">' + d + '</span>').join('') +
+                  (depts.length > 3 ? '<span class="text-xs text-muted" style="font-size:9px;" title="' + depts.slice(3).join(', ') + '">+' + (depts.length - 3) + ' more</span>' : '') +
+                  '</div>';
+              }
+            }
+
+            // Area breakdown chips with clinical context
+            const areaChips = [];
+            if (rec.isPureTransfer) {
+              areaChips.push('<span class="mov-area-chip mov-area-chip-transfer" title="Stock relocated between hospital areas with zero net inventory change">⇄ Pure Transfer (Net 0)</span>');
+            }
+
+            if (rec.dispDiff !== 0) {
+              const dSign = rec.dispDiff > 0 ? '+' : '';
+              const dColor = rec.dispDiff > 0 ? '#10b981' : '#ef4444';
+              const dCls = 'mov-area-chip-opd';
+              const dTitle = rec.dispDiff < 0
+                ? 'Frontline Outpatient / Walk-in Window dispensing (-' + fmt(Math.abs(rec.dispDiff)) + ' u). Current Dispensing: ' + fmt(rec.curDisp)
+                : 'Dispensing counter replenishment (+' + fmt(rec.dispDiff) + ' u). Current Dispensing: ' + fmt(rec.curDisp);
+              areaChips.push('<span class="mov-area-chip ' + dCls + '" title="' + dTitle + '"><span style="color:var(--text-muted);">🩺 OPD:</span> <strong style="color:' + dColor + ';">' + dSign + fmt(rec.dispDiff) + '</strong></span>');
+            }
+
+            if (rec.storDiff !== 0) {
+              const sSign = rec.storDiff > 0 ? '+' : '';
+              const sColor = rec.storDiff > 0 ? '#10b981' : '#ef4444';
+              const sCls = 'mov-area-chip-ward';
+              const sTitle = rec.storDiff < 0
+                ? 'Inpatient Ward requisition issued from Pharmacy Storage (-' + fmt(Math.abs(rec.storDiff)) + ' u). Current Storage: ' + fmt(rec.curStor)
+                : 'Pharmacy Storage replenished (+' + fmt(rec.storDiff) + ' u). Current Storage: ' + fmt(rec.curStor);
+              areaChips.push('<span class="mov-area-chip ' + sCls + '" title="' + sTitle + '"><span style="color:var(--text-muted);">🏥 Ward/Stor:</span> <strong style="color:' + sColor + ';">' + sSign + fmt(rec.storDiff) + '</strong></span>');
+            }
+
+            if (rec.whseDiff !== 0) {
+              const wSign = rec.whseDiff > 0 ? '+' : '';
+              const wColor = rec.whseDiff > 0 ? '#10b981' : '#ef4444';
+              const wTitle = rec.whseDiff < 0
+                ? 'Warehouse issue/relocation (-' + fmt(Math.abs(rec.whseDiff)) + ' u). Current Warehouse: ' + fmt(rec.curWhse)
+                : 'Warehouse delivery received (+' + fmt(rec.whseDiff) + ' u). Current Warehouse: ' + fmt(rec.curWhse);
+              areaChips.push('<span class="mov-area-chip" title="' + wTitle + '"><span style="color:var(--text-muted);">🏭 Whse:</span> <strong style="color:' + wColor + ';">' + wSign + fmt(rec.whseDiff) + '</strong></span>');
+            }
+
+            if (rec.consDiff !== 0) {
+              const cSign = rec.consDiff > 0 ? '+' : '';
+              const cColor = rec.consDiff > 0 ? '#10b981' : '#ef4444';
+              const cTitle = 'Consignment delta (' + cSign + fmt(rec.consDiff) + ' u). Current Consignment: ' + fmt(rec.curCons);
+              areaChips.push('<span class="mov-area-chip" title="' + cTitle + '"><span style="color:var(--text-muted);">🤝 Consign:</span> <strong style="color:' + cColor + ';">' + cSign + fmt(rec.consDiff) + '</strong></span>');
+            }
+
             if (rec.poDiff !== 0) {
               const pSign = rec.poDiff > 0 ? '+' : '';
-              areaChips.push('<span class="mov-area-chip" style="border-color:rgba(168,85,247,0.4);" title="Pending PO/CO changed from ' + fmt(rec.prevPo) + ' to ' + fmt(rec.curPo) + '"><span style="color:#c084fc;">PO: ' + pSign + fmt(rec.poDiff) + '</span></span>');
+              areaChips.push('<span class="mov-area-chip" style="border-color:rgba(168,85,247,0.4);" title="Pending PO/CO changed from ' + fmt(rec.prevPo) + ' to ' + fmt(rec.curPo) + '"><span style="color:#c084fc;">📋 PO: ' + pSign + fmt(rec.poDiff) + '</span></span>');
             }
+
             if (areaChips.length === 0) {
-              areaChips.push('<span class="text-xs text-muted">Overall Total Updated</span>');
+              if (rec.netDiff < 0) {
+                areaChips.push('<span class="mov-area-chip mov-area-chip-direct" title="Hospital-wide central stock deduction on Master Sheet without room breakdown. Click to inspect current room inventory.">🏥 Direct Total Issue: ' + fmt(rec.netDiff) + ' u</span>');
+              } else if (rec.netDiff > 0) {
+                areaChips.push('<span class="mov-area-chip" style="background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.35); color:#10b981;" title="Hospital-wide central restock entered on Master Sheet. Click to inspect current room inventory.">📥 Direct Restock: +' + fmt(rec.netDiff) + ' u</span>');
+              } else {
+                areaChips.push('<span class="text-xs text-muted">Stock Quantity Unchanged</span>');
+              }
             }
 
             const valAbs = Math.abs(rec.valImpact || 0);
@@ -9349,13 +9599,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const valColor = rec.valImpact > 0 ? 'var(--success)' : (rec.valImpact < 0 ? 'var(--danger)' : 'var(--text-muted)');
             const valHtml = valAbs > 0
               ? '<strong style="color:' + valColor + ';">' + valSign + '₱' + valAbs.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</strong>' +
-                (rec.unitCost > 0 ? '<div class="text-xs text-muted">@ ₱' + rec.unitCost.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '/u</div>' : '')
+              (rec.unitCost > 0 ? '<div class="text-xs text-muted">@ ₱' + rec.unitCost.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '/u</div>' : '')
               : '<span class="text-muted">—</span>';
 
             const statusChanged = rec.prevStatus !== rec.curStatus;
             const statusShiftHtml = statusChanged
               ? '<div style="font-size:10.5px; font-weight:700; margin-top:4px; color:' + (isItemCriticalRiskShift(rec) ? 'var(--danger)' : 'var(--accent)') + ';">' +
-                statusMiniLabel(rec.prevStatus) + ' → ' + statusMiniLabel(rec.curStatus) + '</div>'
+              statusMiniLabel(rec.prevStatus) + ' → ' + statusMiniLabel(rec.curStatus) + '</div>'
               : '<div class="text-xs text-muted" style="margin-top:3px;">' + fmtD(rec.curDays) + ' days on hand</div>';
 
             const clickCode = String(rec.item_code || rec.code || '').replace(/'/g, "\\'");
@@ -9368,8 +9618,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               '<div style="font-weight:700; color:var(--text-primary); line-height:1.35;">' + (rec.desc || '—') + '</div>' +
               '<div style="margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
               '<span class="badge ' + getTypeBadgeClass(rec.pharmacy_category) + ' text-xs">' + formatType(rec.pharmacy_category) + '</span>' +
+              (channelBadgeHtml ? channelBadgeHtml : '') +
               (rec.pharmacologic_category ? '<span class="text-xs text-muted">' + rec.pharmacologic_category + '</span>' : '') +
               '</div>' +
+              endUserHtml +
               '</td>' +
               '<td class="text-center">' + movBadgeHtml + '<div class="text-xs text-muted" style="margin-top:3px; font-weight:600;">' + pctStr + '</div></td>' +
               '<td class="num-cell">' +
@@ -9398,41 +9650,50 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             'Medicine Description',
             'Pharmacy Category',
             'Movement Type',
-            'Previous Total Stock',
-            'Current Total Stock',
-            'Net Variance (Qty)',
-            'Dispensing Delta',
-            'Storage Delta',
+            'Clinical Channel',
+            'Is Pure Transfer',
+            'OPD Counter Dispensed Qty',
+            'Ward Storage Requisition Qty',
             'Warehouse Delta',
             'Consignment Delta',
             'Pending PO Delta',
+            'Previous Total Stock',
+            'Current Total Stock',
+            'Net Variance (Qty)',
             'Unit Cost (PHP)',
             'Value Impact (PHP)',
             'Previous Status',
             'Current Status',
-            'Current Days on Hand'
+            'Current Days on Hand',
+            'Requesting Departments'
           ];
-          const rows = list.map((r, i) => [
-            i + 1,
-            r.item_code || r.code || '',
-            r.dci_code || '',
-            r.desc || '',
-            r.pharmacy_category || '',
-            r.movementType || '',
-            r.prevStock || 0,
-            r.curStock || 0,
-            r.netDiff || 0,
-            r.dispDiff || 0,
-            r.storDiff || 0,
-            r.whseDiff || 0,
-            r.consDiff || 0,
-            r.poDiff || 0,
-            r.unitCost || 0,
-            Math.round((r.valImpact || 0) * 100) / 100,
-            r.prevStatus || '',
-            r.curStatus || '',
-            r.curDays || 0
-          ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
+          const rows = list.map((r, i) => {
+            const depts = (typeof getRequestingEndUsers === 'function') ? getRequestingEndUsers(r.item_code || r.code, r.dci_code).join('; ') : '';
+            return [
+              i + 1,
+              r.item_code || r.code || '',
+              r.dci_code || '',
+              r.desc || '',
+              r.pharmacy_category || '',
+              r.movementType || '',
+              r.channelLabel || r.channel || '',
+              r.isPureTransfer ? 'YES' : 'NO',
+              r.opdDispUnits || 0,
+              r.wardReqUnits || 0,
+              r.whseDiff || 0,
+              r.consDiff || 0,
+              r.poDiff || 0,
+              r.prevStock || 0,
+              r.curStock || 0,
+              r.netDiff || 0,
+              r.unitCost || 0,
+              Math.round((r.valImpact || 0) * 100) / 100,
+              r.prevStatus || '',
+              r.curStatus || '',
+              r.curDays || 0,
+              depts
+            ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',');
+          });
 
           downloadCSV([headers.join(','), ...rows].join('\n'), 'armmc_stock_movements_audit.csv');
         }
@@ -9451,21 +9712,27 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           const restocked = list.filter(r => r.netDiff > 0);
           const deducted = list.filter(r => r.netDiff < 0);
+          const opdItems = list.filter(r => r.isOpdDispensed);
+          const wardItems = list.filter(r => r.isWardRequisition);
+          const transferItems = list.filter(r => r.isPureTransfer);
           const totalIn = restocked.reduce((s, r) => s + r.netDiff, 0);
           const totalOut = deducted.reduce((s, r) => s + Math.abs(r.netDiff), 0);
+          const totalOpdOut = opdItems.reduce((s, r) => s + (r.opdDispUnits || 0), 0);
+          const totalWardOut = wardItems.reduce((s, r) => s + (r.wardReqUnits || 0), 0);
 
           const rowsHtml = list.map((r, idx) => {
             const sign = r.netDiff > 0 ? '+' : '';
             const color = r.netDiff > 0 ? '#059669' : (r.netDiff < 0 ? '#dc2626' : '#0284c7');
             const areas = [];
-            if (r.dispDiff) areas.push('Disp: ' + (r.dispDiff > 0 ? '+' : '') + r.dispDiff.toLocaleString());
-            if (r.storDiff) areas.push('Stor: ' + (r.storDiff > 0 ? '+' : '') + r.storDiff.toLocaleString());
+            if (r.dispDiff) areas.push('OPD: ' + (r.dispDiff > 0 ? '+' : '') + r.dispDiff.toLocaleString());
+            if (r.storDiff) areas.push('Ward/Stor: ' + (r.storDiff > 0 ? '+' : '') + r.storDiff.toLocaleString());
             if (r.whseDiff) areas.push('Whse: ' + (r.whseDiff > 0 ? '+' : '') + r.whseDiff.toLocaleString());
             if (r.consDiff) areas.push('Cons: ' + (r.consDiff > 0 ? '+' : '') + r.consDiff.toLocaleString());
+            if (areas.length === 0 && r.netDiff !== 0) areas.push('Direct Central Issue');
             return '<tr>' +
               '<td style="text-align:center;">' + (idx + 1) + '</td>' +
               '<td><strong>' + (r.dci_code || r.code) + '</strong><br/><span style="font-size:10px;color:#64748b;">' + (r.item_code || '') + '</span></td>' +
-              '<td>' + (r.desc || '') + '</td>' +
+              '<td><strong>' + (r.desc || '') + '</strong><br/><span style="font-size:10.5px;color:#0284c7;">[' + (r.channelLabel || r.channel || 'Movement') + ']</span></td>' +
               '<td style="text-align:right;">' + (r.prevStock || 0).toLocaleString() + '</td>' +
               '<td style="text-align:right;"><strong>' + (r.curStock || 0).toLocaleString() + '</strong></td>' +
               '<td style="text-align:right;font-weight:700;color:' + color + ';">' + sign + (r.netDiff || 0).toLocaleString() + '</td>' +
@@ -9476,7 +9743,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           win.document.write('<!DOCTYPE html><html><head><title>ARMMC Pharmacy Stock Movement Audit Report</title>' +
             '<style>body{font-family:Arial,sans-serif;margin:24px;color:#0f172a;font-size:12px;}h1{margin:0 0 4px;font-size:18px;}p{margin:2px 0;color:#475569;}' +
-            '.summary{display:flex;gap:16px;margin:14px 0;padding:10px 14px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;}' +
+            '.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0;padding:12px 14px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;}' +
             'table{width:100%;border-collapse:collapse;margin-top:10px;}th,td{border:1px solid #cbd5e1;padding:6px 8px;text-align:left;font-size:11px;}' +
             'th{background:#f1f5f9;font-weight:700;} .sig-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:36px;padding-top:20px;}</style></head><body>' +
             '<h1>AMANG RODRIGUEZ MEMORIAL MEDICAL CENTER — PHARMACY INVENTORY MONITORING</h1>' +
@@ -9484,15 +9751,16 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             '<p><strong>Comparison Baseline:</strong> ' + movBaselineLabel + ' &nbsp;|&nbsp; <strong>Generated:</strong> ' + new Date().toLocaleString('en-PH') + '</p>' +
             '<div class="summary">' +
             '<div><strong>Total Medicines Changed:</strong> ' + list.length.toLocaleString() + '</div>' +
-            '<div style="color:#059669;"><strong>Restocked (+):</strong> ' + restocked.length + ' items (+' + totalIn.toLocaleString() + ' units)</div>' +
-            '<div style="color:#dc2626;"><strong>Deducted (-):</strong> ' + deducted.length + ' items (-' + totalOut.toLocaleString() + ' units)</div>' +
+            '<div style="color:#059669;"><strong>Restocked (+):</strong> ' + restocked.length + ' items (+' + totalIn.toLocaleString() + ' u)</div>' +
+            '<div style="color:#0284c7;"><strong>OPD / Walk-in:</strong> ' + opdItems.length + ' items (-' + totalOpdOut.toLocaleString() + ' u)</div>' +
+            '<div style="color:#6366f1;"><strong>Ward Requisitions:</strong> ' + wardItems.length + ' items (-' + totalWardOut.toLocaleString() + ' u)</div>' +
             '</div>' +
-            '<table><thead><tr><th>#</th><th>DCI / Item Code</th><th>Medicine Description</th><th>Prev Qty</th><th>Current Qty</th><th>Variance (Δ)</th><th>Area Breakdown</th><th>Current Status</th></tr></thead><tbody>' +
+            '<table><thead><tr><th>#</th><th>DCI / Item Code</th><th>Medicine Description &amp; Channel</th><th>Prev Qty</th><th>Current Qty</th><th>Variance (Δ)</th><th>Area Breakdown</th><th>Current Status</th></tr></thead><tbody>' +
             rowsHtml + '</tbody></table>' +
             '<div class="sig-grid"><div>___________________________<br/><strong>Prepared By:</strong> Pharmacy Staff</div>' +
             '<div>___________________________<br/><strong>Verified By:</strong> Senior Pharmacist</div>' +
             '<div>___________________________<br/><strong>Noted By:</strong> Chief Pharmacist</div></div>' +
-            '<script>window.onload=function(){window.print();}<\/script></body></html>');
+            '<script>window.onload=function(){window.print();}' + '<' + '/script></body></html>');
           win.document.close();
         }
 
