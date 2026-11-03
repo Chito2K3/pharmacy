@@ -4306,23 +4306,21 @@
                   <div class="table-toolbar" style="flex-wrap:wrap; gap:10px;">
                     <div id="mov-filter-pills" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                       <button type="button" class="ne-filter-pill active" data-mov-pill="ALL"
-                        onclick="setMovementFilterMode('ALL')">All Movements <span class="badge text-xs" id="mov-pill-cnt-all">0</span></button>
+                        onclick="setMovementFilterMode('ALL')" title="View all medicines in hospital catalog">🏥 All Medicines <span class="badge text-xs" id="mov-pill-cnt-all">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="OPD_WALKIN"
-                        onclick="setMovementFilterMode('OPD_WALKIN')" title="Frontline Outpatient &amp; Walk-in Counter dispensing">🩺 OPD &amp; Walk-in <span class="badge text-xs badge-accent" id="mov-pill-cnt-opd">0</span></button>
+                        onclick="setMovementFilterMode('OPD_WALKIN')" title="Frontline Outpatient &amp; Walk-in Counter dispensing">🩺 OPD Dispensed <span class="badge text-xs badge-accent" id="mov-pill-cnt-opd">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="WARD_REQUISITION"
-                        onclick="setMovementFilterMode('WARD_REQUISITION')" title="Inpatient Ward requisitions issued from Pharmacy Storage">🏥 Ward Requisitions <span class="badge text-xs badge-ok" id="mov-pill-cnt-ward">0</span></button>
-                      <button type="button" class="ne-filter-pill" data-mov-pill="INTERNAL_TRANSFER"
-                        onclick="setMovementFilterMode('INTERNAL_TRANSFER')" title="Pure room-to-room area relocations with zero net hospital inventory loss">⇄ Pure Transfers <span class="badge text-xs badge-purple" id="mov-pill-cnt-transfers">0</span></button>
+                        onclick="setMovementFilterMode('WARD_REQUISITION')" title="Inpatient Ward requisitions issued from Storage">🏥 Ward Requisitions <span class="badge text-xs badge-ok" id="mov-pill-cnt-ward">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="RESTOCKED"
-                        onclick="setMovementFilterMode('RESTOCKED')" title="Restocked deliveries and positive adjustments">📥 Restocked (+) <span class="badge text-xs badge-ok" id="mov-pill-cnt-restocked">0</span></button>
+                        onclick="setMovementFilterMode('RESTOCKED')" title="Medicines restocked from deliveries">📥 Restocked (+) <span class="badge text-xs badge-ok" id="mov-pill-cnt-restocked">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="DEDUCTED"
-                        onclick="setMovementFilterMode('DEDUCTED')" title="All stock deductions across hospital">📤 All Deductions (-) <span class="badge text-xs badge-danger" id="mov-pill-cnt-deducted">0</span></button>
+                        onclick="setMovementFilterMode('DEDUCTED')" title="All consumed/dispensed medicines">📤 All Deductions (-) <span class="badge text-xs badge-danger" id="mov-pill-cnt-deducted">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="STEADY"
+                        onclick="setMovementFilterMode('STEADY')" title="Medicines with no movement today (steady count)">⏸️ Steady / No Change <span class="badge text-xs" id="mov-pill-cnt-steady">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="CRITICAL_RISK"
                         onclick="setMovementFilterMode('CRITICAL_RISK')" title="Deductions resulting in Critical (&lt;30d) or OOS">🚨 Critical / OOS <span class="badge text-xs badge-warning" id="mov-pill-cnt-critical">0</span></button>
-                      <button type="button" class="ne-filter-pill" data-mov-pill="RECOVERED"
-                        onclick="setMovementFilterMode('RECOVERED')" title="Replenished and status improved">✅ Replenished <span class="badge text-xs" id="mov-pill-cnt-recovered">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="PO_CHANGED"
-                        onclick="setMovementFilterMode('PO_CHANGED')" title="Pending Purchase Orders and Area Shifts">📋 PO Changed <span class="badge text-xs" id="mov-pill-cnt-po">0</span></button>
+                        onclick="setMovementFilterMode('PO_CHANGED')" title="Pending Purchase Orders or Pure Room Transfers">📋 PO / Transfers <span class="badge text-xs" id="mov-pill-cnt-po">0</span></button>
                     </div>
 
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-left:auto;">
@@ -4361,22 +4359,11 @@
                       <thead>
                         <tr>
                           <th style="width:46px;" class="text-center">NO.</th>
-                          <th style="width:115px;" title="DCI Code and Master Item Code">DCI / CODE</th>
-                          <th style="width:82px;" class="text-center" title="Storage / Warehouse Pallet Location">LOC
-                          </th>
-                          <th title="Medicine description and pharmacy category">MEDICINE DESCRIPTION</th>
-                          <th class="text-center" style="width:140px;"
-                            title="Net stock movement direction and quantity variance">MOVEMENT (Δ QTY)</th>
-                          <th class="num-cell" style="width:155px;"
-                            title="Previous Baseline Stock vs. Current Live Stock">PREV → CURRENT QTY</th>
-                          <th style="width:210px;"
-                            title="Stock movement breakdown by hospital pharmacy area (Dispensing, Storage, Warehouse, Consignment)">
-                            AREA BREAKDOWN (Δ)</th>
-                          <th class="num-cell" style="width:130px;"
-                            title="Estimated Peso Valuation Change based on unit acquisition price">VALUE IMPACT (Δ ₱)
-                          </th>
-                          <th class="text-center" style="width:165px;"
-                            title="Previous vs. Current Stock Status and Days on Hand">STATUS &amp; DAYS</th>
+                          <th style="min-width:240px;" title="Medicine name, master code, category, and hospital requisitioning wards">MEDICINE &amp; WARDS</th>
+                          <th style="min-width:250px;" title="Current physical on-hand stock distributed across hospital rooms">CURRENT STOCK BY ROOM</th>
+                          <th style="min-width:210px;" title="Recent stock activity (dispensed, ward issued, restocked, or steady)">TODAY'S MOVEMENT</th>
+                          <th class="num-cell" style="width:145px;" title="Total true physical on-hand stock and daily net variance">TOTAL ON HAND</th>
+                          <th class="text-center" style="width:130px;" title="Stock health status and estimated days on hand">STOCK HEALTH</th>
                         </tr>
                       </thead>
                       <tbody id="mov-tbody"></tbody>
@@ -6609,9 +6596,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const added = [];
           const removed = [];
           const poUpdated = [];
+          const steady = [];
           const allMovements = [];
+
+          if (!Array.isArray(currentItems)) return { restocked, deducted, added, removed, poUpdated, steady, allMovements };
+
           const currentCodes = new Set();
-          const areaMap = fallbackAreaMap || window.REPO_BASELINE_MAP || null;
+          const areaMap = fallbackAreaMap || (typeof window !== 'undefined' ? window.REPO_BASELINE_MAP : null);
 
           for (let i = 0; i < currentItems.length; i++) {
             const it = currentItems[i];
@@ -6629,55 +6620,111 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             const avgDemand = parseFloat(it.avg_monthly_normalized_demand || it.avg_monthly_consumption || 0) || 0;
             const unitCost = parseFloat(it.acquisition_price !== undefined ? it.acquisition_price : it.unit_cost) || parseFloat(it.selling_price) || 0;
 
+            const curPhysicalStock = curDisp + curStor + curWhse + curCons;
+
             if (prevStockMap) {
+              const isSparseBaseline = Object.keys(prevStockMap).length < (currentItems.length / 2);
               if (prevStockMap[code] === undefined) {
-                const newRec = {
-                  code: code,
-                  item_code: it.item_code || code,
-                  dci_code: it.dci_code || '',
-                  desc: it.description || it.generic_name || code,
-                  pharmacy_category: it.pharmacy_category || '',
-                  pharmacologic_category: it.pharmacologic_category || '',
-                  movementType: 'added',
-                  channel: 'RESTOCKED',
-                  channelLabel: 'New Item Restocked',
-                  isPureTransfer: false,
-                  isOpdDispensed: false,
-                  isWardRequisition: false,
-                  isWhseWithdrawal: false,
-                  isConsWithdrawal: false,
-                  isRestocked: true,
-                  isDirectHospitalIssue: false,
-                  opdDispUnits: 0,
-                  wardReqUnits: 0,
-                  whseUnits: curWhse,
-                  consUnits: curCons,
-                  prevStock: 0,
-                  curStock: curStock,
-                  diff: curStock,
-                  netDiff: curStock,
-                  hasAreaDetail: true,
-                  dispDiff: curDisp,
-                  storDiff: curStor,
-                  whseDiff: curWhse,
-                  consDiff: curCons,
-                  poDiff: curPo,
-                  prevPo: 0,
-                  curPo: curPo,
-                  unitCost: unitCost,
-                  valImpact: curStock * unitCost,
-                  prevDays: 0,
-                  curDays: curDays,
-                  prevStatus: 'outofstock',
-                  curStatus: stockStatus(curDays, curStock)
-                };
-                added.push(newRec);
-                allMovements.push(newRec);
+                if (isSparseBaseline) {
+                  // In a sparse delta baseline, an unlisted item had no changes (Steady)
+                  const rec = {
+                    code: code,
+                    item_code: it.item_code || code,
+                    dci_code: it.dci_code || '',
+                    desc: it.description || it.generic_name || code,
+                    pharmacy_category: it.pharmacy_category || '',
+                    pharmacologic_category: it.pharmacologic_category || '',
+                    isSteady: true,
+                    isMoved: false,
+                    movementType: 'steady',
+                    channel: 'STEADY',
+                    channelLabel: '⏸️ Steady (0 change)',
+                    isPureTransfer: false,
+                    isOpdDispensed: false,
+                    isWardRequisition: false,
+                    isWhseWithdrawal: false,
+                    isConsWithdrawal: false,
+                    isRestocked: false,
+                    isDirectHospitalIssue: false,
+                    opdDispUnits: 0,
+                    wardReqUnits: 0,
+                    whseUnits: 0,
+                    consUnits: 0,
+                    sheetGap: curStock - curPhysicalStock,
+                    curPhysicalStock: curPhysicalStock,
+                    prevPhysicalStock: curPhysicalStock,
+                    prevStock: curStock,
+                    curStock: curStock,
+                    diff: 0,
+                    netDiff: 0,
+                    hasAreaDetail: true,
+                    prevDisp: curDisp, curDisp: curDisp, dispDiff: 0,
+                    prevStor: curStor, curStor: curStor, storDiff: 0,
+                    prevWhse: curWhse, curWhse: curWhse, whseDiff: 0,
+                    prevCons: curCons, curCons: curCons, consDiff: 0,
+                    prevPo: curPo, curPo: curPo, poDiff: 0,
+                    unitCost: unitCost,
+                    valImpact: 0,
+                    prevDays: curDays,
+                    curDays: curDays,
+                    prevStatus: stockStatus(curDays, curStock),
+                    curStatus: stockStatus(curDays, curStock)
+                  };
+                  steady.push(rec);
+                  allMovements.push(rec);
+                } else {
+                  const newRec = {
+                    code: code,
+                    item_code: it.item_code || code,
+                    dci_code: it.dci_code || '',
+                    desc: it.description || it.generic_name || code,
+                    pharmacy_category: it.pharmacy_category || '',
+                    pharmacologic_category: it.pharmacologic_category || '',
+                    movementType: 'added',
+                    channel: 'RESTOCKED',
+                    channelLabel: 'New Item Restocked',
+                    isSteady: false,
+                    isPureTransfer: false,
+                    isOpdDispensed: false,
+                    isWardRequisition: false,
+                    isWhseWithdrawal: false,
+                    isConsWithdrawal: false,
+                    isRestocked: true,
+                    isDirectHospitalIssue: false,
+                    opdDispUnits: 0,
+                    wardReqUnits: 0,
+                    whseUnits: curWhse,
+                    consUnits: curCons,
+                    sheetGap: curStock - curPhysicalStock,
+                    curPhysicalStock: curPhysicalStock,
+                    prevPhysicalStock: 0,
+                    prevStock: 0,
+                    curStock: curStock,
+                    diff: curStock,
+                    netDiff: curStock,
+                    hasAreaDetail: true,
+                    dispDiff: curDisp,
+                    storDiff: curStor,
+                    whseDiff: curWhse,
+                    consDiff: curCons,
+                    poDiff: curPo,
+                    prevPo: 0,
+                    curPo: curPo,
+                    unitCost: unitCost,
+                    valImpact: curStock * unitCost,
+                    prevDays: 0,
+                    curDays: curDays,
+                    prevStatus: 'outofstock',
+                    curStatus: stockStatus(curDays, curStock)
+                  };
+                  added.push(newRec);
+                  restocked.push(newRec);
+                  allMovements.push(newRec);
+                }
               } else {
                 const rawEntry = prevStockMap[code];
                 const isObj = rawEntry !== null && typeof rawEntry === 'object';
                 const prevStock = isObj ? Math.round(Number(rawEntry.s) || 0) : Math.round(Number(rawEntry) || 0);
-                const diff = curStock - prevStock;
 
                 // Use detailed area numbers from snapshot or from matching repo baseline
                 const repoEntry = (!isObj && areaMap && areaMap[code] && areaMap[code].s === prevStock) ? areaMap[code] : null;
@@ -6696,6 +6743,60 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 const consDiff = hasAreaDetail ? (curCons - prevCons) : 0;
                 const poDiff = hasAreaDetail ? (curPo - prevPo) : 0;
 
+                const prevPhysicalStock = hasAreaDetail ? (prevDisp + prevStor + prevWhse + prevCons) : prevStock;
+                const physicalDelta = hasAreaDetail ? (curPhysicalStock - prevPhysicalStock) : (curStock - prevStock);
+                const sheetDiff = curStock - prevStock;
+                const sheetGap = hasAreaDetail ? (curStock - curPhysicalStock) : 0;
+
+                const areaTransferred = hasAreaDetail && (dispDiff !== 0 || storDiff !== 0 || whseDiff !== 0 || consDiff !== 0);
+
+                // Reconciled effective delta:
+                // When sub-room numbers changed, physicalDelta represents actual inventory movement!
+                const effectiveDiff = (hasAreaDetail && areaTransferred) ? physicalDelta : sheetDiff;
+                const isMoved = (effectiveDiff !== 0 || poDiff !== 0 || areaTransferred);
+
+                const isPureTransfer = (effectiveDiff === 0 && areaTransferred);
+                const isOpdDispensed = (dispDiff < 0);
+                const isWardRequisition = (storDiff < 0);
+                const isWhseWithdrawal = (whseDiff < 0);
+                const isConsWithdrawal = (consDiff < 0);
+                const isRestocked = (effectiveDiff > 0);
+                const isDirectHospitalIssue = (effectiveDiff < 0 && (!hasAreaDetail || (dispDiff === 0 && storDiff === 0 && whseDiff === 0 && consDiff === 0)));
+
+                let channel = 'STEADY';
+                let channelLabel = '⏸️ Steady (0 change)';
+                if (!isMoved) {
+                  channel = 'STEADY';
+                  channelLabel = '⏸️ Steady (0 change)';
+                } else if (isPureTransfer) {
+                  channel = 'INTERNAL_TRANSFER';
+                  channelLabel = 'Internal Transfer (Net 0)';
+                } else if (isRestocked) {
+                  channel = 'RESTOCKED';
+                  channelLabel = 'Restocked / Delivery';
+                } else if (isDirectHospitalIssue) {
+                  channel = 'DIRECT_HOSPITAL_ISSUE';
+                  channelLabel = 'Hospital-Wide Direct Issue';
+                } else if (isOpdDispensed && isWardRequisition) {
+                  channel = 'MIXED_OPD_AND_WARD';
+                  channelLabel = 'OPD & Ward Issued';
+                } else if (isOpdDispensed) {
+                  channel = 'OPD_WALKIN';
+                  channelLabel = 'OPD / Walk-in Dispensed';
+                } else if (isWardRequisition) {
+                  channel = 'WARD_REQUISITION';
+                  channelLabel = 'Ward Requisition';
+                } else if (isWhseWithdrawal) {
+                  channel = 'WHSE_WITHDRAWAL';
+                  channelLabel = 'Warehouse Issue';
+                } else if (effectiveDiff < 0) {
+                  channel = 'DEDUCTED';
+                  channelLabel = 'Stock Deducted';
+                } else if (poDiff !== 0) {
+                  channel = 'PO_CHANGED';
+                  channelLabel = 'PO Updated';
+                }
+
                 const prevDays = (hasAreaDetail && detailObj.days !== undefined)
                   ? Number(detailObj.days)
                   : (avgDemand > 0 ? Math.round((prevStock / avgDemand) * 30 * 10) / 10 : curDays);
@@ -6703,93 +6804,56 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 const prevStatus = stockStatus(prevDays, prevStock);
                 const curStatus = stockStatus(curDays, curStock);
 
-                const areaTransferred = hasAreaDetail && (dispDiff !== 0 || storDiff !== 0 || whseDiff !== 0 || consDiff !== 0);
+                const rec = {
+                  code: code,
+                  item_code: it.item_code || code,
+                  dci_code: it.dci_code || '',
+                  desc: it.description || it.generic_name || code,
+                  pharmacy_category: it.pharmacy_category || '',
+                  pharmacologic_category: it.pharmacologic_category || '',
+                  isSteady: !isMoved,
+                  isMoved: isMoved,
+                  movementType: isMoved ? (effectiveDiff > 0 ? 'restocked' : (effectiveDiff < 0 ? 'deducted' : 'transfer')) : 'steady',
+                  channel: channel,
+                  channelLabel: channelLabel,
+                  isPureTransfer: isPureTransfer,
+                  isOpdDispensed: isOpdDispensed,
+                  isWardRequisition: isWardRequisition,
+                  isWhseWithdrawal: isWhseWithdrawal,
+                  isConsWithdrawal: isConsWithdrawal,
+                  isRestocked: isRestocked,
+                  isDirectHospitalIssue: isDirectHospitalIssue,
+                  opdDispUnits: dispDiff < 0 ? Math.abs(dispDiff) : 0,
+                  wardReqUnits: storDiff < 0 ? Math.abs(storDiff) : 0,
+                  whseUnits: whseDiff,
+                  consUnits: consDiff,
+                  curPhysicalStock: curPhysicalStock,
+                  prevPhysicalStock: prevPhysicalStock,
+                  sheetGap: sheetGap,
+                  prevStock: prevStock,
+                  curStock: curStock,
+                  diff: Math.abs(effectiveDiff),
+                  netDiff: effectiveDiff,
+                  hasAreaDetail: hasAreaDetail,
+                  prevDisp: prevDisp, curDisp: curDisp, dispDiff: dispDiff,
+                  prevStor: prevStor, curStor: curStor, storDiff: storDiff,
+                  prevWhse: prevWhse, curWhse: curWhse, whseDiff: whseDiff,
+                  prevCons: prevCons, curCons: curCons, consDiff: consDiff,
+                  prevPo: prevPo, curPo: curPo, poDiff: poDiff,
+                  unitCost: unitCost,
+                  valImpact: effectiveDiff * unitCost,
+                  prevDays: prevDays,
+                  curDays: curDays,
+                  prevStatus: prevStatus,
+                  curStatus: curStatus
+                };
 
-                if (diff !== 0 || poDiff !== 0 || areaTransferred) {
-                  const isPureTransfer = (diff === 0 && areaTransferred);
-                  const isOpdDispensed = (dispDiff < 0);
-                  const isWardRequisition = (storDiff < 0);
-                  const isWhseWithdrawal = (whseDiff < 0);
-                  const isConsWithdrawal = (consDiff < 0);
-                  const isRestocked = (diff > 0);
-                  const isDirectHospitalIssue = (diff < 0 && (!hasAreaDetail || (dispDiff === 0 && storDiff === 0 && whseDiff === 0 && consDiff === 0)));
+                if (!isMoved) steady.push(rec);
+                else if (effectiveDiff > 0) restocked.push(rec);
+                else if (effectiveDiff < 0) deducted.push(rec);
+                else poUpdated.push(rec);
 
-                  let channel = 'OTHER';
-                  let channelLabel = 'Other Movement';
-                  if (isPureTransfer) {
-                    channel = 'INTERNAL_TRANSFER';
-                    channelLabel = 'Internal Transfer (Net 0)';
-                  } else if (isRestocked) {
-                    channel = 'RESTOCKED';
-                    channelLabel = 'Restocked / Delivery';
-                  } else if (isDirectHospitalIssue) {
-                    channel = 'DIRECT_HOSPITAL_ISSUE';
-                    channelLabel = 'Hospital-Wide Direct Issue';
-                  } else if (isOpdDispensed && isWardRequisition) {
-                    channel = 'MIXED_OPD_AND_WARD';
-                    channelLabel = 'OPD & Ward Issued';
-                  } else if (isOpdDispensed) {
-                    channel = 'OPD_WALKIN';
-                    channelLabel = 'OPD / Walk-in Dispensed';
-                  } else if (isWardRequisition) {
-                    channel = 'WARD_REQUISITION';
-                    channelLabel = 'Ward Requisition';
-                  } else if (isWhseWithdrawal) {
-                    channel = 'WHSE_WITHDRAWAL';
-                    channelLabel = 'Warehouse Issue';
-                  } else if (diff < 0) {
-                    channel = 'DEDUCTED';
-                    channelLabel = 'Stock Deducted';
-                  } else if (poDiff !== 0) {
-                    channel = 'PO_CHANGED';
-                    channelLabel = 'PO Updated';
-                  }
-
-                  const rec = {
-                    code: code,
-                    item_code: it.item_code || code,
-                    dci_code: it.dci_code || '',
-                    desc: it.description || it.generic_name || code,
-                    pharmacy_category: it.pharmacy_category || '',
-                    pharmacologic_category: it.pharmacologic_category || '',
-                    movementType: diff > 0 ? 'restocked' : (diff < 0 ? 'deducted' : (poDiff !== 0 ? 'po_changed' : 'transfer')),
-                    channel: channel,
-                    channelLabel: channelLabel,
-                    isPureTransfer: isPureTransfer,
-                    isOpdDispensed: isOpdDispensed,
-                    isWardRequisition: isWardRequisition,
-                    isWhseWithdrawal: isWhseWithdrawal,
-                    isConsWithdrawal: isConsWithdrawal,
-                    isRestocked: isRestocked,
-                    isDirectHospitalIssue: isDirectHospitalIssue,
-                    opdDispUnits: dispDiff < 0 ? Math.abs(dispDiff) : 0,
-                    wardReqUnits: storDiff < 0 ? Math.abs(storDiff) : 0,
-                    whseUnits: whseDiff,
-                    consUnits: consDiff,
-                    prevStock: prevStock,
-                    curStock: curStock,
-                    diff: Math.abs(diff),
-                    netDiff: diff,
-                    hasAreaDetail: hasAreaDetail,
-                    prevDisp: prevDisp, curDisp: curDisp, dispDiff: dispDiff,
-                    prevStor: prevStor, curStor: curStor, storDiff: storDiff,
-                    prevWhse: prevWhse, curWhse: curWhse, whseDiff: whseDiff,
-                    prevCons: prevCons, curCons: curCons, consDiff: consDiff,
-                    prevPo: prevPo, curPo: curPo, poDiff: poDiff,
-                    unitCost: unitCost,
-                    valImpact: diff * unitCost,
-                    prevDays: prevDays,
-                    curDays: curDays,
-                    prevStatus: prevStatus,
-                    curStatus: curStatus
-                  };
-
-                  if (diff > 0) restocked.push(rec);
-                  else if (diff < 0) deducted.push(rec);
-                  else poUpdated.push(rec);
-
-                  allMovements.push(rec);
-                }
+                allMovements.push(rec);
               }
             }
           }
@@ -6802,7 +6866,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             });
           }
 
-          return { restocked, deducted, added, removed, poUpdated, allMovements };
+          return { restocked, deducted, added, removed, poUpdated, steady, allMovements };
         }
 
         // Embedded Oct 30, 2026 pre-sync audit baseline (279 modified items: 9 restocked, 269 deducted, 1 transfer)
@@ -9207,8 +9271,11 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             consignment: { count: 0, inUnits: 0, outUnits: 0, net: 0 }
           };
 
+          let steadyCount = 0;
           allStockMovements.forEach(rec => {
-            if (rec.netDiff > 0) {
+            if (rec.isSteady) {
+              steadyCount++;
+            } else if (rec.netDiff > 0) {
               restockedCount++;
               restockedUnits += rec.netDiff;
               restockedVal += Math.max(0, rec.valImpact || 0);
@@ -9263,8 +9330,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const netTotalUnits = restockedUnits - deductedUnits;
           const netSign = netTotalUnits > 0 ? '+' : '';
 
+          const movedTotal = allStockMovements.length - steadyCount;
           setTxt('mov-kpi-total', allStockMovements.length.toLocaleString());
-          setTxt('mov-kpi-total-sub', restockedCount + ' Restocked • ' + deductedCount + ' Deducted (Net: ' + netSign + fmt(netTotalUnits) + ' u)');
+          setTxt('mov-kpi-total-sub', movedTotal.toLocaleString() + ' Moved • ' + steadyCount.toLocaleString() + ' Steady (Net: ' + netSign + fmt(netTotalUnits) + ' u)');
 
           setTxt('mov-kpi-restocked', restockedCount.toLocaleString());
           setTxt('mov-kpi-restocked-sub', '+' + fmt(restockedUnits) + ' Units Added' + (restockedVal > 0 ? ' • +₱' + Math.round(restockedVal).toLocaleString('en-PH') : ''));
@@ -9285,11 +9353,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           setTxt('mov-pill-cnt-all', allStockMovements.length.toLocaleString());
           setTxt('mov-pill-cnt-opd', opdDispCount.toLocaleString());
           setTxt('mov-pill-cnt-ward', wardReqCount.toLocaleString());
-          setTxt('mov-pill-cnt-transfers', pureTransferCount.toLocaleString());
           setTxt('mov-pill-cnt-restocked', restockedCount.toLocaleString());
           setTxt('mov-pill-cnt-deducted', deductedCount.toLocaleString());
+          setTxt('mov-pill-cnt-steady', steadyCount.toLocaleString());
           setTxt('mov-pill-cnt-critical', criticalShiftCount.toLocaleString());
-          setTxt('mov-pill-cnt-recovered', recoveredCount.toLocaleString());
           setTxt('mov-pill-cnt-po', poOrTransferCount.toLocaleString());
 
           // Populate 4 Area Cards
@@ -9363,6 +9430,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           movFiltered = (allStockMovements || []).filter(rec => {
             if (movFilterMode === 'RESTOCKED' && rec.netDiff <= 0) return false;
             if (movFilterMode === 'DEDUCTED' && rec.netDiff >= 0) return false;
+            if (movFilterMode === 'STEADY' && !rec.isSteady) return false;
             if (movFilterMode === 'OPD_WALKIN' && !rec.isOpdDispensed) return false;
             if (movFilterMode === 'WARD_REQUISITION' && !rec.isWardRequisition) return false;
             if (movFilterMode === 'INTERNAL_TRANSFER' && !rec.isPureTransfer) return false;
@@ -9425,7 +9493,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           if (!tbody) return;
 
           if (!movFiltered || movFiltered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📋</div><p>No stock movements match your current filter selection.</p></div></td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><p>No medicines match your current filter selection.</p></div></td></tr>';
             renderPagination('mov', 0, 1, MOV_PAGE_SIZE);
             return;
           }
@@ -9433,32 +9501,28 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const start = (movPage - 1) * MOV_PAGE_SIZE;
           const pageItems = movFiltered.slice(start, start + MOV_PAGE_SIZE);
 
-          // Build a top summary banner matching the active filter
-          let bannerTitle = '📊 ALL DETECTED STOCK MOVEMENTS';
+          let bannerTitle = '🏥 ALL HOSPITAL MEDICINES INVENTORY & MOVEMENT';
           let bannerCls = 'ne-tier-banner-9m';
           if (movFilterMode === 'OPD_WALKIN') {
-            bannerTitle = '🩺 OPD & WALK-IN COUNTER DISPENSING (FRONTLINE DISPENSING DELTAS)';
+            bannerTitle = '🩺 OPD & WALK-IN COUNTER DISPENSING';
             bannerCls = 'ne-tier-banner-status';
           } else if (movFilterMode === 'WARD_REQUISITION') {
-            bannerTitle = '🏥 WARD & INPATIENT REQUISITIONS (PHARMACY STORAGE ISSUANCE)';
+            bannerTitle = '🏥 WARD & INPATIENT REQUISITIONS (PHARMACY STORAGE)';
             bannerCls = 'ne-tier-banner-6m';
-          } else if (movFilterMode === 'INTERNAL_TRANSFER') {
-            bannerTitle = '⇄ PURE INTERNAL AREA TRANSFERS (ROOM-TO-ROOM • NET ZERO VARIANCE)';
-            bannerCls = 'ne-tier-banner-donation';
           } else if (movFilterMode === 'RESTOCKED') {
-            bannerTitle = '📥 RESTOCKED / REPLENISHED MEDICINES (+QTY)';
+            bannerTitle = '📥 RESTOCKED / REPLENISHED DELIVERIES (+QTY)';
             bannerCls = 'ne-tier-banner-status';
           } else if (movFilterMode === 'DEDUCTED') {
-            bannerTitle = '📤 STOCK DEDUCTIONS / ISSUED MEDICINES (-QTY)';
+            bannerTitle = '📤 STOCK DEDUCTIONS & DISPENSED MEDICINES (-QTY)';
             bannerCls = 'ne-tier-banner-3m';
+          } else if (movFilterMode === 'STEADY') {
+            bannerTitle = '⏸️ STEADY MEDICINES (NO MOVEMENT TODAY)';
+            bannerCls = 'ne-tier-banner-donation';
           } else if (movFilterMode === 'CRITICAL_RISK') {
-            bannerTitle = '🚨 DEDUCTED INTO CRITICAL (<30D) OR OUT OF STOCK (0 QTY)';
+            bannerTitle = '🚨 CRITICAL (<30D) OR OUT OF STOCK (0 QTY)';
             bannerCls = 'ne-tier-banner-risk';
-          } else if (movFilterMode === 'RECOVERED') {
-            bannerTitle = '✅ REPLENISHED & STOCK STATUS IMPROVED';
-            bannerCls = 'ne-tier-banner-status';
           } else if (movFilterMode === 'PO_CHANGED') {
-            bannerTitle = '📋 PENDING PO / INTERNAL AREA TRANSFERS';
+            bannerTitle = '📋 PENDING PURCHASE ORDERS & TRANSFERS';
             bannerCls = 'ne-tier-banner-donation';
           }
 
@@ -9472,10 +9536,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           const netPrefix = totalNetQty > 0 ? '+' : '';
 
           let html = '<tr class="ne-tier-banner-row ' + bannerCls + '">' +
-            '<td colspan="9">' + bannerTitle + ' — ' +
+            '<td colspan="6">' + bannerTitle + ' — ' +
             movFiltered.length.toLocaleString() + ' Medicine' + (movFiltered.length === 1 ? '' : 's') +
-            ' (Net Variance: ' + netPrefix + fmt(totalNetQty) + ' Units' +
-            (totalAbsVal > 0 ? ' • Total Value Volume: ₱' + Math.round(totalAbsVal).toLocaleString('en-PH') : '') +
+            ' (Net Movement: ' + netPrefix + fmt(totalNetQty) + ' Units' +
+            (totalAbsVal > 0 ? ' • Total Valuation: ₱' + Math.round(totalAbsVal).toLocaleString('en-PH') : '') +
             ')</td></tr>';
 
           const statusMiniLabel = (st) => {
@@ -9489,147 +9553,116 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           pageItems.forEach((rec, idx) => {
             const displayCode = rec.dci_code || rec.code || '—';
-            const locBadgeHtml = typeof locationBadge === 'function' ? locationBadge(rec.item_code || rec.code) : '—';
+            const locBadgeHtml = typeof locationBadge === 'function' ? locationBadge(rec.item_code || rec.code) : '';
 
-            let movBadgeHtml = '';
-            if (rec.netDiff > 0) {
-              movBadgeHtml = '<span class="mov-delta-pos">▲ +' + fmt(rec.netDiff) + ' u</span>';
-            } else if (rec.netDiff < 0) {
-              movBadgeHtml = '<span class="mov-delta-neg">▼ ' + fmt(rec.netDiff) + ' u</span>';
-            } else if (rec.poDiff !== 0) {
-              const pSign = rec.poDiff > 0 ? '+' : '';
-              movBadgeHtml = '<span class="mov-delta-neutral">📋 PO ' + pSign + fmt(rec.poDiff) + '</span>';
-            } else {
-              movBadgeHtml = '<span class="mov-delta-neutral">⇄ Area Shift</span>';
-            }
-
-            const pctDiff = rec.prevStock > 0
-              ? ((rec.netDiff / rec.prevStock) * 100).toFixed(1)
-              : (rec.curStock > 0 ? '+100.0' : '0.0');
-            const pctStr = (rec.netDiff > 0 && !String(pctDiff).startsWith('+')) ? ('+' + pctDiff + '%') : (pctDiff + '%');
-
-            // Clinical channel badge
-            let channelBadgeHtml = '';
-            if (rec.isPureTransfer) {
-              channelBadgeHtml = '<span class="badge badge-purple text-xs" style="font-size:9.5px; font-weight:700;">⇄ Pure Transfer (Net 0)</span>';
-            } else if (rec.isDirectHospitalIssue) {
-              channelBadgeHtml = '<span class="badge badge-danger text-xs" style="font-size:9.5px; font-weight:700;">🏥 Direct Central Issue</span>';
-            } else if (rec.isOpdDispensed && rec.isWardRequisition) {
-              channelBadgeHtml = '<span class="badge badge-accent text-xs" style="font-size:9.5px; font-weight:700;">🩺 OPD + 🏥 Ward</span>';
-            } else if (rec.isOpdDispensed) {
-              channelBadgeHtml = '<span class="badge badge-accent text-xs" style="font-size:9.5px; font-weight:700;">🩺 Outpatient Counter</span>';
-            } else if (rec.isWardRequisition) {
-              channelBadgeHtml = '<span class="badge badge-ok text-xs" style="font-size:9.5px; font-weight:700;">🏥 Ward Requisition</span>';
-            } else if (rec.isRestocked) {
-              channelBadgeHtml = '<span class="badge badge-ok text-xs" style="font-size:9.5px; font-weight:700;">📥 Restocked Delivery</span>';
-            }
-
-            // Phase 4: Requesting End-User Department micro-chips
+            // Requesting wards
             let endUserHtml = '';
             if (typeof getRequestingEndUsers === 'function') {
               const depts = getRequestingEndUsers(rec.item_code || rec.code, rec.dci_code);
               if (depts && depts.length > 0) {
                 endUserHtml = '<div style="margin-top:4px; display:flex; align-items:center; gap:4px; flex-wrap:wrap;">' +
-                  '<span style="font-size:10px; color:var(--text-muted); font-weight:600;">🏥 Requisitioning:</span>' +
+                  '<span style="font-size:10px; color:var(--text-muted); font-weight:600;">🏥 Wards:</span>' +
                   depts.slice(0, 3).map(d => '<span class="badge badge-purple" style="font-size:9.5px; padding:1px 5px; font-weight:600;" title="Hospital ward/unit requisitioning this item">' + d + '</span>').join('') +
                   (depts.length > 3 ? '<span class="text-xs text-muted" style="font-size:9px;" title="' + depts.slice(3).join(', ') + '">+' + (depts.length - 3) + ' more</span>' : '') +
                   '</div>';
               }
             }
 
-            // Area breakdown chips with clinical context
-            const areaChips = [];
-            if (rec.isPureTransfer) {
-              areaChips.push('<span class="mov-area-chip mov-area-chip-transfer" title="Stock relocated between hospital areas with zero net inventory change">⇄ Pure Transfer (Net 0)</span>');
-            }
+            // Column 2: Current Physical Stock By Room
+            const roomStockHtml = '<div style="display:flex; flex-wrap:wrap; gap:4px;">' +
+              '<span class="mov-area-chip mov-area-chip-opd" title="Frontline Outpatient Dispensing Window Stock">' +
+              '<span style="color:var(--text-muted);">🩺 OPD:</span> <strong>' + fmt(rec.curDisp) + '</strong>' +
+              '</span>' +
+              '<span class="mov-area-chip mov-area-chip-ward" title="Pharmacy Storage Shelf Stock (Hospital Wards)">' +
+              '<span style="color:var(--text-muted);">📦 Stor:</span> <strong>' + fmt(rec.curStor) + '</strong>' +
+              '</span>' +
+              '<span class="mov-area-chip" title="Central Warehouse Pallet Stock">' +
+              '<span style="color:var(--text-muted);">🏭 Whse:</span> <strong>' + fmt(rec.curWhse) + '</strong>' +
+              '</span>' +
+              (rec.curCons > 0 ? '<span class="mov-area-chip" title="Consignment Stock"><span style="color:var(--text-muted);">🤝 Consign:</span> <strong>' + fmt(rec.curCons) + '</strong></span>' : '') +
+              '</div>';
 
-            if (rec.dispDiff !== 0) {
-              const dSign = rec.dispDiff > 0 ? '+' : '';
-              const dColor = rec.dispDiff > 0 ? '#10b981' : '#ef4444';
-              const dCls = 'mov-area-chip-opd';
-              const dTitle = rec.dispDiff < 0
-                ? 'Frontline Outpatient / Walk-in Window dispensing (-' + fmt(Math.abs(rec.dispDiff)) + ' u). Current Dispensing: ' + fmt(rec.curDisp)
-                : 'Dispensing counter replenishment (+' + fmt(rec.dispDiff) + ' u). Current Dispensing: ' + fmt(rec.curDisp);
-              areaChips.push('<span class="mov-area-chip ' + dCls + '" title="' + dTitle + '"><span style="color:var(--text-muted);">🩺 OPD:</span> <strong style="color:' + dColor + ';">' + dSign + fmt(rec.dispDiff) + '</strong></span>');
-            }
-
-            if (rec.storDiff !== 0) {
-              const sSign = rec.storDiff > 0 ? '+' : '';
-              const sColor = rec.storDiff > 0 ? '#10b981' : '#ef4444';
-              const sCls = 'mov-area-chip-ward';
-              const sTitle = rec.storDiff < 0
-                ? 'Inpatient Ward requisition issued from Pharmacy Storage (-' + fmt(Math.abs(rec.storDiff)) + ' u). Current Storage: ' + fmt(rec.curStor)
-                : 'Pharmacy Storage replenished (+' + fmt(rec.storDiff) + ' u). Current Storage: ' + fmt(rec.curStor);
-              areaChips.push('<span class="mov-area-chip ' + sCls + '" title="' + sTitle + '"><span style="color:var(--text-muted);">🏥 Ward/Stor:</span> <strong style="color:' + sColor + ';">' + sSign + fmt(rec.storDiff) + '</strong></span>');
-            }
-
-            if (rec.whseDiff !== 0) {
-              const wSign = rec.whseDiff > 0 ? '+' : '';
-              const wColor = rec.whseDiff > 0 ? '#10b981' : '#ef4444';
-              const wTitle = rec.whseDiff < 0
-                ? 'Warehouse issue/relocation (-' + fmt(Math.abs(rec.whseDiff)) + ' u). Current Warehouse: ' + fmt(rec.curWhse)
-                : 'Warehouse delivery received (+' + fmt(rec.whseDiff) + ' u). Current Warehouse: ' + fmt(rec.curWhse);
-              areaChips.push('<span class="mov-area-chip" title="' + wTitle + '"><span style="color:var(--text-muted);">🏭 Whse:</span> <strong style="color:' + wColor + ';">' + wSign + fmt(rec.whseDiff) + '</strong></span>');
-            }
-
-            if (rec.consDiff !== 0) {
-              const cSign = rec.consDiff > 0 ? '+' : '';
-              const cColor = rec.consDiff > 0 ? '#10b981' : '#ef4444';
-              const cTitle = 'Consignment delta (' + cSign + fmt(rec.consDiff) + ' u). Current Consignment: ' + fmt(rec.curCons);
-              areaChips.push('<span class="mov-area-chip" title="' + cTitle + '"><span style="color:var(--text-muted);">🤝 Consign:</span> <strong style="color:' + cColor + ';">' + cSign + fmt(rec.consDiff) + '</strong></span>');
-            }
-
-            if (rec.poDiff !== 0) {
-              const pSign = rec.poDiff > 0 ? '+' : '';
-              areaChips.push('<span class="mov-area-chip" style="border-color:rgba(168,85,247,0.4);" title="Pending PO/CO changed from ' + fmt(rec.prevPo) + ' to ' + fmt(rec.curPo) + '"><span style="color:#c084fc;">📋 PO: ' + pSign + fmt(rec.poDiff) + '</span></span>');
-            }
-
-            if (areaChips.length === 0) {
-              if (rec.netDiff < 0) {
-                areaChips.push('<span class="mov-area-chip mov-area-chip-direct" title="Hospital-wide central stock deduction on Master Sheet without room breakdown. Click to inspect current room inventory.">🏥 Direct Total Issue: ' + fmt(rec.netDiff) + ' u</span>');
-              } else if (rec.netDiff > 0) {
-                areaChips.push('<span class="mov-area-chip" style="background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.35); color:#10b981;" title="Hospital-wide central restock entered on Master Sheet. Click to inspect current room inventory.">📥 Direct Restock: +' + fmt(rec.netDiff) + ' u</span>');
-              } else {
-                areaChips.push('<span class="text-xs text-muted">Stock Quantity Unchanged</span>');
+            // Column 3: Today's Movement Activity
+            let movementHtml = '';
+            if (rec.isSteady) {
+              movementHtml = '<span class="badge text-xs" style="color:var(--text-muted); background:var(--bg-card2); border:1px solid var(--border-lit); font-weight:600;">⏸️ Steady (0 change)</span>';
+            } else {
+              const chips = [];
+              if (rec.isPureTransfer) {
+                chips.push('<span class="mov-area-chip mov-area-chip-transfer" title="Stock relocated between areas with zero net hospital loss">⇄ Pure Transfer (Net 0)</span>');
               }
+              if (rec.dispDiff !== 0) {
+                const sign = rec.dispDiff > 0 ? '+' : '';
+                const col = rec.dispDiff > 0 ? '#10b981' : '#ef4444';
+                chips.push('<span class="mov-area-chip mov-area-chip-opd" title="OPD Window delta"><span style="color:var(--text-muted);">🩺 OPD:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.dispDiff) + '</strong></span>');
+              }
+              if (rec.storDiff !== 0) {
+                const sign = rec.storDiff > 0 ? '+' : '';
+                const col = rec.storDiff > 0 ? '#10b981' : '#ef4444';
+                chips.push('<span class="mov-area-chip mov-area-chip-ward" title="Ward Storage delta"><span style="color:var(--text-muted);">🏥 Ward:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.storDiff) + '</strong></span>');
+              }
+              if (rec.whseDiff !== 0) {
+                const sign = rec.whseDiff > 0 ? '+' : '';
+                const col = rec.whseDiff > 0 ? '#10b981' : '#ef4444';
+                chips.push('<span class="mov-area-chip" title="Warehouse delta"><span style="color:var(--text-muted);">🏭 Whse:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.whseDiff) + '</strong></span>');
+              }
+              if (rec.consDiff !== 0) {
+                const sign = rec.consDiff > 0 ? '+' : '';
+                const col = rec.consDiff > 0 ? '#10b981' : '#ef4444';
+                chips.push('<span class="mov-area-chip" title="Consignment delta"><span style="color:var(--text-muted);">🤝 Consign:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.consDiff) + '</strong></span>');
+              }
+              if (chips.length === 0 && rec.netDiff !== 0) {
+                if (rec.netDiff < 0) {
+                  chips.push('<span class="mov-area-chip mov-area-chip-direct" title="Hospital-wide central issue on Master Sheet">🏥 Direct Total Issue: ' + fmt(rec.netDiff) + ' u</span>');
+                } else {
+                  chips.push('<span class="mov-area-chip" style="color:#10b981;" title="Restocked delivery">📥 Restocked: +' + fmt(rec.netDiff) + ' u</span>');
+                }
+              }
+              movementHtml = '<div style="display:flex; flex-wrap:wrap; gap:4px;">' + chips.join('') + '</div>';
             }
 
-            const valAbs = Math.abs(rec.valImpact || 0);
-            const valSign = rec.valImpact > 0 ? '+' : (rec.valImpact < 0 ? '-' : '');
-            const valColor = rec.valImpact > 0 ? 'var(--success)' : (rec.valImpact < 0 ? 'var(--danger)' : 'var(--text-muted)');
-            const valHtml = valAbs > 0
-              ? '<strong style="color:' + valColor + ';">' + valSign + '₱' + valAbs.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</strong>' +
-              (rec.unitCost > 0 ? '<div class="text-xs text-muted">@ ₱' + rec.unitCost.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '/u</div>' : '')
-              : '<span class="text-muted">—</span>';
+            // Sheet discrepancy indicator (e.g. PNSS +8,857)
+            if (rec.sheetGap && Math.abs(rec.sheetGap) > 5) {
+              const gSign = rec.sheetGap > 0 ? '+' : '';
+              movementHtml += '<div style="margin-top:3px;"><span class="badge badge-warning text-xs" style="font-size:9.5px; font-weight:600;" title="Google Sheet Column S has ' + gSign + fmt(rec.sheetGap) + ' u unallocated ledger entry not distributed across room columns">⚠️ Sheet Col S: ' + gSign + fmt(rec.sheetGap) + ' u gap</span></div>';
+            }
 
-            const statusChanged = rec.prevStatus !== rec.curStatus;
+            // Column 4: Total On Hand
+            const physicalStock = (rec.curPhysicalStock !== undefined && rec.curPhysicalStock > 0) ? rec.curPhysicalStock : rec.curStock;
+            let varianceSub = '';
+            if (rec.isSteady) {
+              varianceSub = '<div class="text-xs text-muted" style="margin-top:2px;">Steady • 0 change</div>';
+            } else if (rec.netDiff > 0) {
+              varianceSub = '<div class="text-xs" style="color:var(--success); font-weight:700; margin-top:2px;">▲ +' + fmt(rec.netDiff) + ' u added</div>';
+            } else if (rec.netDiff < 0) {
+              varianceSub = '<div class="text-xs" style="color:var(--danger); font-weight:700; margin-top:2px;">▼ ' + fmt(rec.netDiff) + ' u consumed</div>';
+            } else if (rec.isPureTransfer) {
+              varianceSub = '<div class="text-xs text-muted" style="color:#f59e0b; font-weight:600; margin-top:2px;">⇄ Room transfer</div>';
+            }
+
+            // Column 5: Stock Health
+            const statusChanged = rec.prevStatus !== rec.curStatus && !rec.isSteady;
             const statusShiftHtml = statusChanged
-              ? '<div style="font-size:10.5px; font-weight:700; margin-top:4px; color:' + (isItemCriticalRiskShift(rec) ? 'var(--danger)' : 'var(--accent)') + ';">' +
-              statusMiniLabel(rec.prevStatus) + ' → ' + statusMiniLabel(rec.curStatus) + '</div>'
-              : '<div class="text-xs text-muted" style="margin-top:3px;">' + fmtD(rec.curDays) + ' days on hand</div>';
+              ? '<div style="font-size:10px; font-weight:700; margin-top:3px; color:' + (isItemCriticalRiskShift(rec) ? 'var(--danger)' : 'var(--accent)') + ';">' + statusMiniLabel(rec.prevStatus) + ' → ' + statusMiniLabel(rec.curStatus) + '</div>'
+              : '<div class="text-xs text-muted" style="margin-top:2px;">' + fmtD(rec.curDays) + ' days on hand</div>';
 
-            const clickCode = String(rec.item_code || rec.code || '').replace(/'/g, "\\'");
+            const clickCode = encodeURIComponent(String(rec.item_code || rec.code || ''));
 
-            html += '<tr style="cursor:pointer;" onclick="openItemModal(\'' + clickCode + '\')" title="Click to inspect full inventory & area breakdown for ' + (rec.desc || '').replace(/"/g, '&quot;') + '">' +
+            html += '<tr style="cursor:pointer;" onclick="openItemModal(decodeURIComponent(\'' + clickCode + '\'))" title="Click to view full room breakdown and lot details for ' + (rec.desc || '').replace(/"/g, '&quot;') + '">' +
               '<td class="text-center text-muted" style="font-weight:600;">' + (start + idx + 1) + '</td>' +
-              '<td class="code"><span class="dci-badge">' + displayCode + '</span><div class="text-xs text-muted" style="margin-top:2px; font-size:10px;">' + (rec.item_code || '') + '</div></td>' +
-              '<td class="text-center" onclick="event.stopPropagation();">' + locBadgeHtml + '</td>' +
-              '<td style="white-space:normal; min-width:220px;">' +
-              '<div style="font-weight:700; color:var(--text-primary); line-height:1.35;">' + (rec.desc || '—') + '</div>' +
-              '<div style="margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">' +
-              '<span class="badge ' + getTypeBadgeClass(rec.pharmacy_category) + ' text-xs">' + formatType(rec.pharmacy_category) + '</span>' +
-              (channelBadgeHtml ? channelBadgeHtml : '') +
-              (rec.pharmacologic_category ? '<span class="text-xs text-muted">' + rec.pharmacologic_category + '</span>' : '') +
+              '<td style="white-space:normal; min-width:240px;">' +
+              '<div style="font-weight:700; color:var(--text-primary); font-size:13px; line-height:1.35;">' + (rec.desc || '—') + '</div>' +
+              '<div style="margin-top:3px; display:flex; align-items:center; gap:5px; flex-wrap:wrap;">' +
+              '<span class="dci-badge" style="font-size:10px; padding:1px 5px;">' + displayCode + '</span>' +
+              '<span class="badge ' + getTypeBadgeClass(rec.pharmacy_category) + ' text-xs" style="font-size:10px;">' + formatType(rec.pharmacy_category) + '</span>' +
+              (locBadgeHtml ? '<span style="font-size:10px;">' + locBadgeHtml + '</span>' : '') +
               '</div>' +
               endUserHtml +
               '</td>' +
-              '<td class="text-center">' + movBadgeHtml + '<div class="text-xs text-muted" style="margin-top:3px; font-weight:600;">' + pctStr + '</div></td>' +
-              '<td class="num-cell">' +
-              '<div style="font-size:13px;"><span class="text-muted">' + fmt(rec.prevStock) + '</span> <span style="color:var(--text-muted);">→</span> <strong style="font-size:14px; color:var(--text-primary);">' + fmt(rec.curStock) + '</strong></div>' +
-              '</td>' +
-              '<td style="white-space:normal;"><div style="display:flex; flex-wrap:wrap; gap:4px;">' + areaChips.join('') + '</div></td>' +
-              '<td class="num-cell">' + valHtml + '</td>' +
-              '<td class="text-center">' + statusBadge(rec.curDays, rec.curStock) + statusShiftHtml + '</td>' +
+              '<td style="white-space:normal; min-width:250px;">' + roomStockHtml + '</td>' +
+              '<td style="white-space:normal; min-width:210px;">' + movementHtml + '</td>' +
+              '<td class="num-cell"><div style="font-size:14.5px; font-weight:800; color:var(--text-primary);">' + fmt(physicalStock) + '</div>' + varianceSub + '</td>' +
+              '<td class="text-center">' + statusBadge(rec.curDays, physicalStock) + statusShiftHtml + '</td>' +
               '</tr>';
           });
 
