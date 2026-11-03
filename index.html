@@ -4253,10 +4253,9 @@
                 <div class="mov-area-grid" id="mov-area-strip">
                   <div class="mov-area-card" data-area="dispensing"
                     onclick="toggleMovementAreaFilter('dispensing', this)"
-                    title="Click to filter items whose Dispensing Area stock (Column BA) changed">
+                    title="Click to filter items whose Dispensing Area (OPD Counter) stock changed">
                     <div class="flex items-center justify-between">
-                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">💊 Dispensing
-                        Area</span>
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">🩺 Dispensing (OPD)</span>
                       <span class="badge badge-accent text-xs" id="mov-area-disp-count">0 items</span>
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
@@ -4265,10 +4264,9 @@
                     </div>
                   </div>
                   <div class="mov-area-card" data-area="storage" onclick="toggleMovementAreaFilter('storage', this)"
-                    title="Click to filter items whose Pharmacy Storage stock (Column BH) changed">
+                    title="Click to filter items whose Pharmacy Storage (In-patient Wards) stock changed">
                     <div class="flex items-center justify-between">
-                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">📦 Pharmacy
-                        Storage</span>
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">🏥 Storage (In-patient Wards)</span>
                       <span class="badge badge-ok text-xs" id="mov-area-stor-count">0 items</span>
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:2px;">
@@ -4307,10 +4305,12 @@
                     <div id="mov-filter-pills" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                       <button type="button" class="ne-filter-pill active" data-mov-pill="ALL"
                         onclick="setMovementFilterMode('ALL')" title="View all medicines in hospital catalog">🏥 All Medicines <span class="badge text-xs" id="mov-pill-cnt-all">0</span></button>
+                      <button type="button" class="ne-filter-pill" data-mov-pill="OPD_INPATIENT"
+                        onclick="setMovementFilterMode('OPD_INPATIENT')" title="Total combined dispensing across OPD Counter and In-patient Wards">🩺 OPD / In-patient Total <span class="badge text-xs badge-accent" id="mov-pill-cnt-opd-inpatient">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="OPD_WALKIN"
-                        onclick="setMovementFilterMode('OPD_WALKIN')" title="Frontline Outpatient &amp; Walk-in Counter dispensing">🩺 OPD Dispensed <span class="badge text-xs badge-accent" id="mov-pill-cnt-opd">0</span></button>
+                        onclick="setMovementFilterMode('OPD_WALKIN')" title="Frontline Outpatient &amp; Walk-in Counter dispensing">🩺 OPD Only <span class="badge text-xs" id="mov-pill-cnt-opd">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="WARD_REQUISITION"
-                        onclick="setMovementFilterMode('WARD_REQUISITION')" title="Inpatient Ward requisitions issued from Storage">🏥 Ward Requisitions <span class="badge text-xs badge-ok" id="mov-pill-cnt-ward">0</span></button>
+                        onclick="setMovementFilterMode('WARD_REQUISITION')" title="Inpatient Ward requisitions issued from Storage">🏥 In-patient Wards <span class="badge text-xs" id="mov-pill-cnt-ward">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="RESTOCKED"
                         onclick="setMovementFilterMode('RESTOCKED')" title="Medicines restocked from deliveries">📥 Restocked (+) <span class="badge text-xs badge-ok" id="mov-pill-cnt-restocked">0</span></button>
                       <button type="button" class="ne-filter-pill" data-mov-pill="DEDUCTED"
@@ -9262,6 +9262,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
           let opdDispCount = 0;
           let wardReqCount = 0;
           let pureTransferCount = 0;
+          let opdInpatientCount = 0;
 
           // Area metrics
           const areaStats = {
@@ -9287,6 +9288,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
             if (rec.isOpdDispensed) opdDispCount++;
             if (rec.isWardRequisition) wardReqCount++;
+            if (rec.isOpdDispensed || rec.isWardRequisition || rec.dispDiff !== 0 || rec.storDiff !== 0) opdInpatientCount++;
             if (rec.isPureTransfer) pureTransferCount++;
 
             if (isItemCriticalRiskShift(rec)) {
@@ -9351,6 +9353,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           // Update Toolbar Filter Pill Live Counters
           setTxt('mov-pill-cnt-all', allStockMovements.length.toLocaleString());
+          setTxt('mov-pill-cnt-opd-inpatient', opdInpatientCount.toLocaleString());
           setTxt('mov-pill-cnt-opd', opdDispCount.toLocaleString());
           setTxt('mov-pill-cnt-ward', wardReqCount.toLocaleString());
           setTxt('mov-pill-cnt-restocked', restockedCount.toLocaleString());
@@ -9431,6 +9434,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             if (movFilterMode === 'RESTOCKED' && rec.netDiff <= 0) return false;
             if (movFilterMode === 'DEDUCTED' && rec.netDiff >= 0) return false;
             if (movFilterMode === 'STEADY' && !rec.isSteady) return false;
+            if (movFilterMode === 'OPD_INPATIENT' && !rec.isOpdDispensed && !rec.isWardRequisition && rec.dispDiff === 0 && rec.storDiff === 0) return false;
             if (movFilterMode === 'OPD_WALKIN' && !rec.isOpdDispensed) return false;
             if (movFilterMode === 'WARD_REQUISITION' && !rec.isWardRequisition) return false;
             if (movFilterMode === 'INTERNAL_TRANSFER' && !rec.isPureTransfer) return false;
@@ -9503,11 +9507,14 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           let bannerTitle = '🏥 ALL HOSPITAL MEDICINES INVENTORY & MOVEMENT';
           let bannerCls = 'ne-tier-banner-9m';
-          if (movFilterMode === 'OPD_WALKIN') {
+          if (movFilterMode === 'OPD_INPATIENT') {
+            bannerTitle = '🩺 OPD & IN-PATIENT HOSPITAL DISPENSING';
+            bannerCls = 'ne-tier-banner-status';
+          } else if (movFilterMode === 'OPD_WALKIN') {
             bannerTitle = '🩺 OPD & WALK-IN COUNTER DISPENSING';
             bannerCls = 'ne-tier-banner-status';
           } else if (movFilterMode === 'WARD_REQUISITION') {
-            bannerTitle = '🏥 WARD & INPATIENT REQUISITIONS (PHARMACY STORAGE)';
+            bannerTitle = '🏥 IN-PATIENT WARD REQUISITIONS (PHARMACY STORAGE)';
             bannerCls = 'ne-tier-banner-6m';
           } else if (movFilterMode === 'RESTOCKED') {
             bannerTitle = '📥 RESTOCKED / REPLENISHED DELIVERIES (+QTY)';
@@ -9568,13 +9575,26 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               }
             }
 
+            // Encircled OPD / In-patient Badge under medicine description
+            let opdInpatientBadgeHtml = '';
+            if (rec.dispDiff !== 0 || rec.storDiff !== 0) {
+              const patientTotal = (rec.dispDiff || 0) + (rec.storDiff || 0);
+              const pSign = patientTotal > 0 ? '+' : '';
+              const parts = [];
+              if (rec.dispDiff !== 0) parts.push('OPD: ' + (rec.dispDiff > 0 ? '+' : '') + fmt(rec.dispDiff));
+              if (rec.storDiff !== 0) parts.push('In-patient: ' + (rec.storDiff > 0 ? '+' : '') + fmt(rec.storDiff));
+              opdInpatientBadgeHtml = '<span class="badge badge-accent text-xs" style="font-size:10px; padding:2px 7px; font-weight:700; background:rgba(14,165,233,0.18); border:1px solid rgba(14,165,233,0.45); color:#38bdf8;" title="Total combined patient dispensing across OPD counter and In-patient wards">' +
+                '🩺 OPD / In-patient: ' + pSign + fmt(patientTotal) + ' u (' + parts.join(', ') + ')' +
+                '</span>';
+            }
+
             // Column 2: Current Physical Stock By Room
             const roomStockHtml = '<div style="display:flex; flex-wrap:wrap; gap:4px;">' +
               '<span class="mov-area-chip mov-area-chip-opd" title="Frontline Outpatient Dispensing Window Stock">' +
               '<span style="color:var(--text-muted);">🩺 OPD:</span> <strong>' + fmt(rec.curDisp) + '</strong>' +
               '</span>' +
-              '<span class="mov-area-chip mov-area-chip-ward" title="Pharmacy Storage Shelf Stock (Hospital Wards)">' +
-              '<span style="color:var(--text-muted);">📦 Stor:</span> <strong>' + fmt(rec.curStor) + '</strong>' +
+              '<span class="mov-area-chip mov-area-chip-ward" title="Pharmacy Storage Shelf Stock (Hospital In-patient Wards)">' +
+              '<span style="color:var(--text-muted);">🏥 In-patient:</span> <strong>' + fmt(rec.curStor) + '</strong>' +
               '</span>' +
               '<span class="mov-area-chip" title="Central Warehouse Pallet Stock">' +
               '<span style="color:var(--text-muted);">🏭 Whse:</span> <strong>' + fmt(rec.curWhse) + '</strong>' +
@@ -9591,15 +9611,23 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               if (rec.isPureTransfer) {
                 chips.push('<span class="mov-area-chip mov-area-chip-transfer" title="Stock relocated between areas with zero net hospital loss">⇄ Pure Transfer (Net 0)</span>');
               }
+              // Combined OPD / In-patient Total Chip
+              if (rec.dispDiff !== 0 || rec.storDiff !== 0) {
+                const patientTotal = (rec.dispDiff || 0) + (rec.storDiff || 0);
+                const pSign = patientTotal > 0 ? '+' : '';
+                const pCol = patientTotal > 0 ? '#10b981' : '#ef4444';
+                chips.push('<span class="mov-area-chip" style="background:rgba(14,165,233,0.16); border:1px solid rgba(14,165,233,0.45); font-weight:700;" title="Combined total of stock dispensed across Outpatient Counter (OPD) and In-patient Wards">' +
+                  '<span style="color:#38bdf8;">🩺 OPD / In-patient Total:</span> <strong style="color:' + pCol + ';">' + pSign + fmt(patientTotal) + ' u</strong></span>');
+              }
               if (rec.dispDiff !== 0) {
                 const sign = rec.dispDiff > 0 ? '+' : '';
                 const col = rec.dispDiff > 0 ? '#10b981' : '#ef4444';
-                chips.push('<span class="mov-area-chip mov-area-chip-opd" title="OPD Window delta"><span style="color:var(--text-muted);">🩺 OPD:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.dispDiff) + '</strong></span>');
+                chips.push('<span class="mov-area-chip mov-area-chip-opd" title="Frontline Outpatient Dispensing Window delta"><span style="color:var(--text-muted);">🩺 OPD:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.dispDiff) + '</strong></span>');
               }
               if (rec.storDiff !== 0) {
                 const sign = rec.storDiff > 0 ? '+' : '';
                 const col = rec.storDiff > 0 ? '#10b981' : '#ef4444';
-                chips.push('<span class="mov-area-chip mov-area-chip-ward" title="Ward Storage delta"><span style="color:var(--text-muted);">🏥 Ward:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.storDiff) + '</strong></span>');
+                chips.push('<span class="mov-area-chip mov-area-chip-ward" title="Inpatient Ward requisition delta from Pharmacy Storage"><span style="color:var(--text-muted);">🏥 In-patient:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.storDiff) + '</strong></span>');
               }
               if (rec.whseDiff !== 0) {
                 const sign = rec.whseDiff > 0 ? '+' : '';
@@ -9656,6 +9684,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               '<span class="dci-badge" style="font-size:10px; padding:1px 5px;">' + displayCode + '</span>' +
               '<span class="badge ' + getTypeBadgeClass(rec.pharmacy_category) + ' text-xs" style="font-size:10px;">' + formatType(rec.pharmacy_category) + '</span>' +
               (locBadgeHtml ? '<span style="font-size:10px;">' + locBadgeHtml + '</span>' : '') +
+              (opdInpatientBadgeHtml ? opdInpatientBadgeHtml : '') +
               '</div>' +
               endUserHtml +
               '</td>' +
