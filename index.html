@@ -3617,29 +3617,66 @@
       color: #ef4444 !important;
     }
 
-    .mov-total-badge {
+    .today-movement-box {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 195px;
+    }
+    .today-mov-total-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 6px;
       padding: 4px 8px;
       border-radius: 6px;
-      font-size: 11px;
-      font-weight: 800;
       background: rgba(14, 165, 233, 0.22);
       border: 1.5px solid #0284c7;
       color: #e0f2fe;
       box-shadow: 0 0 8px rgba(14, 165, 233, 0.25);
-      margin-bottom: 4px;
-      width: 100%;
       box-sizing: border-box;
     }
-    .mov-total-badge .total-val {
-      font-size: 12.5px;
+    .today-mov-total-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .today-mov-total-num {
+      font-size: 14.5px;
       font-weight: 900;
       padding: 1px 7px;
       border-radius: 4px;
       background: rgba(0, 0, 0, 0.35);
+    }
+    .today-mov-channel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .today-mov-channel-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: var(--bg-card2);
+      border: 1px solid var(--border-lit);
+      box-sizing: border-box;
+    }
+    .today-mov-channel-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .today-mov-channel-val {
+      font-size: 14.5px;
+      font-weight: 800;
+      font-family: inherit;
+      white-space: nowrap;
     }
   </style>
 </head>
@@ -9621,19 +9658,20 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               }
             }
 
-            // High-visibility OPD / In-patient Total Badge under medicine description
+            // High-visibility OPD / WARD Total Badge under medicine description
             let opdInpatientBadgeHtml = '';
             if (rec.dispDiff !== 0 || rec.storDiff !== 0) {
               const patientTotal = (rec.dispDiff || 0) + (rec.storDiff || 0);
               const pSign = patientTotal > 0 ? '+' : '';
               const pCol = patientTotal > 0 ? '#10b981' : '#f87171';
               const parts = [];
-              if (rec.dispDiff !== 0) parts.push('OPD: ' + (rec.dispDiff > 0 ? '+' : '') + fmt(rec.dispDiff));
-              if (rec.storDiff !== 0) parts.push('In-patient: ' + (rec.storDiff > 0 ? '+' : '') + fmt(rec.storDiff));
+              if (rec.dispDiff !== 0) parts.push('OPD/walk-in: ' + (rec.dispDiff > 0 ? '+' : '') + fmt(rec.dispDiff) + ' u');
+              if (rec.storDiff !== 0) parts.push('WARD: ' + (rec.storDiff > 0 ? '+' : '') + fmt(rec.storDiff) + ' u');
+              if (rec.inpatientDiff !== undefined && rec.inpatientDiff !== 0) parts.push('IN-patient: ' + (rec.inpatientDiff > 0 ? '+' : '') + fmt(rec.inpatientDiff) + ' u');
               opdInpatientBadgeHtml = '<div style="margin-top:4px;">' +
-                '<span class="badge" style="font-size:11px; padding:3px 9px; font-weight:800; background:rgba(14,165,233,0.22); border:1.5px solid #38bdf8; color:#ffffff; box-shadow:0 0 6px rgba(56,189,248,0.3); display:inline-flex; align-items:center; gap:6px;" title="Total physical stock moved: ' + pSign + fmt(patientTotal) + ' u (OPD: ' + fmt(rec.dispDiff) + ', In-patient: ' + fmt(rec.storDiff) + ')">' +
+                '<span class="badge" style="font-size:11px; padding:3px 9px; font-weight:800; background:rgba(14,165,233,0.22); border:1.5px solid #38bdf8; color:#ffffff; box-shadow:0 0 6px rgba(56,189,248,0.3); display:inline-flex; align-items:center; gap:6px;" title="Total physical stock moved: ' + pSign + fmt(patientTotal) + ' u">' +
                 '<span style="color:#38bdf8; text-transform:uppercase; font-size:10.5px; letter-spacing:0.3px;">🩺 Total Moved:</span>' +
-                '<strong style="color:' + pCol + '; font-size:12.5px; font-weight:900; background:rgba(0,0,0,0.35); padding:1px 6px; border-radius:4px;">' + pSign + fmt(patientTotal) + ' u</strong>' +
+                '<strong style="color:' + pCol + '; font-size:13px; font-weight:900; background:rgba(0,0,0,0.35); padding:1px 6px; border-radius:4px;">' + pSign + fmt(patientTotal) + ' u</strong>' +
                 '<span style="color:var(--text-muted); font-weight:600; font-size:10px; margin-left:2px;">(' + parts.join(' | ') + ')</span>' +
                 '</span>' +
                 '</div>';
@@ -9653,53 +9691,86 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               (rec.curCons > 0 ? '<span class="mov-area-chip" title="Consignment Stock"><span style="color:var(--text-muted);">🤝 Consign:</span> <strong>' + fmt(rec.curCons) + '</strong></span>' : '') +
               '</div>';
 
-            // Column 3: Today's Movement Activity
+            // Column 3: Today's Movement Activity (Simplified OPD/walk-in, WARD, IN-patient with large 14.5px font)
             let movementHtml = '';
             if (rec.isSteady) {
-              movementHtml = '<span class="badge text-xs" style="color:var(--text-muted); background:var(--bg-card2); border:1px solid var(--border-lit); font-weight:600;">⏸️ Steady (0 change)</span>';
+              movementHtml = '<div style="font-size:13px; font-weight:700; color:var(--text-muted); padding:5px 9px; background:var(--bg-card2); border:1px solid var(--border-lit); border-radius:6px; display:inline-block;">⏸️ Steady (0 change)</div>';
             } else {
-              const chips = [];
+              const rows = [];
               if (rec.isPureTransfer) {
-                chips.push('<span class="mov-area-chip mov-area-chip-transfer" title="Stock relocated between areas with zero net hospital loss">⇄ Pure Transfer (Net 0)</span>');
+                rows.push('<div class="today-mov-channel-row" style="border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.1);"><span class="today-mov-channel-name" style="color:#f59e0b;">⇄ Pure Transfer =</span><span class="today-mov-channel-val" style="color:#f59e0b;">Net 0</span></div>');
               }
-              // High-visibility Combined OPD / In-patient Total Banner
-              if (rec.dispDiff !== 0 || rec.storDiff !== 0) {
-                const patientTotal = (rec.dispDiff || 0) + (rec.storDiff || 0);
-                const pSign = patientTotal > 0 ? '+' : '';
-                const pCol = patientTotal > 0 ? '#10b981' : '#f87171';
-                chips.push('<div class="mov-total-badge" title="Combined total of stock dispensed across Outpatient Counter (OPD) and In-patient Wards">' +
-                  '<span><span style="color:#38bdf8;">🩺 OPD + In-patient Total:</span></span>' +
-                  '<span class="total-val" style="color:' + pCol + ';">' + pSign + fmt(patientTotal) + ' u</span>' +
-                  '</div>');
-              }
+
+              // 1. OPD / Walk-In
               if (rec.dispDiff !== 0) {
                 const sign = rec.dispDiff > 0 ? '+' : '';
                 const col = rec.dispDiff > 0 ? '#10b981' : '#ef4444';
-                chips.push('<span class="mov-area-chip mov-area-chip-opd" title="Frontline Outpatient Dispensing Window delta"><span style="color:var(--text-muted);">🩺 OPD:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.dispDiff) + '</strong></span>');
+                rows.push('<div class="today-mov-channel-row" title="Outpatient Dispensing Window: ' + fmt(rec.prevDisp) + ' → ' + fmt(rec.curDisp) + '">' +
+                  '<span class="today-mov-channel-name">🩺 OPD/walk-in =</span>' +
+                  '<span class="today-mov-channel-val" style="color:' + col + ';">' + sign + fmt(rec.dispDiff) + ' u</span>' +
+                  '</div>');
               }
+
+              // 2. WARD (Hospital ward requisitions from storage)
               if (rec.storDiff !== 0) {
                 const sign = rec.storDiff > 0 ? '+' : '';
                 const col = rec.storDiff > 0 ? '#10b981' : '#ef4444';
-                chips.push('<span class="mov-area-chip mov-area-chip-ward" title="Inpatient Ward requisition delta from Pharmacy Storage"><span style="color:var(--text-muted);">🏥 In-patient:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.storDiff) + '</strong></span>');
+                rows.push('<div class="today-mov-channel-row" title="Hospital Ward Requisition / Storage: ' + fmt(rec.prevStor) + ' → ' + fmt(rec.curStor) + '">' +
+                  '<span class="today-mov-channel-name">🏥 WARD =</span>' +
+                  '<span class="today-mov-channel-val" style="color:' + col + ';">' + sign + fmt(rec.storDiff) + ' u</span>' +
+                  '</div>');
               }
+
+              // 3. IN-patient (assuming it is present / logged separately)
+              if (rec.inpatientDiff !== undefined && rec.inpatientDiff !== 0) {
+                const sign = rec.inpatientDiff > 0 ? '+' : '';
+                const col = rec.inpatientDiff > 0 ? '#10b981' : '#ef4444';
+                rows.push('<div class="today-mov-channel-row" title="Inpatient Specialized Unit Allocation">' +
+                  '<span class="today-mov-channel-name">🛌 IN-patient =</span>' +
+                  '<span class="today-mov-channel-val" style="color:' + col + ';">' + sign + fmt(rec.inpatientDiff) + ' u</span>' +
+                  '</div>');
+              }
+
+              // 4. Warehouse (if moved)
               if (rec.whseDiff !== 0) {
                 const sign = rec.whseDiff > 0 ? '+' : '';
                 const col = rec.whseDiff > 0 ? '#10b981' : '#ef4444';
-                chips.push('<span class="mov-area-chip" title="Warehouse delta"><span style="color:var(--text-muted);">🏭 Whse:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.whseDiff) + '</strong></span>');
+                rows.push('<div class="today-mov-channel-row" title="Warehouse Pallet Stock: ' + fmt(rec.prevWhse) + ' → ' + fmt(rec.curWhse) + '">' +
+                  '<span class="today-mov-channel-name">🏭 Whse =</span>' +
+                  '<span class="today-mov-channel-val" style="color:' + col + ';">' + sign + fmt(rec.whseDiff) + ' u</span>' +
+                  '</div>');
               }
+
+              // 5. Consignment (if moved)
               if (rec.consDiff !== 0) {
                 const sign = rec.consDiff > 0 ? '+' : '';
                 const col = rec.consDiff > 0 ? '#10b981' : '#ef4444';
-                chips.push('<span class="mov-area-chip" title="Consignment delta"><span style="color:var(--text-muted);">🤝 Consign:</span> <strong style="color:' + col + ';">' + sign + fmt(rec.consDiff) + '</strong></span>');
+                rows.push('<div class="today-mov-channel-row" title="Consignment Stock Delta: ' + fmt(rec.prevCons) + ' → ' + fmt(rec.curCons) + '">' +
+                  '<span class="today-mov-channel-name">🤝 Consign =</span>' +
+                  '<span class="today-mov-channel-val" style="color:' + col + ';">' + sign + fmt(rec.consDiff) + ' u</span>' +
+                  '</div>');
               }
-              if (chips.length === 0 && rec.netDiff !== 0) {
-                if (rec.netDiff < 0) {
-                  chips.push('<span class="mov-area-chip mov-area-chip-direct" title="Hospital-wide central issue on Master Sheet">🏥 Direct Total Issue: ' + fmt(rec.netDiff) + ' u</span>');
-                } else {
-                  chips.push('<span class="mov-area-chip" style="color:#10b981;" title="Restocked delivery">📥 Restocked: +' + fmt(rec.netDiff) + ' u</span>');
-                }
+
+              // 6. Direct Hospital Issue fallback
+              if (rows.length === 0 && rec.netDiff !== 0) {
+                const sign = rec.netDiff > 0 ? '+' : '';
+                const col = rec.netDiff > 0 ? '#10b981' : '#ef4444';
+                rows.push('<div class="today-mov-channel-row">' +
+                  '<span class="today-mov-channel-name">' + (rec.netDiff < 0 ? '🏥 Direct Issue =' : '📥 Restocked =') + '</span>' +
+                  '<span class="today-mov-channel-val" style="color:' + col + ';">' + sign + fmt(rec.netDiff) + ' u</span>' +
+                  '</div>');
               }
-              movementHtml = '<div style="display:flex; flex-wrap:wrap; gap:4px;">' + chips.join('') + '</div>';
+
+              // Combined Total Movement Banner (Total moved across active patient areas)
+              const totalVal = (rec.dispDiff !== 0 || rec.storDiff !== 0) ? ((rec.dispDiff || 0) + (rec.storDiff || 0)) : rec.netDiff;
+              const pSign = totalVal > 0 ? '+' : '';
+              const pCol = totalVal > 0 ? '#10b981' : '#f87171';
+              const totalBanner = '<div class="today-mov-total-row" title="Combined Total Physical Movement">' +
+                '<span class="today-mov-total-label">TOTAL MOVED:</span>' +
+                '<span class="today-mov-total-num" style="color:' + pCol + ';">' + pSign + fmt(totalVal) + ' u</span>' +
+                '</div>';
+
+              movementHtml = '<div class="today-movement-box">' + totalBanner + '<div class="today-mov-channel-list">' + rows.join('') + '</div></div>';
             }
 
 
