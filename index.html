@@ -5786,7 +5786,7 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 'Connection to Google Sheets is taking longer than expected. You can retry the sync or refresh the page.'
               );
             }
-          }, 20000);
+          }, 45000);
         }
 
         function updateInventoryLoading(title, subtitle) {
@@ -5880,8 +5880,8 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               return;
             }
             const timer = setTimeout(() => {
-              reject(new Error(fnName + ' timed out after 20s'));
-            }, 20000);
+              reject(new Error(fnName + ' timed out after 45s'));
+            }, 45000);
             try {
               google.script.run
                 .withSuccessHandler((res) => {
@@ -7340,7 +7340,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
                 }
 
                 if (!localItems) {
-                  const ghRes = await fetch('https://raw.githubusercontent.com/Chito2K3/pharmacy/31294fadccc67a2750777e80923da6ce8ce0cb26/items.json');
+                  const ghCtrl = new AbortController();
+                  const ghTimer = setTimeout(() => ghCtrl.abort(), 3500);
+                  const ghRes = await fetch('https://raw.githubusercontent.com/Chito2K3/pharmacy/31294fadccc67a2750777e80923da6ce8ce0cb26/items.json', { signal: ghCtrl.signal }).catch(() => null);
+                  clearTimeout(ghTimer);
                   if (ghRes && ghRes.ok) {
                     const parsedGh = await ghRes.json();
                     if (Array.isArray(parsedGh) && parsedGh.length > 0) {
@@ -7388,17 +7391,28 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             });
           }
 
-          try { populateAnalyticsYearDropdown(); } catch (e) { console.warn('Year dropdown error:', e); }
-          try { await loadNearExpiringData(false, false); } catch (e) { console.warn('Near expiring load error:', e); }
+          // --- Immediate Render: Paint core dashboard & stock movements instantly ---
           try { buildDashboard(); } catch (e) { console.warn('Dashboard build error:', e); }
           try { buildInventory(); } catch (e) { console.warn('Inventory build error:', e); }
           try { buildReorder(); } catch (e) { console.warn('Reorder build error:', e); }
-          try { buildNearExpiring(); } catch (e) { console.warn('Near expiring build error:', e); }
           try { buildStockMovements(); } catch (e) { console.warn('Stock movements build error:', e); }
-          try { buildAnalytics(); } catch (e) { console.warn('Analytics build error:', e); }
           try { buildCategoryFilter(); } catch (e) { console.warn('Category filter error:', e); }
+          try { populateAnalyticsYearDropdown(); } catch (e) { console.warn('Year dropdown error:', e); }
+
+          // --- Non-blocking Background Modules: Near Expiry, Locator, Analytics ---
+          loadNearExpiringData(false, false).then(() => {
+            try { buildNearExpiring(); } catch (e) { }
+            try {
+              const el = document.getElementById('kpi-nearexpiry');
+              if (el) el.textContent = (allNearExpiring ? allNearExpiring.length : 0).toLocaleString();
+              const b = document.getElementById('near-expiry-badge');
+              if (b) b.textContent = (allNearExpiring ? allNearExpiring.length : 0).toString();
+            } catch (e) { }
+          }).catch(e => console.warn('Near expiring load error:', e));
+
+          try { buildAnalytics(); } catch (e) { console.warn('Analytics build error:', e); }
           try { renderLocatorGrid(); } catch (e) { console.warn('Locator grid error:', e); }
-          try { loadLocatorData(); } catch (e) { console.warn('Locator data load error:', e); }
+          loadLocatorData().catch(e => console.warn('Locator data load error:', e));
         }
 
         function loadSampleData() {
@@ -8470,7 +8484,10 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
           // 1. Live Google Sheet CSV Fetch (gid=2052140349 or configured GID)
           try {
-            const res = await fetch(getNearExpiryCsvUrl(), { cache: 'no-store' });
+            const neCtrl = new AbortController();
+            const neTimer = setTimeout(() => neCtrl.abort(), 6000);
+            const res = await fetch(getNearExpiryCsvUrl(), { signal: neCtrl.signal, cache: 'no-store' });
+            clearTimeout(neTimer);
             if (res.ok) {
               const csvText = await res.text();
               if (csvText && !csvText.trim().startsWith('<!DOCTYPE') && !csvText.trim().startsWith('<html')) {
