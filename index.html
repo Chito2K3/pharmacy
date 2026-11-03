@@ -9653,11 +9653,6 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               movementHtml = '<div style="display:flex; flex-wrap:wrap; gap:4px;">' + chips.join('') + '</div>';
             }
 
-            // Sheet discrepancy indicator (e.g. PNSS +8,857)
-            if (rec.sheetGap && Math.abs(rec.sheetGap) > 5) {
-              const gSign = rec.sheetGap > 0 ? '+' : '';
-              movementHtml += '<div style="margin-top:3px;"><span class="badge badge-warning text-xs" style="font-size:9.5px; font-weight:600;" title="Google Sheet Column S has ' + gSign + fmt(rec.sheetGap) + ' u unallocated ledger entry not distributed across room columns">⚠️ Sheet Col S: ' + gSign + fmt(rec.sheetGap) + ' u gap</span></div>';
-            }
 
             // Column 4: Total On Hand
             const physicalStock = (rec.curPhysicalStock !== undefined && rec.curPhysicalStock > 0) ? rec.curPhysicalStock : rec.curStock;
