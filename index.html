@@ -3616,6 +3616,31 @@
       border-color: rgba(239, 68, 68, 0.35) !important;
       color: #ef4444 !important;
     }
+
+    .mov-total-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(14, 165, 233, 0.22);
+      border: 1.5px solid #0284c7;
+      color: #e0f2fe;
+      box-shadow: 0 0 8px rgba(14, 165, 233, 0.25);
+      margin-bottom: 4px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .mov-total-badge .total-val {
+      font-size: 12.5px;
+      font-weight: 900;
+      padding: 1px 7px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.35);
+    }
   </style>
 </head>
 
@@ -9596,17 +9621,22 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               }
             }
 
-            // Encircled OPD / In-patient Badge under medicine description
+            // High-visibility OPD / In-patient Total Badge under medicine description
             let opdInpatientBadgeHtml = '';
             if (rec.dispDiff !== 0 || rec.storDiff !== 0) {
               const patientTotal = (rec.dispDiff || 0) + (rec.storDiff || 0);
               const pSign = patientTotal > 0 ? '+' : '';
+              const pCol = patientTotal > 0 ? '#10b981' : '#f87171';
               const parts = [];
               if (rec.dispDiff !== 0) parts.push('OPD: ' + (rec.dispDiff > 0 ? '+' : '') + fmt(rec.dispDiff));
               if (rec.storDiff !== 0) parts.push('In-patient: ' + (rec.storDiff > 0 ? '+' : '') + fmt(rec.storDiff));
-              opdInpatientBadgeHtml = '<span class="badge badge-accent text-xs" style="font-size:10px; padding:2px 7px; font-weight:700; background:rgba(14,165,233,0.18); border:1px solid rgba(14,165,233,0.45); color:#38bdf8;" title="Total combined patient dispensing across OPD counter and In-patient wards">' +
-                '🩺 OPD / In-patient: ' + pSign + fmt(patientTotal) + ' u (' + parts.join(', ') + ')' +
-                '</span>';
+              opdInpatientBadgeHtml = '<div style="margin-top:4px;">' +
+                '<span class="badge" style="font-size:11px; padding:3px 9px; font-weight:800; background:rgba(14,165,233,0.22); border:1.5px solid #38bdf8; color:#ffffff; box-shadow:0 0 6px rgba(56,189,248,0.3); display:inline-flex; align-items:center; gap:6px;" title="Total physical stock moved: ' + pSign + fmt(patientTotal) + ' u (OPD: ' + fmt(rec.dispDiff) + ', In-patient: ' + fmt(rec.storDiff) + ')">' +
+                '<span style="color:#38bdf8; text-transform:uppercase; font-size:10.5px; letter-spacing:0.3px;">🩺 Total Moved:</span>' +
+                '<strong style="color:' + pCol + '; font-size:12.5px; font-weight:900; background:rgba(0,0,0,0.35); padding:1px 6px; border-radius:4px;">' + pSign + fmt(patientTotal) + ' u</strong>' +
+                '<span style="color:var(--text-muted); font-weight:600; font-size:10px; margin-left:2px;">(' + parts.join(' | ') + ')</span>' +
+                '</span>' +
+                '</div>';
             }
 
             // Column 2: Current Physical Stock By Room
@@ -9632,13 +9662,15 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
               if (rec.isPureTransfer) {
                 chips.push('<span class="mov-area-chip mov-area-chip-transfer" title="Stock relocated between areas with zero net hospital loss">⇄ Pure Transfer (Net 0)</span>');
               }
-              // Combined OPD / In-patient Total Chip
+              // High-visibility Combined OPD / In-patient Total Banner
               if (rec.dispDiff !== 0 || rec.storDiff !== 0) {
                 const patientTotal = (rec.dispDiff || 0) + (rec.storDiff || 0);
                 const pSign = patientTotal > 0 ? '+' : '';
-                const pCol = patientTotal > 0 ? '#10b981' : '#ef4444';
-                chips.push('<span class="mov-area-chip" style="background:rgba(14,165,233,0.16); border:1px solid rgba(14,165,233,0.45); font-weight:700;" title="Combined total of stock dispensed across Outpatient Counter (OPD) and In-patient Wards">' +
-                  '<span style="color:#38bdf8;">🩺 OPD / In-patient Total:</span> <strong style="color:' + pCol + ';">' + pSign + fmt(patientTotal) + ' u</strong></span>');
+                const pCol = patientTotal > 0 ? '#10b981' : '#f87171';
+                chips.push('<div class="mov-total-badge" title="Combined total of stock dispensed across Outpatient Counter (OPD) and In-patient Wards">' +
+                  '<span><span style="color:#38bdf8;">🩺 OPD + In-patient Total:</span></span>' +
+                  '<span class="total-val" style="color:' + pCol + ';">' + pSign + fmt(patientTotal) + ' u</span>' +
+                  '</div>');
               }
               if (rec.dispDiff !== 0) {
                 const sign = rec.dispDiff > 0 ? '+' : '';
@@ -9677,9 +9709,9 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
             if (rec.isSteady) {
               varianceSub = '<div class="text-xs text-muted" style="margin-top:2px;">Steady • 0 change</div>';
             } else if (rec.netDiff > 0) {
-              varianceSub = '<div class="text-xs" style="color:var(--success); font-weight:700; margin-top:2px;">▲ +' + fmt(rec.netDiff) + ' u added</div>';
+              varianceSub = '<div style="margin-top:2px;"><span class="badge badge-success text-xs" style="font-size:10px; font-weight:800; padding:1px 6px;">▲ +' + fmt(rec.netDiff) + ' u total</span></div>';
             } else if (rec.netDiff < 0) {
-              varianceSub = '<div class="text-xs" style="color:var(--danger); font-weight:700; margin-top:2px;">▼ ' + fmt(rec.netDiff) + ' u consumed</div>';
+              varianceSub = '<div style="margin-top:2px;"><span class="badge badge-danger text-xs" style="font-size:10px; font-weight:800; padding:1px 6px;">▼ ' + fmt(rec.netDiff) + ' u total</span></div>';
             } else if (rec.isPureTransfer) {
               varianceSub = '<div class="text-xs text-muted" style="color:#f59e0b; font-weight:600; margin-top:2px;">⇄ Room transfer</div>';
             }
