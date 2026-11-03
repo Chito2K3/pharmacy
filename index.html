@@ -6750,9 +6750,13 @@ stor@h.gov.ph  | Storage     | Staff B       | TRUE</code>
 
                 const areaTransferred = hasAreaDetail && (dispDiff !== 0 || storDiff !== 0 || whseDiff !== 0 || consDiff !== 0);
 
-                // Reconciled effective delta:
-                // When sub-room numbers changed, physicalDelta represents actual inventory movement!
-                const effectiveDiff = (hasAreaDetail && areaTransferred) ? physicalDelta : sheetDiff;
+                // Reconciled physical truth:
+                // Sub-room sums (Dispensing + Storage + Warehouse + Consignment) represent actual physical inventory.
+                // If room details are tracked, physicalDelta is the real movement.
+                // This prevents Column S formula gaps (e.g. omitting Storage) from inventing phantom deductions or deliveries.
+                const effectiveCurStock = (curPhysicalStock > 0) ? curPhysicalStock : curStock;
+                const effectivePrevStock = (hasAreaDetail && prevPhysicalStock > 0) ? prevPhysicalStock : prevStock;
+                const effectiveDiff = hasAreaDetail ? physicalDelta : (curPhysicalStock > 0 && Math.abs(curPhysicalStock - prevStock) < Math.abs(curStock - prevStock) ? (curPhysicalStock - prevStock) : sheetDiff);
                 const isMoved = (effectiveDiff !== 0 || poDiff !== 0 || areaTransferred);
 
                 const isPureTransfer = (effectiveDiff === 0 && areaTransferred);
