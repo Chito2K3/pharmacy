@@ -9,7 +9,7 @@
     "EXPIRING WITHIN 6 MONTHS",
     "EXPIRING WITHIN 9 MONTHS"
   ],
-  "syncedAt": "2026-11-04T01:47:14.839729Z",
+  "syncedAt": "2026-11-05T01:55:10.965465Z",
   "items": [
     {
       "id": 1,
@@ -468,8 +468,8 @@
       "gl_note": "",
       "followup_note": "PHILPHARMAWEALTH INC",
       "extra_note": "2026-04-082 2ndCO",
-      "unit_cost": 384.0,
-      "estimated_value_php": 17280.0
+      "unit_cost": 387.18,
+      "estimated_value_php": 17423.1
     },
     {
       "id": 21,
@@ -928,8 +928,8 @@
       "gl_note": "",
       "followup_note": "",
       "extra_note": "",
-      "unit_cost": 384.0,
-      "estimated_value_php": 55680.0
+      "unit_cost": 387.18,
+      "estimated_value_php": 56141.1
     },
     {
       "id": 41,
