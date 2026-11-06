@@ -1,17 +1,17 @@
 {
-  "manualDateRaw": "11/05/2026",
-  "manualDateFormatted": "11/05/2026",
+  "manualDateRaw": "11/06/2026",
+  "manualDateFormatted": "11/06/2026",
   "daysSinceCellDate": 0,
-  "effectiveDate": "2026-11-05T01:55:10.858657Z",
+  "effectiveDate": "2026-11-06T01:57:13.437103Z",
   "effectiveType": "content_verified",
   "daysSinceUpdate": 0,
   "isStale": false,
   "staleThresholdDays": 3,
-  "contentFingerprint": "2667_1536522_147517444_2689853_f6852139",
+  "contentFingerprint": "2667_1587366_149527085_2689853_fd3f5c37",
   "totalItems": 2667,
-  "totalReorders": 1816,
-  "totalStockQty": 1536522,
-  "totalInventoryValue": 147517444.19,
+  "totalReorders": 1817,
+  "totalStockQty": 1587366,
+  "totalInventoryValue": 149527085.32,
   "lastItemNo": "2667",
   "lastItemCode": "DMEP1040406000-0524",
   "sheetUrl": "https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801",
@@ -20,5 +20,5 @@
   "nearExpiryAsOfDate": "as of October 06, 2026",
   "nearExpiryFingerprint": "55_38098_c1836070",
   "totalNearExpiring": 55,
-  "syncTimestamp": "2026-11-05T01:55:10.858670Z"
+  "syncTimestamp": "2026-11-06T01:57:13.437112Z"
 }
