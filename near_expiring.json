@@ -2,14 +2,14 @@
   "asOfDate": "as of October 06, 2026",
   "gid": "2052140349",
   "sheetUrl": "https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=2052140349#gid=2052140349",
-  "fingerprint": "55_38098_c1836070",
-  "totalItems": 55,
+  "fingerprint": "57_39238_222cc9b7",
+  "totalItems": 57,
   "tiers": [
     "EXPIRING WITHIN 3 MONTHS",
     "EXPIRING WITHIN 6 MONTHS",
     "EXPIRING WITHIN 9 MONTHS"
   ],
-  "syncedAt": "2026-11-09T01:20:35.810853Z",
+  "syncedAt": "2026-11-10T03:54:21.309121Z",
   "items": [
     {
       "id": 1,
@@ -220,6 +220,52 @@
     },
     {
       "id": 10,
+      "no": "10",
+      "item_code": "DMDON001159",
+      "master_item_code": "",
+      "description": "(DON) POTASSIUM CHLORIDE 750MG TABLET",
+      "pharmacy_category": "Donation",
+      "total_qty": 900.0,
+      "dispensing_qty": 0.0,
+      "storage_qty": 0.0,
+      "warehouse_qty": 0.0,
+      "expiration_date": "DECEMBER 2026",
+      "horizon_tier": "EXPIRING WITHIN 3 MONTHS",
+      "audit_note": "",
+      "impact_date": "",
+      "requesting_end_users": "",
+      "status": "",
+      "gl_note": "",
+      "followup_note": "",
+      "extra_note": "",
+      "unit_cost": 0.0,
+      "estimated_value_php": 0.0
+    },
+    {
+      "id": 11,
+      "no": "11",
+      "item_code": "DMDON001158",
+      "master_item_code": "",
+      "description": "(DON) NIFEDIPINE 30MG CAPSULE",
+      "pharmacy_category": "Donation",
+      "total_qty": 240.0,
+      "dispensing_qty": 0.0,
+      "storage_qty": 0.0,
+      "warehouse_qty": 0.0,
+      "expiration_date": "NOVEMBER 2026",
+      "horizon_tier": "EXPIRING WITHIN 3 MONTHS",
+      "audit_note": "",
+      "impact_date": "",
+      "requesting_end_users": "",
+      "status": "",
+      "gl_note": "",
+      "followup_note": "",
+      "extra_note": "",
+      "unit_cost": 0.0,
+      "estimated_value_php": 0.0
+    },
+    {
+      "id": 12,
       "no": "1",
       "item_code": "DMDON001151",
       "master_item_code": "DMDON1040406000-0856",
@@ -242,7 +288,7 @@
       "estimated_value_php": 23344.23
     },
     {
-      "id": 11,
+      "id": 13,
       "no": "2",
       "item_code": "DMDON001134",
       "master_item_code": "DMDON104046000-183",
@@ -265,7 +311,7 @@
       "estimated_value_php": 68136.92
     },
     {
-      "id": 12,
+      "id": 14,
       "no": "3",
       "item_code": "DMDON000506",
       "master_item_code": "DMDON1040406000-0846",
@@ -288,7 +334,7 @@
       "estimated_value_php": 996.0
     },
     {
-      "id": 13,
+      "id": 15,
       "no": "4",
       "item_code": "DMR000028",
       "master_item_code": "DMR1040406000-0014",
@@ -311,7 +357,7 @@
       "estimated_value_php": 38310.79
     },
     {
-      "id": 14,
+      "id": 16,
       "no": "5",
       "item_code": "DMR000068",
       "master_item_code": "DMR1040406000-0042",
@@ -334,8 +380,8 @@
       "estimated_value_php": 34200.0
     },
     {
-      "id": 15,
-      "no": "15",
+      "id": 17,
+      "no": "17",
       "item_code": "DMR000107",
       "master_item_code": "DMR1040406000-0061",
       "description": "ATRACURIUM BESILATE 10MG/ML, 2.5ML AMPULE (IV)",
@@ -357,7 +403,7 @@
       "estimated_value_php": 4987.4
     },
     {
-      "id": 16,
+      "id": 18,
       "no": "6",
       "item_code": "DMR000112",
       "master_item_code": "DMR1040406000-0065",
@@ -380,7 +426,7 @@
       "estimated_value_php": 5689.0
     },
     {
-      "id": 17,
+      "id": 19,
       "no": "7",
       "item_code": "DMR000126",
       "master_item_code": "DMR1040406000-0559",
@@ -403,7 +449,7 @@
       "estimated_value_php": 450586.0
     },
     {
-      "id": 18,
+      "id": 20,
       "no": "8",
       "item_code": "DMR000157",
       "master_item_code": "DMR1040406000-0084",
@@ -426,7 +472,7 @@
       "estimated_value_php": 501500.0
     },
     {
-      "id": 19,
+      "id": 21,
       "no": "9",
       "item_code": "DMR000155",
       "master_item_code": "DMR1040406000-0085",
@@ -449,7 +495,7 @@
       "estimated_value_php": 44164.96
     },
     {
-      "id": 20,
+      "id": 22,
       "no": "10",
       "item_code": "DMR000192",
       "master_item_code": "DMR1040406000-0561",
@@ -472,7 +518,7 @@
       "estimated_value_php": 17423.1
     },
     {
-      "id": 21,
+      "id": 23,
       "no": "11",
       "item_code": "DMR000273",
       "master_item_code": "DMR1040406000-0132",
@@ -495,7 +541,7 @@
       "estimated_value_php": 2842.0
     },
     {
-      "id": 22,
+      "id": 24,
       "no": "12",
       "item_code": "DMR000328",
       "master_item_code": "DMR1040406000-0661",
@@ -518,7 +564,7 @@
       "estimated_value_php": 35502.0
     },
     {
-      "id": 23,
+      "id": 25,
       "no": "13",
       "item_code": "DMR000363",
       "master_item_code": "DMR1040406000-0177",
@@ -541,7 +587,7 @@
       "estimated_value_php": 25971.0
     },
     {
-      "id": 24,
+      "id": 26,
       "no": "14",
       "item_code": "DMR000563",
       "master_item_code": "DMR1040406000-0570",
@@ -564,7 +610,7 @@
       "estimated_value_php": 407000.0
     },
     {
-      "id": 25,
+      "id": 27,
       "no": "15",
       "item_code": "DMR000630",
       "master_item_code": "DMR1040406000-0494",
@@ -587,7 +633,7 @@
       "estimated_value_php": 72321.39
     },
     {
-      "id": 26,
+      "id": 28,
       "no": "16",
       "item_code": "DMR000693",
       "master_item_code": "DMR1040406000-0305",
@@ -610,7 +656,7 @@
       "estimated_value_php": 66150.0
     },
     {
-      "id": 27,
+      "id": 29,
       "no": "17",
       "item_code": "DMR000694",
       "master_item_code": "DMR1040406000-0306",
@@ -633,7 +679,7 @@
       "estimated_value_php": 123192.0
     },
     {
-      "id": 28,
+      "id": 30,
       "no": "18",
       "item_code": "DMR000741",
       "master_item_code": "DMR1040406000-0327",
@@ -656,7 +702,7 @@
       "estimated_value_php": 209.4
     },
     {
-      "id": 29,
+      "id": 31,
       "no": "19",
       "item_code": "DMR000830",
       "master_item_code": "DMR1040406000-0786",
@@ -679,7 +725,7 @@
       "estimated_value_php": 109150.0
     },
     {
-      "id": 30,
+      "id": 32,
       "no": "20",
       "item_code": "DMR000844",
       "master_item_code": "DMR1040406000-0376",
@@ -702,7 +748,7 @@
       "estimated_value_php": 38790.9
     },
     {
-      "id": 31,
+      "id": 33,
       "no": "21",
       "item_code": "DMR000968",
       "master_item_code": "DMR1040406000-0580",
@@ -725,7 +771,7 @@
       "estimated_value_php": 1232000.0
     },
     {
-      "id": 32,
+      "id": 34,
       "no": "22",
       "item_code": "DMR000990",
       "master_item_code": "DMR1040406000-0426",
@@ -748,7 +794,7 @@
       "estimated_value_php": 36000.0
     },
     {
-      "id": 33,
+      "id": 35,
       "no": "23",
       "item_code": "DMR001001",
       "master_item_code": "DMR1040406000-0432",
@@ -771,7 +817,7 @@
       "estimated_value_php": 7875.0
     },
     {
-      "id": 34,
+      "id": 36,
       "no": "24",
       "item_code": "DMR001051",
       "master_item_code": "DMR1040406000-0453",
@@ -794,7 +840,7 @@
       "estimated_value_php": 8265.0
     },
     {
-      "id": 35,
+      "id": 37,
       "no": "1",
       "item_code": "DMR000071",
       "master_item_code": "DMR1040406000-0045",
@@ -817,7 +863,7 @@
       "estimated_value_php": 25625.22
     },
     {
-      "id": 36,
+      "id": 38,
       "no": "2",
       "item_code": "DMR000071",
       "master_item_code": "DMR1040406000-0045",
@@ -840,7 +886,7 @@
       "estimated_value_php": 47920.0
     },
     {
-      "id": 37,
+      "id": 39,
       "no": "3",
       "item_code": "DMR000073",
       "master_item_code": "DMR1040406000-0047",
@@ -863,7 +909,7 @@
       "estimated_value_php": 7970.5
     },
     {
-      "id": 38,
+      "id": 40,
       "no": "4",
       "item_code": "DMR000113",
       "master_item_code": "DMR1040406000-0064",
@@ -886,7 +932,7 @@
       "estimated_value_php": 2331.6
     },
     {
-      "id": 39,
+      "id": 41,
       "no": "5",
       "item_code": "DMR000127",
       "master_item_code": "DMR1040406000-0619",
@@ -909,7 +955,7 @@
       "estimated_value_php": 299753.5
     },
     {
-      "id": 40,
+      "id": 42,
       "no": "6",
       "item_code": "DMR000192",
       "master_item_code": "DMR1040406000-0561",
@@ -932,7 +978,7 @@
       "estimated_value_php": 56141.1
     },
     {
-      "id": 41,
+      "id": 43,
       "no": "7",
       "item_code": "DMR000193",
       "master_item_code": "DMR1040406000-0097",
@@ -955,7 +1001,7 @@
       "estimated_value_php": 120828.8
     },
     {
-      "id": 42,
+      "id": 44,
       "no": "8",
       "item_code": "DMR000194",
       "master_item_code": "DMR1040406000-0096",
@@ -978,7 +1024,7 @@
       "estimated_value_php": 3640.0
     },
     {
-      "id": 43,
+      "id": 45,
       "no": "9",
       "item_code": "DMR000232",
       "master_item_code": "DMR1040406000-0117",
@@ -1001,7 +1047,7 @@
       "estimated_value_php": 32353.9
     },
     {
-      "id": 44,
+      "id": 46,
       "no": "10",
       "item_code": "DMR000380",
       "master_item_code": "DMR1040406000-0183",
@@ -1024,7 +1070,7 @@
       "estimated_value_php": 21951.01
     },
     {
-      "id": 45,
+      "id": 47,
       "no": "11",
       "item_code": "DMR000382",
       "master_item_code": "DMR1040406000-0525",
@@ -1047,7 +1093,7 @@
       "estimated_value_php": 58880.0
     },
     {
-      "id": 46,
+      "id": 48,
       "no": "12",
       "item_code": "DMR000506",
       "master_item_code": "DMR1040406000-0233",
@@ -1070,7 +1116,7 @@
       "estimated_value_php": 10675.5
     },
     {
-      "id": 47,
+      "id": 49,
       "no": "13",
       "item_code": "DMR000541",
       "master_item_code": "DMR1040406000-0245",
@@ -1093,7 +1139,7 @@
       "estimated_value_php": 48281.1
     },
     {
-      "id": 48,
+      "id": 50,
       "no": "14",
       "item_code": "DMR000640",
       "master_item_code": "DMR1040406000-0861",
@@ -1112,11 +1158,11 @@
       "gl_note": "",
       "followup_note": "",
       "extra_note": "",
-      "unit_cost": 198.94,
-      "estimated_value_php": 58289.42
+      "unit_cost": 198.51,
+      "estimated_value_php": 58163.43
     },
     {
-      "id": 49,
+      "id": 51,
       "no": "15",
       "item_code": "DMR000645",
       "master_item_code": "DMR1040406000-0283",
@@ -1139,7 +1185,7 @@
       "estimated_value_php": 26986.4
     },
     {
-      "id": 50,
+      "id": 52,
       "no": "16",
       "item_code": "DMR000652",
       "master_item_code": "DMR1040406000-0289",
@@ -1162,7 +1208,7 @@
       "estimated_value_php": 32693.05
     },
     {
-      "id": 51,
+      "id": 53,
       "no": "17",
       "item_code": "DMR000803",
       "master_item_code": "DMR1040406000-0361",
@@ -1185,7 +1231,7 @@
       "estimated_value_php": 16900.0
     },
     {
-      "id": 52,
+      "id": 54,
       "no": "18",
       "item_code": "DMR000829",
       "master_item_code": "DMR1040406000-0583",
@@ -1208,7 +1254,7 @@
       "estimated_value_php": 571508.8
     },
     {
-      "id": 53,
+      "id": 55,
       "no": "19",
       "item_code": "DMR000967",
       "master_item_code": "DMR1040406000-0578",
@@ -1231,7 +1277,7 @@
       "estimated_value_php": 723564.0
     },
     {
-      "id": 54,
+      "id": 56,
       "no": "20",
       "item_code": "DMR000988",
       "master_item_code": "DMR1040406000-0818",
@@ -1254,7 +1300,7 @@
       "estimated_value_php": 1152.0
     },
     {
-      "id": 55,
+      "id": 57,
       "no": "21",
       "item_code": "DMR000989",
       "master_item_code": "DMR1040406000-0425",
