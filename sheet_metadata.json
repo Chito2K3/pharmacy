@@ -1,8 +1,8 @@
 {
   "manualDateRaw": "11/12/2026",
   "manualDateFormatted": "11/12/2026",
-  "daysSinceCellDate": 0,
-  "effectiveDate": "2026-11-12T02:38:00.488734Z",
+  "daysSinceCellDate": 1,
+  "effectiveDate": "2026-11-13T02:18:26.827708Z",
   "effectiveType": "content_verified",
   "daysSinceUpdate": 0,
   "isStale": false,
@@ -20,5 +20,5 @@
   "nearExpiryAsOfDate": "as of October 06, 2026",
   "nearExpiryFingerprint": "57_39238_222cc9b7",
   "totalNearExpiring": 57,
-  "syncTimestamp": "2026-11-12T02:38:00.488757Z"
+  "syncTimestamp": "2026-11-13T02:18:26.827720Z"
 }
