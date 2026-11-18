@@ -9,7 +9,7 @@
     "EXPIRING WITHIN 6 MONTHS",
     "EXPIRING WITHIN 9 MONTHS"
   ],
-  "syncedAt": "2026-11-17T04:15:57.144420Z",
+  "syncedAt": "2026-11-18T03:15:55.134775Z",
   "items": [
     {
       "id": 1,
@@ -222,9 +222,9 @@
       "id": 10,
       "no": "10",
       "item_code": "DMDON001159",
-      "master_item_code": "",
+      "master_item_code": "DMDON001159",
       "description": "(DON) POTASSIUM CHLORIDE 750MG TABLET",
-      "pharmacy_category": "Donation",
+      "pharmacy_category": "",
       "total_qty": 900.0,
       "dispensing_qty": 0.0,
       "storage_qty": 0.0,
@@ -238,16 +238,16 @@
       "gl_note": "",
       "followup_note": "",
       "extra_note": "",
-      "unit_cost": 0.0,
-      "estimated_value_php": 0.0
+      "unit_cost": 9.48,
+      "estimated_value_php": 8532.0
     },
     {
       "id": 11,
       "no": "11",
       "item_code": "DMDON001158",
-      "master_item_code": "",
+      "master_item_code": "DMDON001158",
       "description": "(DON) NIFEDIPINE 30MG CAPSULE",
-      "pharmacy_category": "Donation",
+      "pharmacy_category": "",
       "total_qty": 240.0,
       "dispensing_qty": 0.0,
       "storage_qty": 0.0,
@@ -261,8 +261,8 @@
       "gl_note": "",
       "followup_note": "",
       "extra_note": "",
-      "unit_cost": 0.0,
-      "estimated_value_php": 0.0
+      "unit_cost": 41.53,
+      "estimated_value_php": 9967.2
     },
     {
       "id": 12,
