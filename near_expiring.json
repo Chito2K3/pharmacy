@@ -9,7 +9,7 @@
     "EXPIRING WITHIN 6 MONTHS",
     "EXPIRING WITHIN 9 MONTHS"
   ],
-  "syncedAt": "2026-11-21T02:56:20.454297Z",
+  "syncedAt": "2026-11-22T01:50:08.018363Z",
   "items": [
     {
       "id": 1,
@@ -491,8 +491,8 @@
       "gl_note": "with GL",
       "followup_note": "Isobaric or plain?",
       "extra_note": "",
-      "unit_cost": 134.24,
-      "estimated_value_php": 44164.96
+      "unit_cost": 176.09,
+      "estimated_value_php": 57933.61
     },
     {
       "id": 22,
@@ -1273,8 +1273,8 @@
       "gl_note": "",
       "followup_note": "",
       "extra_note": "",
-      "unit_cost": 8039.6,
-      "estimated_value_php": 723564.0
+      "unit_cost": 6069.38,
+      "estimated_value_php": 546244.2
     },
     {
       "id": 56,
