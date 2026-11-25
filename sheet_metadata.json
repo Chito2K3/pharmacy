@@ -1,17 +1,17 @@
 {
-  "manualDateRaw": "11/24/2026",
-  "manualDateFormatted": "11/24/2026",
+  "manualDateRaw": "11/25/2026",
+  "manualDateFormatted": "11/25/2026",
   "daysSinceCellDate": 0,
-  "effectiveDate": "2026-11-24T05:42:08.499745Z",
+  "effectiveDate": "2026-11-25T04:43:58.993580Z",
   "effectiveType": "content_verified",
   "daysSinceUpdate": 0,
   "isStale": false,
   "staleThresholdDays": 3,
-  "contentFingerprint": "2768_1693677_170427745_2689603_a564e4df",
+  "contentFingerprint": "2768_1838131_137584050_2689603_201084b",
   "totalItems": 2768,
-  "totalReorders": 1748,
-  "totalStockQty": 1693677,
-  "totalInventoryValue": 170427744.83,
+  "totalReorders": 1791,
+  "totalStockQty": 1838131,
+  "totalInventoryValue": 137584049.69,
   "lastItemNo": "2768",
   "lastItemCode": "PRODMR1040406000-017",
   "sheetUrl": "https://docs.google.com/spreadsheets/d/1zLM0_lbs73MMEMgY-QeDOadVYMek8WJXPBxZyI5mvtM/edit?gid=237243801#gid=237243801",
@@ -20,5 +20,5 @@
   "nearExpiryAsOfDate": "as of October 06, 2026",
   "nearExpiryFingerprint": "57_39238_222cc9b7",
   "totalNearExpiring": 57,
-  "syncTimestamp": "2026-11-24T05:42:08.499756Z"
+  "syncTimestamp": "2026-11-25T04:43:58.993591Z"
 }
